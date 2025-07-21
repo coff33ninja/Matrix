@@ -36,12 +36,15 @@ class UnifiedMatrixWebServer:
         self.sites_dir = Path(__file__).parent.parent / "sites"
         self.control_dir = self.sites_dir / "control"
         self.docs_dir = self.sites_dir / "docs"
+        self.errors_dir = self.sites_dir / "errors"
         
         # Ensure directories exist
         if not self.control_dir.exists():
             print(f"❌ Control directory not found: {self.control_dir}")
         if not self.docs_dir.exists():
             print(f"❌ Documentation directory not found: {self.docs_dir}")
+        if not self.errors_dir.exists():
+            print(f"❌ Error pages directory not found: {self.errors_dir}")
     
     def create_landing_page(self):
         """Create the navigation landing page HTML"""
@@ -355,6 +358,10 @@ class UnifiedMatrixWebServer:
             
             def proxy_api_request(self, path, query):
                 """Proxy API requests to the Python controller"""
+                if not requests:
+                    self.serve_503("Requests library not available")
+                    return
+                    
                 try:
                     # Remove /api prefix
                     api_path = path[4:]
@@ -365,13 +372,13 @@ class UnifiedMatrixWebServer:
                     controller_url = f"http://localhost:{server_instance.config.api_proxy_port}{api_path}"
                     
                     if self.command == 'GET':
-                        response = requests.get(controller_url, timeout=10)
+                        response = requests.get(controller_url, timeout=5)
                     elif self.command == 'POST':
                         content_length = int(self.headers.get('Content-Length', 0))
                         post_data = self.rfile.read(content_length)
                         response = requests.post(controller_url, data=post_data, 
                                                headers={'Content-Type': self.headers.get('Content-Type', 'application/json')},
-                                               timeout=10)
+                                               timeout=5)
                     else:
                         self.serve_404()
                         return
@@ -389,118 +396,91 @@ class UnifiedMatrixWebServer:
                     self.serve_503("Python controller not running on port 8080")
                 except requests.exceptions.Timeout:
                     self.serve_503("Controller request timeout")
+                except ConnectionAbortedError:
+                    # Client disconnected - this is normal, don't log as error
+                    pass
                 except Exception as e:
                     print(f"❌ API proxy error: {e}")
                     self.serve_500(str(e))
             
             def serve_404(self):
                 """Serve custom 404 page"""
-                content = """<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found - LED Matrix Control Center</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #f1f1f1; text-align: center; padding: 50px; }
-        .error-container { max-width: 600px; margin: 0 auto; }
-        h1 { color: #e94560; font-size: 3rem; margin-bottom: 20px; }
-        p { font-size: 1.2rem; margin-bottom: 30px; color: #a0a0a0; }
-        .nav-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .nav-link { background: #e94560; color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; transition: all 0.3s ease; }
-        .nav-link:hover { background: #d63384; transform: translateY(-2px); }
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <h1>404 - Page Not Found</h1>
-        <p>The page you're looking for doesn't exist. Try one of these options:</p>
-        <div class="nav-links">
-            <a href="/" class="nav-link">🏠 Home</a>
-            <a href="/control" class="nav-link">🎮 Control Interface</a>
-            <a href="/docs" class="nav-link">📚 Documentation</a>
-        </div>
-    </div>
-</body>
-</html>"""
-                self.send_response(404)
-                self.send_header('Content-Type', 'text/html; charset=utf-8')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(content.encode('utf-8'))
+                try:
+                    error_page_path = server_instance.errors_dir / "404.html"
+                    if error_page_path.exists():
+                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                    else:
+                        # Fallback content if error page doesn't exist
+                        content = """<!DOCTYPE html>
+<html><head><title>404 - Page Not Found</title></head>
+<body><h1>404 - Page Not Found</h1><p>The page you're looking for doesn't exist.</p>
+<a href="/">Return Home</a></body></html>"""
+                    
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(content.encode('utf-8'))
+                except (ConnectionAbortedError, BrokenPipeError):
+                    # Client disconnected - this is normal, just log and continue
+                    print(f"🔌 Client disconnected during 404 response for {self.path}")
+                except Exception as e:
+                    print(f"❌ Error serving 404 page: {e}")
             
             def serve_500(self, error_msg):
                 """Serve custom 500 error page"""
-                content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server Error - LED Matrix Control Center</title>
-    <style>
-        body {{ font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #f1f1f1; text-align: center; padding: 50px; }}
-        .error-container {{ max-width: 600px; margin: 0 auto; }}
-        h1 {{ color: #ef4444; font-size: 3rem; margin-bottom: 20px; }}
-        p {{ font-size: 1.2rem; margin-bottom: 30px; color: #a0a0a0; }}
-        .error-details {{ background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left; }}
-        .nav-link {{ background: #e94560; color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; transition: all 0.3s ease; }}
-        .nav-link:hover {{ background: #d63384; transform: translateY(-2px); }}
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <h1>500 - Server Error</h1>
-        <p>Something went wrong on our end. Please try again later.</p>
-        <div class="error-details">
-            <strong>Error:</strong> {error_msg}
-        </div>
-        <a href="/" class="nav-link">🏠 Return Home</a>
-    </div>
-</body>
-</html>"""
-                self.send_response(500)
-                self.send_header('Content-Type', 'text/html; charset=utf-8')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(content.encode('utf-8'))
+                try:
+                    error_page_path = server_instance.errors_dir / "500.html"
+                    if error_page_path.exists():
+                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        # Replace placeholder with actual error message
+                        content = content.replace('{{ERROR_MESSAGE}}', error_msg)
+                    else:
+                        # Fallback content if error page doesn't exist
+                        content = f"""<!DOCTYPE html>
+<html><head><title>500 - Server Error</title></head>
+<body><h1>500 - Server Error</h1><p>Something went wrong: {error_msg}</p>
+<a href="/">Return Home</a></body></html>"""
+                    
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(content.encode('utf-8'))
+                except (ConnectionAbortedError, BrokenPipeError):
+                    # Client disconnected - this is normal, just log and continue
+                    print(f"🔌 Client disconnected during 500 response for {self.path}")
+                except Exception as e:
+                    print(f"❌ Error serving 500 page: {e}")
             
             def serve_503(self, error_msg):
-                """Serve service unavailable page"""
-                content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Unavailable - LED Matrix Control Center</title>
-    <style>
-        body {{ font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #f1f1f1; text-align: center; padding: 50px; }}
-        .error-container {{ max-width: 600px; margin: 0 auto; }}
-        h1 {{ color: #fbbf24; font-size: 3rem; margin-bottom: 20px; }}
-        p {{ font-size: 1.2rem; margin-bottom: 30px; color: #a0a0a0; }}
-        .help-box {{ background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left; }}
-        .nav-link {{ background: #e94560; color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; transition: all 0.3s ease; }}
-        .nav-link:hover {{ background: #d63384; transform: translateY(-2px); }}
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <h1>503 - Service Unavailable</h1>
-        <p>{error_msg}</p>
-        <div class="help-box">
-            <strong>To fix this:</strong><br>
-            1. Start the Python controller: <code>python matrix.py controller</code><br>
-            2. Ensure port 8080 is not blocked<br>
-            3. Check that the controller is running properly
-        </div>
-        <a href="/" class="nav-link">🏠 Return Home</a>
-    </div>
-</body>
-</html>"""
-                self.send_response(503)
-                self.send_header('Content-Type', 'text/html; charset=utf-8')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(content.encode('utf-8'))
+                """Serve service unavailable page from external file"""
+                try:
+                    error_page_path = server_instance.errors_dir / "503.html"
+                    if error_page_path.exists():
+                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        # Replace placeholder with actual error message
+                        content = content.replace('{{ERROR_MESSAGE}}', error_msg)
+                    else:
+                        # Fallback content if error page doesn't exist
+                        content = f"""<!DOCTYPE html>
+<html><head><title>503 - Service Unavailable</title></head>
+<body><h1>503 - Service Unavailable</h1><p>{error_msg}</p>
+<a href="/">Return Home</a></body></html>"""
+                    
+                    self.send_response(503)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(content.encode('utf-8'))
+                except (ConnectionAbortedError, BrokenPipeError):
+                    # Client disconnected - this is normal, just log and continue
+                    print(f"🔌 Client disconnected during 503 response for {self.path}")
+                except Exception as e:
+                    print(f"❌ Error serving 503 page: {e}")
             
             def send_cors_headers(self):
                 """Send CORS headers if enabled"""

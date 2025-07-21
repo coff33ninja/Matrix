@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Unavailable - LED Matrix Control Center</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #f1f1f1;
+            --text-muted: #a0a0a0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        h1 {
+            color: var(--warning);
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: var(--warning);
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .help-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .help-box strong {
+            color: var(--warning);
+        }
+
+        .help-box code {
+            background: rgba(251, 191, 36, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--text);
+        }
+
+        .nav-link {
+            background: var(--highlight);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .nav-link:hover {
+            background: #d63384;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 4rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">503</div>
+        <h1>Service Unavailable</h1>
+        <p id="error-message">{{ERROR_MESSAGE}}</p>
+        
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Python Controller Status: Offline</span>
+        </div>
+
+        <div class="help-box">
+            <strong>🔧 To fix this issue:</strong><br><br>
+            1. Start the Python controller:<br>
+            <code>python matrix.py controller</code><br><br>
+            2. Ensure port 8080 is not blocked by firewall<br><br>
+            3. Check that the controller is running properly<br><br>
+            4. Verify no other applications are using port 8080
+        </div>
+
+        <div class="help-box">
+            <strong>💡 Alternative Solutions:</strong><br><br>
+            • Use the web interfaces without API features<br>
+            • Check the documentation for troubleshooting<br>
+            • Restart both the web server and controller
+        </div>
+
+        <a href="/" class="nav-link">🏠 Return Home</a>
+    </div>
+
+    <script>
+        // Replace placeholder with actual error message if provided
+        const errorElement = document.getElementById('error-message');
+        if (errorElement.textContent === '{{ERROR_MESSAGE}}') {
+            errorElement.textContent = 'The Python controller service is not available.';
+        }
+
+        // Check controller status periodically
+        async function checkControllerStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    // Controller is back online, redirect to home
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                // Still offline, continue checking
+            }
+        }
+
+        // Check every 5 seconds
+        setInterval(checkControllerStatus, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - LED Matrix Control Center</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #f1f1f1;
+            --text-muted: #a0a0a0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        h1 {
+            color: var(--error);
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: var(--error);
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .error-details {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .nav-link {
+            background: var(--highlight);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .nav-link:hover {
+            background: #d63384;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .help-text {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 4rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">500</div>
+        <h1>Server Error</h1>
+        <p>Something went wrong on our end. We're working to fix it.</p>
+        
+        <div class="help-text">
+            <strong>🔧 What you can try:</strong><br>
+            • Refresh the page in a few moments<br>
+            • Return to the home page<br>
+            • Check if the Python controller is running<br>
+            • Contact support if the problem persists
+        </div>
+
+        <div class="error-details" id="error-details" style="display: none;">
+            <strong>Technical Details:</strong><br>
+            <span id="error-message">{{ERROR_MESSAGE}}</span>
+        </div>
+
+        <a href="/" class="nav-link">🏠 Return Home</a>
+    </div>
+
+    <script>
+        // Show error details if available
+        const errorMessage = document.getElementById('error-message').textContent;
+        if (errorMessage && errorMessage !== '{{ERROR_MESSAGE}}') {
+            document.getElementById('error-details').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
