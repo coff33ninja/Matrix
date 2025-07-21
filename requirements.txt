@@ -1,8 +1,6 @@
-numpy
 opencv-python
 Pillow
 psutil
 pyserial
 requests
-pyserial
-colorsys  # (stdlib - included for completeness)
+# colorsys is a standard library module, no need to install

@@ -1,7 +1,7 @@
 // LED Matrix Control Center - Main Application
 class MatrixController {
     constructor() {
-        this.apiBase = 'http://localhost:8080';
+        this.apiBase = '/api'; // Use an absolute path
         this.connected = false;
         this.matrixSize = { width: 16, height: 16 };
         this.currentPattern = 'solid';
