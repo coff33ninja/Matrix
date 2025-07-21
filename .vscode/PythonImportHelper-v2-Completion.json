@@ -41,6 +41,30 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "ARDUINO_MODELS",
         "importPath": "arduino_models",
         "description": "arduino_models",
@@ -97,6 +121,46 @@
         "documentation": {}
     },
     {
+        "label": "get_model_display_names",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "validate_model",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "get_model_info",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "ARDUINO_MODELS",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "get_model_info",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
         "label": "get_available_models",
         "importPath": "arduino_models",
         "description": "arduino_models",
@@ -113,11 +177,59 @@
         "documentation": {}
     },
     {
-        "label": "config",
-        "importPath": "matrix_config",
-        "description": "matrix_config",
+        "label": "validate_model",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
         "isExtraImport": true,
-        "detail": "matrix_config",
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "get_recommended_model_for_leds",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_power_requirements",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_matrix_dimensions",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_memory_usage",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_refresh_rate",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "get_optimal_pin_configuration",
+        "importPath": "arduino_models",
+        "description": "arduino_models",
+        "isExtraImport": true,
+        "detail": "arduino_models",
         "documentation": {}
     },
     {
@@ -153,12 +265,27 @@
         "documentation": {}
     },
     {
-        "label": "json",
-        "kind": 6,
+        "label": "config",
+        "importPath": "matrix_config",
+        "description": "matrix_config",
         "isExtraImport": true,
-        "importPath": "json",
-        "description": "json",
-        "detail": "json",
+        "detail": "matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "importPath": "matrix_config",
+        "description": "matrix_config",
+        "isExtraImport": true,
+        "detail": "matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "MatrixConfig",
+        "importPath": "matrix_config",
+        "description": "matrix_config",
+        "isExtraImport": true,
+        "detail": "matrix_config",
         "documentation": {}
     },
     {
@@ -168,6 +295,15 @@
         "importPath": "math",
         "description": "math",
         "detail": "math",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
         "documentation": {}
     },
     {
@@ -335,6 +471,38 @@
         "documentation": {}
     },
     {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageDraw",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageFont",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageEnhance",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
         "label": "tkinter",
         "kind": 6,
         "isExtraImport": true,
@@ -454,6 +622,31 @@
         "documentation": {}
     },
     {
+        "label": "http.server",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "http.server",
+        "description": "http.server",
+        "detail": "http.server",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPServer",
+        "importPath": "http.server",
+        "description": "http.server",
+        "isExtraImport": true,
+        "detail": "http.server",
+        "documentation": {}
+    },
+    {
+        "label": "BaseHTTPRequestHandler",
+        "importPath": "http.server",
+        "description": "http.server",
+        "isExtraImport": true,
+        "detail": "http.server",
+        "documentation": {}
+    },
+    {
         "label": "HTTPServer",
         "importPath": "http.server",
         "description": "http.server",
@@ -486,6 +679,23 @@
         "documentation": {}
     },
     {
+        "label": "hardware",
+        "importPath": "matrix_hardware",
+        "description": "matrix_hardware",
+        "isExtraImport": true,
+        "detail": "matrix_hardware",
+        "documentation": {}
+    },
+    {
+        "label": "subprocess",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "subprocess",
+        "description": "subprocess",
+        "detail": "subprocess",
+        "documentation": {}
+    },
+    {
         "label": "requests",
         "kind": 6,
         "isExtraImport": true,
@@ -504,6 +714,113 @@
         "documentation": {}
     },
     {
+        "label": "socketserver",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socketserver",
+        "description": "socketserver",
+        "detail": "socketserver",
+        "documentation": {}
+    },
+    {
+        "label": "mimetypes",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "mimetypes",
+        "description": "mimetypes",
+        "detail": "mimetypes",
+        "documentation": {}
+    },
+    {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "WiringDiagramGenerator",
+        "importPath": "wiring_diagram_generator",
+        "description": "wiring_diagram_generator",
+        "isExtraImport": true,
+        "detail": "wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "WiringDiagramGenerator",
+        "importPath": "wiring_diagram_generator",
+        "description": "wiring_diagram_generator",
+        "isExtraImport": true,
+        "detail": "wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Dict",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "argparse",
         "kind": 6,
         "isExtraImport": true,
@@ -513,453 +830,1335 @@
         "documentation": {}
     },
     {
+        "label": "unittest",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "unittest",
+        "description": "unittest",
+        "detail": "unittest",
+        "documentation": {}
+    },
+    {
+        "label": "importlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "importlib",
+        "description": "importlib",
+        "detail": "importlib",
+        "documentation": {}
+    },
+    {
+        "label": "StringIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "setup_test_environment",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "tempfile",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "tempfile",
+        "description": "tempfile",
+        "detail": "tempfile",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "mock_open",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "shutil",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "shutil",
+        "description": "shutil",
+        "detail": "shutil",
+        "documentation": {}
+    },
+    {
+        "label": "MatrixDesign",
+        "importPath": "matrix_design_library",
+        "description": "matrix_design_library",
+        "isExtraImport": true,
+        "detail": "matrix_design_library",
+        "documentation": {}
+    },
+    {
         "label": "ArduinoGenerator",
         "kind": 6,
-        "importPath": "arduino_generator",
-        "description": "arduino_generator",
+        "importPath": "modules.arduino_generator",
+        "description": "modules.arduino_generator",
         "peekOfCode": "class ArduinoGenerator:\n    def __init__(self):\n        self.config = config\n    def generate_code(\n        self,\n        model_key,\n        matrix_width=None,\n        matrix_height=None,\n        data_pin=None,\n        brightness=None,",
-        "detail": "arduino_generator",
+        "detail": "modules.arduino_generator",
         "documentation": {}
     },
     {
         "label": "main",
         "kind": 2,
-        "importPath": "arduino_generator",
-        "description": "arduino_generator",
+        "importPath": "modules.arduino_generator",
+        "description": "modules.arduino_generator",
         "peekOfCode": "def main():\n    \"\"\"Interactive Arduino code generator\"\"\"\n    print(\"🔧 Arduino Code Generator\")\n    print(\"=\" * 40)\n    generator = ArduinoGenerator()\n    # Show available models\n    print(\"\\nAvailable Arduino Models:\")\n    for i, (key, model) in enumerate(ARDUINO_MODELS.items(), 1):\n        print(f\"  {i}. {model['display_name']} ({key})\")\n    try:",
-        "detail": "arduino_generator",
+        "detail": "modules.arduino_generator",
         "documentation": {}
     },
     {
         "label": "find_arduino",
         "kind": 2,
-        "importPath": "arduino_generator",
-        "description": "arduino_generator",
+        "importPath": "modules.arduino_generator",
+        "description": "modules.arduino_generator",
         "peekOfCode": "def find_arduino():\n    \"\"\"Standalone function to find and test Arduino connections\"\"\"\n    print(\"🔍 Arduino Port Scanner\")\n    print(\"=\" * 30)\n    if not SERIAL_AVAILABLE:\n        print(\"❌ PySerial not available. Install with: pip install pyserial\")\n        return\n    generator = ArduinoGenerator()\n    # List all serial ports\n    all_ports = generator.list_serial_ports()",
-        "detail": "arduino_generator",
+        "detail": "modules.arduino_generator",
         "documentation": {}
     },
     {
         "label": "get_model_info",
         "kind": 2,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "def get_model_info(model_key):\n    \"\"\"Get information for a specific Arduino model\"\"\"\n    return ARDUINO_MODELS.get(model_key.lower())\ndef get_available_models():\n    \"\"\"Get list of available Arduino models\"\"\"\n    return list(ARDUINO_MODELS.keys())\ndef get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model['display_name'] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def get_model_info(model_key):\n    \"\"\"Get information for a specific Arduino model\"\"\"\n    return ARDUINO_MODELS.get(model_key.lower())\ndef get_available_models():\n    \"\"\"Get list of available Arduino models\"\"\"\n    return list(ARDUINO_MODELS.keys())\ndef get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model[\"display_name\"] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "get_available_models",
         "kind": 2,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "def get_available_models():\n    \"\"\"Get list of available Arduino models\"\"\"\n    return list(ARDUINO_MODELS.keys())\ndef get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model['display_name'] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def get_available_models():\n    \"\"\"Get list of available Arduino models\"\"\"\n    return list(ARDUINO_MODELS.keys())\ndef get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model[\"display_name\"] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "get_model_display_names",
         "kind": 2,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "def get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model['display_name'] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def get_model_display_names():\n    \"\"\"Get dictionary of model keys to display names\"\"\"\n    return {key: model[\"display_name\"] for key, model in ARDUINO_MODELS.items()}\ndef validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "validate_model",
         "kind": 2,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "def validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():\n        if num_leds <= model['max_leds_recommended']:\n            recommendations.append({\n                'key': key,",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def validate_model(model_key):\n    \"\"\"Validate if a model key exists\"\"\"\n    return model_key.lower() in ARDUINO_MODELS\ndef get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():\n        if num_leds <= model[\"max_leds_recommended\"]:\n            recommendations.append(\n                {",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "get_recommended_model_for_leds",
         "kind": 2,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "def get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():\n        if num_leds <= model['max_leds_recommended']:\n            recommendations.append({\n                'key': key,\n                'name': model['display_name'],\n                'memory_efficiency': (model['memory_sram'] - (num_leds * 3)) / model['memory_sram'],\n                'suitable': True",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def get_recommended_model_for_leds(num_leds):\n    \"\"\"Get recommended Arduino model based on LED count\"\"\"\n    recommendations = []\n    for key, model in ARDUINO_MODELS.items():\n        if num_leds <= model[\"max_leds_recommended\"]:\n            recommendations.append(\n                {\n                    \"key\": key,\n                    \"name\": model[\"display_name\"],\n                    \"memory_efficiency\": (model[\"memory_sram\"] - (num_leds * 3))",
+        "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_power_requirements",
+        "kind": 2,
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def calculate_power_requirements(num_leds, brightness_percent=100):\n    \"\"\"Calculate power requirements for LED matrix using math functions\"\"\"\n    # Each WS2812B LED can draw up to 60mA at full brightness (20mA per color channel)\n    max_current_per_led = 0.06  # 60mA in Amps\n    voltage = 5.0  # 5V supply\n    # Calculate actual current based on brightness\n    brightness_factor = brightness_percent / 100.0\n    actual_current_per_led = max_current_per_led * brightness_factor\n    # Total current and power calculations\n    total_current = num_leds * actual_current_per_led",
+        "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_matrix_dimensions",
+        "kind": 2,
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def calculate_matrix_dimensions(num_leds):\n    \"\"\"Calculate optimal matrix dimensions for given LED count\"\"\"\n    # Find factors of num_leds to suggest rectangular matrices\n    factors = []\n    sqrt_leds = int(math.sqrt(num_leds))\n    for i in range(1, sqrt_leds + 1):\n        if num_leds % i == 0:\n            width = i\n            height = num_leds // i\n            aspect_ratio = max(width, height) / min(width, height)",
+        "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_memory_usage",
+        "kind": 2,
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def calculate_memory_usage(width, height, model_key=\"uno\"):\n    \"\"\"Calculate memory usage for matrix configuration\"\"\"\n    num_leds = width * height\n    model = get_model_info(model_key)\n    if not model:\n        return None\n    # Calculate memory requirements\n    led_array_bytes = num_leds * 3  # 3 bytes per LED (RGB)\n    program_overhead = 1024  # Estimated program overhead in bytes\n    available_sram = model[\"memory_sram\"]",
+        "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_refresh_rate",
+        "kind": 2,
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def calculate_refresh_rate(num_leds, baud_rate=500000):\n    \"\"\"Calculate theoretical maximum refresh rate for LED matrix\"\"\"\n    # Each LED requires 3 bytes (RGB), plus protocol overhead\n    bytes_per_frame = num_leds * 3\n    protocol_overhead = 0.1  # 10% overhead for serial protocol\n    # Calculate effective data rate\n    effective_baud = baud_rate * (1 - protocol_overhead)\n    bytes_per_second = effective_baud / 8  # Convert bits to bytes\n    # Calculate maximum FPS using math functions\n    max_fps = math.floor(bytes_per_second / bytes_per_frame)",
+        "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "get_optimal_pin_configuration",
+        "kind": 2,
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "def get_optimal_pin_configuration(model_key, num_parallel_strips=1):\n    \"\"\"Get optimal pin configuration for multi-strip setups\"\"\"\n    model = get_model_info(model_key)\n    if not model:\n        return None\n    # Calculate optimal pin spacing using math\n    if model_key in [\"esp32\"]:\n        # ESP32 has many GPIO pins, use optimal spacing\n        base_pin = model[\"default_pin\"]\n        pin_spacing = max(2, math.ceil(math.log2(num_parallel_strips)))",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "ARDUINO_MODELS",
         "kind": 5,
-        "importPath": "arduino_models",
-        "description": "arduino_models",
-        "peekOfCode": "ARDUINO_MODELS = {\n    'uno': {\n        'name': 'Arduino Uno',\n        'display_name': 'Arduino Uno',\n        'voltage': '5V',\n        'default_pin': 6,\n        'memory_sram': 2048,  # bytes\n        'memory_flash': 32768,  # bytes\n        'needs_level_shifter': False,\n        'max_leds_recommended': 500,",
-        "detail": "arduino_models",
+        "importPath": "modules.arduino_models",
+        "description": "modules.arduino_models",
+        "peekOfCode": "ARDUINO_MODELS = {\n    \"uno\": {\n        \"name\": \"Arduino Uno\",\n        \"display_name\": \"Arduino Uno\",\n        \"voltage\": \"5V\",\n        \"default_pin\": 6,\n        \"memory_sram\": 2048,  # bytes\n        \"memory_flash\": 32768,  # bytes\n        \"needs_level_shifter\": False,\n        \"max_leds_recommended\": 500,",
+        "detail": "modules.arduino_models",
         "documentation": {}
     },
     {
         "label": "MatrixConfig",
         "kind": 6,
-        "importPath": "matrix_config",
-        "description": "matrix_config",
+        "importPath": "modules.matrix_config",
+        "description": "modules.matrix_config",
         "peekOfCode": "class MatrixConfig:\n    \"\"\"Centralized configuration management\"\"\"\n    DEFAULT_CONFIG = {\n        \"matrix_width\": 21,\n        \"matrix_height\": 24,\n        \"leds_per_meter\": 144,\n        \"wiring_pattern\": \"serpentine\",\n        \"serial_port\": \"COM3\",\n        \"baud_rate\": 500000,\n        \"brightness\": 128,",
-        "detail": "matrix_config",
+        "detail": "modules.matrix_config",
         "documentation": {}
     },
     {
         "label": "config",
         "kind": 5,
-        "importPath": "matrix_config",
-        "description": "matrix_config",
+        "importPath": "modules.matrix_config",
+        "description": "modules.matrix_config",
         "peekOfCode": "config = MatrixConfig()",
-        "detail": "matrix_config",
+        "detail": "modules.matrix_config",
         "documentation": {}
     },
     {
         "label": "MatrixConfigGenerator",
         "kind": 6,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "class MatrixConfigGenerator:\n    def __init__(self):\n        # Use shared config as base, allow overrides\n        defaults = {\n            \"width\": 21,\n            \"height\": 24,\n            \"leds_per_meter\": 144,\n            \"wiring_pattern\": \"serpentine\",\n            \"physical_width\": 146,\n            \"physical_height\": 167,",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MatrixController",
         "kind": 6,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "class MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate\n        self.ser = None\n        self.matrix_data = np.zeros((MATRIX_HEIGHT, MATRIX_WIDTH, 3), dtype=np.uint8)\n    def connect(self):\n        \\\"\\\"\\\"Connect to Arduino\\\"\\\"\\\"\n        try:\n            self.ser = serial.Serial(self.port, self.baud_rate, timeout=1)",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "main",
         "kind": 2,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "def main():\n    \"\"\"Interactive configuration generator\"\"\"\n    print(\"LED Matrix Configuration Generator\")\n    print(\"=\" * 40)\n    generator = MatrixConfigGenerator()\n    # Get user input\n    try:\n        # Helper to safely get int from input or config\n        def safe_int_input(prompt, config_value, default=0):\n            val = input(prompt)",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MATRIX_WIDTH",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MATRIX_WIDTH = {self.config['width']}\nMATRIX_HEIGHT = {self.config['height']}\nNUM_LEDS = {specs['total_leds']}\nLED_SPACING = {specs['led_spacing']:.2f}  # mm\nBRIGHTNESS = {self.config['brightness']}\nWIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MATRIX_HEIGHT",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MATRIX_HEIGHT = {self.config['height']}\nNUM_LEDS = {specs['total_leds']}\nLED_SPACING = {specs['led_spacing']:.2f}  # mm\nBRIGHTNESS = {self.config['brightness']}\nWIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "NUM_LEDS",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "NUM_LEDS = {specs['total_leds']}\nLED_SPACING = {specs['led_spacing']:.2f}  # mm\nBRIGHTNESS = {self.config['brightness']}\nWIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "LED_SPACING",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "LED_SPACING = {specs['led_spacing']:.2f}  # mm\nBRIGHTNESS = {self.config['brightness']}\nWIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "BRIGHTNESS",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "BRIGHTNESS = {self.config['brightness']}\nWIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "WIRING_PATTERN",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "WIRING_PATTERN = \"{self.config['wiring_pattern']}\"\n# Physical dimensions (mm)\nPHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "PHYSICAL_WIDTH",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "PHYSICAL_WIDTH = {self.config['physical_width']}\nPHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "PHYSICAL_HEIGHT",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "PHYSICAL_HEIGHT = {self.config['physical_height']}\n# Power specifications\nMAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MAX_CURRENT_PER_LED",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MAX_CURRENT_PER_LED = {specs['max_current_per_led']}  # Amps\nMAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MAX_CURRENT_TOTAL",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MAX_CURRENT_TOTAL = {specs['max_current_total']:.3f}  # Amps\nACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "ACTUAL_CURRENT",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "ACTUAL_CURRENT = {specs['actual_current']:.3f}  # Amps at current brightness\n# Performance specifications\nMAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate\n        self.ser = None",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MAX_FRAME_RATE",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MAX_FRAME_RATE = {specs['max_frame_rate']}  # FPS\nMEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate\n        self.ser = None\n        self.matrix_data = np.zeros((MATRIX_HEIGHT, MATRIX_WIDTH, 3), dtype=np.uint8)\n    def connect(self):",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "MEMORY_USAGE",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "MEMORY_USAGE = {specs['memory_usage']}  # bytes\nDATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate\n        self.ser = None\n        self.matrix_data = np.zeros((MATRIX_HEIGHT, MATRIX_WIDTH, 3), dtype=np.uint8)\n    def connect(self):\n        \\\"\\\"\\\"Connect to Arduino\\\"\\\"\\\"",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "DATA_RATE",
         "kind": 5,
-        "importPath": "matrix_config_generator",
-        "description": "matrix_config_generator",
+        "importPath": "modules.matrix_config_generator",
+        "description": "modules.matrix_config_generator",
         "peekOfCode": "DATA_RATE = {specs['data_rate']}  # bytes/second\nclass MatrixController:\n    def __init__(self, port='COM3', baud_rate=500000):\n        self.port = port\n        self.baud_rate = baud_rate\n        self.ser = None\n        self.matrix_data = np.zeros((MATRIX_HEIGHT, MATRIX_WIDTH, 3), dtype=np.uint8)\n    def connect(self):\n        \\\"\\\"\\\"Connect to Arduino\\\"\\\"\\\"\n        try:",
-        "detail": "matrix_config_generator",
+        "detail": "modules.matrix_config_generator",
         "documentation": {}
     },
     {
         "label": "UnifiedMatrixController",
         "kind": 6,
-        "importPath": "matrix_controller",
-        "description": "matrix_controller",
-        "peekOfCode": "class UnifiedMatrixController:\n    W: int\n    H: int\n    def __init__(self):\n        # --- GUI and state attributes ---\n        self.root = tk.Tk()\n        self.text_var = tk.StringVar()\n        self.status_var = tk.StringVar()\n        self.width_var = tk.IntVar(value=16)\n        self.height_var = tk.IntVar(value=16)",
-        "detail": "matrix_controller",
+        "importPath": "modules.matrix_controller",
+        "description": "modules.matrix_controller",
+        "peekOfCode": "class UnifiedMatrixController:\n    def __init__(self):\n        # Matrix properties from shared config\n        self.config = config\n        self.W = int(config.get(\"matrix_width\", 16))\n        self.H = int(config.get(\"matrix_height\", 16))\n        # GUI and state attributes\n        self.root = tk.Tk()\n        self.start_time = datetime.now()\n        self.current_mode = \"idle\"",
+        "detail": "modules.matrix_controller",
         "documentation": {}
     },
     {
         "label": "MatrixDesign",
         "kind": 6,
-        "importPath": "matrix_design_library",
-        "description": "matrix_design_library",
-        "peekOfCode": "class MatrixDesign:\n    def __init__(self, width=21, height=24):\n        self.width = width\n        self.height = height\n        self.frames = []\n        self.current_frame = 0\n        self.frame_rate = 10\n        self.custom_palette = [\n            '#ff0000', '#00ff00', '#0000ff', '#ffff00', \n            '#ff00ff', '#00ffff', '#ffffff', '#000000'",
-        "detail": "matrix_design_library",
+        "importPath": "modules.matrix_design_library",
+        "description": "modules.matrix_design_library",
+        "peekOfCode": "class MatrixDesign:\n    def __init__(self, width=21, height=24):\n        self.width = width\n        self.height = height\n        self.frames = []\n        self.current_frame = 0\n        self.frame_rate = 10\n        self.custom_palette = [\n            \"#ff0000\",\n            \"#00ff00\",",
+        "detail": "modules.matrix_design_library",
         "documentation": {}
     },
     {
         "label": "create_sample_designs",
         "kind": 2,
-        "importPath": "matrix_design_library",
-        "description": "matrix_design_library",
-        "peekOfCode": "def create_sample_designs():\n    \"\"\"Create sample designs for testing\"\"\"\n    # Create a rainbow design\n    rainbow_design = MatrixDesign(21, 24)\n    rainbow_design.generate_rainbow()\n    rainbow_design.export_design('sample_rainbow.json')\n    rainbow_design.export_as_image('sample_rainbow.png')\n    # Create a gradient design\n    gradient_design = MatrixDesign(21, 24)\n    gradient_design.generate_gradient('#ff0000', '#0000ff', 'horizontal')",
-        "detail": "matrix_design_library",
+        "importPath": "modules.matrix_design_library",
+        "description": "modules.matrix_design_library",
+        "peekOfCode": "def create_sample_designs():\n    \"\"\"Create sample designs for testing\"\"\"\n    # Create a rainbow design\n    rainbow_design = MatrixDesign(21, 24)\n    rainbow_design.generate_rainbow()\n    rainbow_design.export_design(\"sample_rainbow.json\")\n    rainbow_design.export_as_image(\"sample_rainbow.png\")\n    # Create a gradient design\n    gradient_design = MatrixDesign(21, 24)\n    gradient_design.generate_gradient(\"#ff0000\", \"#0000ff\", \"horizontal\")",
+        "detail": "modules.matrix_design_library",
         "documentation": {}
     },
     {
         "label": "send_frame",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def send_frame(img):\n    \"\"\"Send frame using shared hardware module\"\"\"\n    try:\n        img = img.convert(\"RGB\").resize((W, H), Image.NEAREST)\n        matrix_data = np.array(img).reshape((H, W, 3))\n        hardware.send_frame(matrix_data)\n    except Exception as e:\n        print(f\"Send error: {e}\")\ndef open_port():\n    \"\"\"Connect using shared hardware module\"\"\"",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "open_port",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def open_port():\n    \"\"\"Connect using shared hardware module\"\"\"\n    try:\n        hardware.connect(mode=mode.get(), port=port_ent.get())\n        messagebox.showinfo(\"Connection\", f\"Connected to {port_ent.get()}\")\n    except Exception as e:\n        messagebox.showerror(\"Connection Error\", f\"Failed to connect: {str(e)}\")\n        print(\"Connection error:\", e)\n# ----------------- GUI -----------------\nroot = tk.Tk()",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "update_canvas",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:\n            draw.rectangle([x, y, x + 1, y + 1], fill=tuple(int(v) for v in c))",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "mouse_paint",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:\n            draw.rectangle([x, y, x + 1, y + 1], fill=tuple(int(v) for v in c))\n            update_canvas()\n            send_frame(draw_img)\ncanvas.bind(\"<Button-1>\", mouse_paint)\n# ----------------- image / video loaders -----------------",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "load_image",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def load_image():\n    path = filedialog.askopenfilename(filetypes=[(\"Images\", \"*.png *.jpg *.bmp\")])\n    if path:\n        try:\n            img = Image.open(path)\n            # Enhance image quality using ImageEnhance\n            enhancer = ImageEnhance.Contrast(img)\n            img = enhancer.enhance(1.2)  # Increase contrast\n            enhancer = ImageEnhance.Sharpness(img)\n            img = enhancer.enhance(1.1)  # Slight sharpening",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "load_gif",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def load_gif():\n    path = filedialog.askopenfilename(filetypes=[(\"GIF/MP4\", \"*.gif *.mp4\")])\n    if not path:\n        return\n    def stream():\n        cap = cv2.VideoCapture(path)\n        while True:\n            ok, frame = cap.read()\n            if not ok:\n                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "clear_matrix",
         "kind": 2,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "def clear_matrix():\n    \"\"\"Clear the matrix display\"\"\"\n    draw.rectangle([0, 0, W, H], fill=\"black\")\n    update_canvas()\n    send_frame(draw_img)\n    messagebox.showinfo(\"Matrix\", \"Display cleared\")\ntk.Button(root, text=\"Load Image\", command=load_image).pack(side=\"left\")\ntk.Button(root, text=\"Play GIF/MP4\", command=load_gif).pack(side=\"left\")\ntk.Button(root, text=\"Clear\", command=clear_matrix).pack(side=\"left\")\nupdate_canvas()",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
+        "documentation": {}
+    },
+    {
+        "label": "W",
+        "kind": 5,
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
+        "peekOfCode": "W = int(config.get(\"matrix_width\", 16))\nH = int(config.get(\"matrix_height\", 16))\nprint(\"=\" * 70)\nprint(\"NOTICE: This basic controller has been superseded!\")\nprint(\"=\" * 70)\nprint(\"The matrix_gui.py has been replaced by a unified matrix_controller.py\")\nprint(\"that combines all features in one optimized application.\")\nprint(\"\")\nprint(\"New unified features in matrix_controller.py:\")\nprint(\"• Tabbed interface with basic and advanced controls\")",
+        "detail": "modules.matrix_gui",
+        "documentation": {}
+    },
+    {
+        "label": "H",
+        "kind": 5,
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
+        "peekOfCode": "H = int(config.get(\"matrix_height\", 16))\nprint(\"=\" * 70)\nprint(\"NOTICE: This basic controller has been superseded!\")\nprint(\"=\" * 70)\nprint(\"The matrix_gui.py has been replaced by a unified matrix_controller.py\")\nprint(\"that combines all features in one optimized application.\")\nprint(\"\")\nprint(\"New unified features in matrix_controller.py:\")\nprint(\"• Tabbed interface with basic and advanced controls\")\nprint(\"• System monitoring display\")",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "root",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "root = tk.Tk()\nroot.title(\"PC-Case Matrix Controller\")\nmode = tk.StringVar(value=\"USB\")  # USB / WIFI\ntk.Radiobutton(root, text=\"USB Serial\", variable=mode, value=\"USB\").pack(side=\"left\")\ntk.Radiobutton(root, text=\"Wi-Fi ESP32\", variable=mode, value=\"WIFI\").pack(side=\"left\")\nport_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "mode",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "mode = tk.StringVar(value=\"USB\")  # USB / WIFI\ntk.Radiobutton(root, text=\"USB Serial\", variable=mode, value=\"USB\").pack(side=\"left\")\ntk.Radiobutton(root, text=\"Wi-Fi ESP32\", variable=mode, value=\"WIFI\").pack(side=\"left\")\nport_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "port_ent",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "port_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image\ndraw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "canvas",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "canvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image\ndraw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "draw_img",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "draw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "draw",
         "kind": 5,
-        "importPath": "matrix_gui",
-        "description": "matrix_gui",
+        "importPath": "modules.matrix_gui",
+        "description": "modules.matrix_gui",
         "peekOfCode": "draw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:",
-        "detail": "matrix_gui",
+        "detail": "modules.matrix_gui",
         "documentation": {}
     },
     {
         "label": "MatrixHardware",
         "kind": 6,
-        "importPath": "matrix_hardware",
-        "description": "matrix_hardware",
-        "peekOfCode": "class MatrixHardware:\n    \"\"\"Unified hardware communication interface\"\"\"\n    def __init__(self):\n        self.ser = None\n        self.connection_mode = config.get(\"connection_mode\", \"USB\")\n    def connect(self, mode=None, port=None, esp32_ip=None):\n        \"\"\"Connect to matrix hardware\"\"\"\n        if mode:\n            self.connection_mode = mode\n        try:",
-        "detail": "matrix_hardware",
+        "importPath": "modules.matrix_hardware",
+        "description": "modules.matrix_hardware",
+        "peekOfCode": "class MatrixHardware:\n    \"\"\"Unified hardware communication interface\"\"\"\n    def __init__(self):\n        self.ser = None\n        self.connection_mode = config.get(\"connection_mode\", \"USB\")\n    def connect(self, mode=None, port=None, esp32_ip=None):\n        \"\"\"Connect to matrix hardware\"\"\"\n        if mode is not None:\n            self.connection_mode = mode\n        try:",
+        "detail": "modules.matrix_hardware",
         "documentation": {}
     },
     {
         "label": "hardware",
         "kind": 5,
-        "importPath": "matrix_hardware",
-        "description": "matrix_hardware",
+        "importPath": "modules.matrix_hardware",
+        "description": "modules.matrix_hardware",
         "peekOfCode": "hardware = MatrixHardware()",
-        "detail": "matrix_hardware",
+        "detail": "modules.matrix_hardware",
         "documentation": {}
     },
     {
-        "label": "test_arduino_generator",
-        "kind": 2,
-        "importPath": "test_arduino_generator",
-        "description": "test_arduino_generator",
-        "peekOfCode": "def test_arduino_generator():\n    \"\"\"Test the Arduino generator with different models\"\"\"\n    print(\"🔧 Testing Arduino Generator System\")\n    print(\"=\" * 50)\n    generator = ArduinoGenerator()\n    # Show available models\n    print(\"\\n📋 Available Arduino Models:\")\n    models = get_model_display_names()\n    for key, name in models.items():\n        print(f\"  - {key}: {name}\")",
-        "detail": "test_arduino_generator",
-        "documentation": {}
-    },
-    {
-        "label": "test_matrix_config_generator",
-        "kind": 2,
-        "importPath": "test_arduino_generator",
-        "description": "test_arduino_generator",
-        "peekOfCode": "def test_matrix_config_generator():\n    \"\"\"Test the updated matrix config generator\"\"\"\n    print(f\"\\n🔧 Testing Matrix Config Generator\")\n    print(\"=\" * 50)\n    from matrix_config_generator import MatrixConfigGenerator\n    generator = MatrixConfigGenerator()\n    # Test configuration\n    generator.set_config(\n        width=16,\n        height=16,",
-        "detail": "test_arduino_generator",
-        "documentation": {}
-    },
-    {
-        "label": "WiringDiagramGenerator",
+        "label": "WebMatrixController",
         "kind": 6,
-        "importPath": "wiring_diagram_generator",
-        "description": "wiring_diagram_generator",
-        "peekOfCode": "class WiringDiagramGenerator:\n    def __init__(self):\n        self.controllers = {\n            'arduino_uno': {\n                'name': 'Arduino Uno',\n                'voltage': '5V',\n                'default_pin': 6,\n                'needs_level_shifter': False,\n                'color': '#1a1a2e'\n            },",
-        "detail": "wiring_diagram_generator",
+        "importPath": "modules.web_matrix_controller",
+        "description": "modules.web_matrix_controller",
+        "peekOfCode": "class WebMatrixController:\n    def __init__(self, port=8080):\n        logger.info(f\"INIT: Initializing WebMatrixController on port {port}\")\n        # Matrix properties from shared config\n        self.config = config\n        self.W = int(config.get(\"matrix_width\", 16))\n        self.H = int(config.get(\"matrix_height\", 16))\n        self.port = port\n        logger.info(f\"MATRIX: Matrix size: {self.W}×{self.H}\")\n        # State attributes",
+        "detail": "modules.web_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "modules.web_matrix_controller",
+        "description": "modules.web_matrix_controller",
+        "peekOfCode": "logger = logging.getLogger('MatrixController')\n# Robust resampling filter imports for Pillow compatibility\ntry:\n    from PIL import Image as PILImage\n    Resampling = getattr(PILImage, \"Resampling\", None)\n    if Resampling is not None:\n        LANCZOS_RESAMPLE = Resampling.LANCZOS\n        NEAREST_RESAMPLE = Resampling.NEAREST\n    else:\n        LANCZOS_RESAMPLE = getattr(Image, \"LANCZOS\", getattr(Image, \"BICUBIC\", getattr(Image, \"BILINEAR\", 0)))",
+        "detail": "modules.web_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "ServerConfig",
+        "kind": 6,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "class ServerConfig:\n    port: int = int(os.getenv('WEB_SERVER_PORT', 3000))\n    host: str = os.getenv('WEB_SERVER_HOST', \"localhost\")\n    control_path: str = os.getenv('CONTROL_PATH', \"sites/control\")\n    docs_path: str = os.getenv('DOCS_PATH', \"sites/docs\")\n    api_proxy_port: int = int(os.getenv('API_PROXY_PORT', 8080))\n    enable_cors: bool = os.getenv('ENABLE_CORS', 'true').lower() == 'true'\n    enable_caching: bool = os.getenv('ENABLE_CACHING', 'true').lower() == 'true'\nclass UnifiedMatrixWebServer:\n    def __init__(self, port=None):",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "UnifiedMatrixWebServer",
+        "kind": 6,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "class UnifiedMatrixWebServer:\n    def __init__(self, port=None):\n        # Use environment variable or passed port\n        if port is None:\n            port = int(os.getenv('WEB_SERVER_PORT', 3000))\n        self.config = ServerConfig(port=port)\n        # Use environment variable for sites directory if available\n        sites_base = os.getenv('SITES_DIR', str(Path(__file__).parent.parent / \"sites\"))\n        self.sites_dir = Path(sites_base)\n        self.control_dir = self.sites_dir / \"control\"",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "MatrixWebServer",
+        "kind": 6,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "class MatrixWebServer(UnifiedMatrixWebServer):\n    def __init__(self, port=3000, site_type=\"control\"):\n        super().__init__(port)\n        self.site_type = site_type\n        print(f\"⚠️  Legacy MatrixWebServer used. Consider using UnifiedMatrixWebServer for path-based routing.\")\n        print(f\"   Access your {site_type} interface at: http://localhost:{port}/{site_type}\")\n    def start(self):\n        \"\"\"Start server and redirect to appropriate path\"\"\"\n        print(f\"🔄 Starting unified server with legacy compatibility for {self.site_type}\")\n        return super().start()",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "get_env_config",
+        "kind": 2,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "def get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),\n        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),\n        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),\n        'ENABLE_CORS': os.getenv('ENABLE_CORS'),\n        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),\n        'SITES_DIR': os.getenv('SITES_DIR'),\n        'AUTOCREATE_DIRS': os.getenv('AUTOCREATE_DIRS'),",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "setup_signal_handlers",
+        "kind": 2,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "def setup_signal_handlers():\n    \"\"\"Setup signal handlers for graceful shutdown using os\"\"\"\n    import signal\n    def signal_handler(signum, frame):\n        print(f\"\\n🔔 Received signal {signum}\")\n        print(\"🛑 Shutting down gracefully...\")\n        os._exit(0)\n    # Register signal handlers if available\n    if hasattr(signal, 'SIGTERM'):\n        signal.signal(signal.SIGTERM, signal_handler)",
+        "detail": "modules.web_server",
         "documentation": {}
     },
     {
         "label": "main",
         "kind": 2,
-        "importPath": "wiring_diagram_generator",
-        "description": "wiring_diagram_generator",
-        "peekOfCode": "def main():\n    parser = argparse.ArgumentParser(description='Generate LED Matrix Wiring Diagrams')\n    parser.add_argument('controller', choices=['arduino_uno', 'arduino_nano', 'esp32', 'esp8266'],\n                       help='Controller type')\n    parser.add_argument('width', type=int, help='Matrix width in LEDs')\n    parser.add_argument('height', type=int, help='Matrix height in LEDs')\n    parser.add_argument('--data-pin', type=int, help='Data pin number')\n    parser.add_argument('--psu', choices=['5V5A', '5V10A', '5V20A', '5V30A', '5V40A'],\n                       help='Power supply specification')\n    parser.add_argument('--output', help='Output filename')",
-        "detail": "wiring_diagram_generator",
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "def main():\n    \"\"\"Main entry point for standalone web server\"\"\"\n    # Setup signal handlers\n    setup_signal_handlers()\n    # Print environment info if DEBUG is set\n    if os.getenv('DEBUG', 'false').lower() == 'true':\n        print(\"🐛 Debug mode enabled\")\n        print(\"🌍 Environment configuration:\")\n        for key, value in get_env_config().items():\n            print(f\"   {key}: {value}\")",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "modules.web_server",
+        "description": "modules.web_server",
+        "peekOfCode": "logger = logging.getLogger('WebServer')\ndef get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),\n        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),\n        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),\n        'ENABLE_CORS': os.getenv('ENABLE_CORS'),\n        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),\n        'SITES_DIR': os.getenv('SITES_DIR'),",
+        "detail": "modules.web_server",
+        "documentation": {}
+    },
+    {
+        "label": "WiringDiagramGenerator",
+        "kind": 6,
+        "importPath": "modules.wiring_diagram_generator",
+        "description": "modules.wiring_diagram_generator",
+        "peekOfCode": "class WiringDiagramGenerator:\n    def __init__(self):\n        self.controllers = {\n            \"arduino_uno\": {\n                \"name\": \"Arduino Uno\",\n                \"voltage\": \"5V\",\n                \"default_pin\": 6,\n                \"needs_level_shifter\": False,\n                \"color\": \"#1a1a2e\",\n            },",
+        "detail": "modules.wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "modules.wiring_diagram_generator",
+        "description": "modules.wiring_diagram_generator",
+        "peekOfCode": "def main():\n    parser = argparse.ArgumentParser(description=\"Generate LED Matrix Wiring Diagrams\")\n    parser.add_argument(\n        \"controller\",\n        choices=[\"arduino_uno\", \"arduino_nano\", \"esp32\", \"esp8266\"],\n        help=\"Controller type\",\n    )\n    parser.add_argument(\"width\", type=int, help=\"Matrix width in LEDs\")\n    parser.add_argument(\"height\", type=int, help=\"Matrix height in LEDs\")\n    parser.add_argument(\"--data-pin\", type=int, help=\"Data pin number\")",
+        "detail": "modules.wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "TestResult",
+        "kind": 6,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "class TestResult:\n    \"\"\"Custom test result tracking\"\"\"\n    def __init__(self):\n        self.tests_run = 0\n        self.failures = 0\n        self.errors = 0\n        self.skipped = 0\n        self.success = 0\n        self.start_time = None\n        self.end_time = None",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "run_test_module",
+        "kind": 2,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "def run_test_module(module_name, result_tracker):\n    \"\"\"Run tests from a specific module\"\"\"\n    print(f\"\\n{'='*60}\")\n    print(f\"🧪 Running {module_name}\")\n    print(f\"{'='*60}\")\n    module_start = time.time()\n    try:\n        # Import the test module\n        test_module = importlib.import_module(f\"tests.{module_name}\")\n        # Create test suite",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "run_legacy_validation_tests",
+        "kind": 2,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "def run_legacy_validation_tests(result_tracker):\n    \"\"\"Run legacy validation tests from individual modules\"\"\"\n    print(f\"\\n{'='*60}\")\n    print(\"� Runninng Legacy Validation Tests\")\n    print(f\"{'='*60}\")\n    validation_start = time.time()\n    validation_results = []\n    # Test modules that have validation functions\n    validation_modules = [\n        ('test_arduino_generator', 'run_legacy_tests'),",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "print_final_report",
+        "kind": 2,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "def print_final_report(result_tracker):\n    \"\"\"Print comprehensive final test report\"\"\"\n    print(f\"\\n{'='*80}\")\n    print(f\"🎉 FINAL TEST REPORT\")\n    print(f\"{'='*80}\")\n    # Overall statistics\n    total_duration = result_tracker.get_duration()\n    print(\"\\n📊 Overall Statistics:\")\n    print(f\"   Total Test Suites: {len(result_tracker.test_results)}\")\n    print(f\"   ✅ Passed: {result_tracker.success}\")",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "def main():\n    \"\"\"Main test runner function\"\"\"\n    print(\"🧪 LED Matrix Project - Comprehensive Test Suite\")\n    print(\"=\" * 80)\n    # Setup test environment\n    setup_success = setup_test_environment()\n    if not setup_success:\n        print(\"❌ Failed to setup test environment\")\n        return False\n    test_config = get_test_config()",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.run_all_tests",
+        "description": "tests.run_all_tests",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom tests import setup_test_environment, get_test_config\nclass TestResult:\n    \"\"\"Custom test result tracking\"\"\"\n    def __init__(self):\n        self.tests_run = 0\n        self.failures = 0\n        self.errors = 0",
+        "detail": "tests.run_all_tests",
+        "documentation": {}
+    },
+    {
+        "label": "TestArduinoGenerator",
+        "kind": 6,
+        "importPath": "tests.test_arduino_generator",
+        "description": "tests.test_arduino_generator",
+        "peekOfCode": "class TestArduinoGenerator(unittest.TestCase):\n    \"\"\"Test cases for Arduino code generator\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.generator = ArduinoGenerator()\n        self.test_config = get_test_config()\n        self.temp_dir = tempfile.mkdtemp()\n    def tearDown(self):\n        \"\"\"Clean up test fixtures\"\"\"\n        import shutil",
+        "detail": "tests.test_arduino_generator",
+        "documentation": {}
+    },
+    {
+        "label": "TestArduinoGeneratorIntegration",
+        "kind": 6,
+        "importPath": "tests.test_arduino_generator",
+        "description": "tests.test_arduino_generator",
+        "peekOfCode": "class TestArduinoGeneratorIntegration(unittest.TestCase):\n    \"\"\"Integration tests for Arduino generator with other modules\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.generator = ArduinoGenerator()\n        self.temp_dir = tempfile.mkdtemp()\n    def tearDown(self):\n        \"\"\"Clean up integration test fixtures\"\"\"\n        import shutil\n        if os.path.exists(self.temp_dir):",
+        "detail": "tests.test_arduino_generator",
+        "documentation": {}
+    },
+    {
+        "label": "run_legacy_tests",
+        "kind": 2,
+        "importPath": "tests.test_arduino_generator",
+        "description": "tests.test_arduino_generator",
+        "peekOfCode": "def run_legacy_tests():\n    \"\"\"Run the original test functions for compatibility\"\"\"\n    print(\"🔧 Running Legacy Arduino Generator Tests\")\n    print(\"=\" * 50)\n    generator = ArduinoGenerator()\n    # Show available models\n    print(\"\\n📋 Available Arduino Models:\")\n    models = get_model_display_names()\n    for key, name in models.items():\n        print(f\"  - {key}: {name}\")",
+        "detail": "tests.test_arduino_generator",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_arduino_generator",
+        "description": "tests.test_arduino_generator",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom arduino_generator import ArduinoGenerator\nfrom arduino_models import get_model_display_names, validate_model, get_model_info\nfrom tests import get_test_config\nclass TestArduinoGenerator(unittest.TestCase):\n    \"\"\"Test cases for Arduino code generator\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"",
+        "detail": "tests.test_arduino_generator",
+        "documentation": {}
+    },
+    {
+        "label": "TestArduinoModels",
+        "kind": 6,
+        "importPath": "tests.test_arduino_models",
+        "description": "tests.test_arduino_models",
+        "peekOfCode": "class TestArduinoModels(unittest.TestCase):\n    \"\"\"Test cases for Arduino model definitions and basic functions\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.test_config = get_test_config()\n    def test_model_definitions_completeness(self):\n        \"\"\"Test that all model definitions have required fields\"\"\"\n        required_fields = [\n            'name', 'display_name', 'voltage', 'default_pin',\n            'memory_sram', 'memory_flash', 'needs_level_shifter',",
+        "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "TestArduinoModelCalculations",
+        "kind": 6,
+        "importPath": "tests.test_arduino_models",
+        "description": "tests.test_arduino_models",
+        "peekOfCode": "class TestArduinoModelCalculations(unittest.TestCase):\n    \"\"\"Test cases for mathematical calculations in Arduino models\"\"\"\n    def test_power_requirements_calculation(self):\n        \"\"\"Test power requirements calculation\"\"\"\n        # Test with standard values\n        power_req = calculate_power_requirements(100, 100)  # 100 LEDs at 100% brightness\n        self.assertIn('total_power_watts', power_req)\n        self.assertIn('total_current_amps', power_req)\n        self.assertIn('recommended_psu_watts', power_req)\n        self.assertIn('safety_margin_percent', power_req)",
+        "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "TestArduinoModelsMathematicalFunctions",
+        "kind": 6,
+        "importPath": "tests.test_arduino_models",
+        "description": "tests.test_arduino_models",
+        "peekOfCode": "class TestArduinoModelsMathematicalFunctions(unittest.TestCase):\n    \"\"\"Test cases for mathematical functions using the math module\"\"\"\n    def test_math_module_usage(self):\n        \"\"\"Test that math module functions are used correctly\"\"\"\n        # Test power calculations use math.ceil\n        power_req = calculate_power_requirements(100, 75)\n        # Should use ceiling for power requirements\n        expected_power = math.ceil(100 * 0.06 * 0.75 * 5 * 1.2)  # LEDs * current * brightness * voltage * safety\n        self.assertEqual(power_req['total_power_watts'], expected_power)\n        # Test matrix dimensions use math.sqrt",
+        "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "run_arduino_models_validation",
+        "kind": 2,
+        "importPath": "tests.test_arduino_models",
+        "description": "tests.test_arduino_models",
+        "peekOfCode": "def run_arduino_models_validation():\n    \"\"\"Run validation tests for Arduino models\"\"\"\n    print(\"🔧 Running Arduino Models Validation Tests\")\n    print(\"=\" * 50)\n    try:\n        # Test 1: All models have consistent data\n        print(\"\\n📝 Test 1: Model Data Consistency\")\n        for model_key in ARDUINO_MODELS.keys():\n            model = get_model_info(model_key)\n            assert model is not None",
+        "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_arduino_models",
+        "description": "tests.test_arduino_models",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom arduino_models import (\n    ARDUINO_MODELS,\n    get_model_info,\n    get_available_models,\n    get_model_display_names,\n    validate_model,\n    get_recommended_model_for_leds,",
+        "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "TestModuleIntegration",
+        "kind": 6,
+        "importPath": "tests.test_integration",
+        "description": "tests.test_integration",
+        "peekOfCode": "class TestModuleIntegration(unittest.TestCase):\n    \"\"\"Test integration between different modules\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config = get_test_config()\n    def tearDown(self):\n        \"\"\"Clean up integration test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "detail": "tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "TestEndToEndWorkflows",
+        "kind": 6,
+        "importPath": "tests.test_integration",
+        "description": "tests.test_integration",
+        "peekOfCode": "class TestEndToEndWorkflows(unittest.TestCase):\n    \"\"\"Test complete end-to-end workflows\"\"\"\n    def setUp(self):\n        \"\"\"Set up end-to-end test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config = get_test_config()\n    def tearDown(self):\n        \"\"\"Clean up end-to-end test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "detail": "tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "TestErrorHandlingIntegration",
+        "kind": 6,
+        "importPath": "tests.test_integration",
+        "description": "tests.test_integration",
+        "peekOfCode": "class TestErrorHandlingIntegration(unittest.TestCase):\n    \"\"\"Test error handling across module boundaries\"\"\"\n    def test_invalid_model_error_propagation(self):\n        \"\"\"Test that invalid model errors propagate correctly\"\"\"\n        from arduino_generator import ArduinoGenerator\n        generator = ArduinoGenerator()\n        # Should raise ValueError for invalid model\n        with self.assertRaises(ValueError):\n            generator.generate_code(\"invalid_model\")\n    def test_file_operation_error_handling(self):",
+        "detail": "tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "run_integration_validation",
+        "kind": 2,
+        "importPath": "tests.test_integration",
+        "description": "tests.test_integration",
+        "peekOfCode": "def run_integration_validation():\n    \"\"\"Run validation tests for module integration\"\"\"\n    print(\"🔧 Running Integration Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    try:\n        # Test 1: Module imports and basic integration\n        print(\"\\n📝 Test 1: Module Import Integration\")\n        from matrix_config import config\n        from matrix_hardware import hardware",
+        "detail": "tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_integration",
+        "description": "tests.test_integration",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom tests import get_test_config\nclass TestModuleIntegration(unittest.TestCase):\n    \"\"\"Test integration between different modules\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config = get_test_config()",
+        "detail": "tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "TestMatrixConfig",
+        "kind": 6,
+        "importPath": "tests.test_matrix_config",
+        "description": "tests.test_matrix_config",
+        "peekOfCode": "class TestMatrixConfig(unittest.TestCase):\n    \"\"\"Test cases for matrix configuration management\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"test_config.json\")\n        self.test_config = get_test_config()\n    def tearDown(self):\n        \"\"\"Clean up test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):",
+        "detail": "tests.test_matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "TestMatrixConfigIntegration",
+        "kind": 6,
+        "importPath": "tests.test_matrix_config",
+        "description": "tests.test_matrix_config",
+        "peekOfCode": "class TestMatrixConfigIntegration(unittest.TestCase):\n    \"\"\"Integration tests for matrix configuration\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"integration_config.json\")\n    def tearDown(self):\n        \"\"\"Clean up integration test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "detail": "tests.test_matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "run_config_validation_tests",
+        "kind": 2,
+        "importPath": "tests.test_matrix_config",
+        "description": "tests.test_matrix_config",
+        "peekOfCode": "def run_config_validation_tests():\n    \"\"\"Run validation tests to ensure config works with real scenarios\"\"\"\n    print(\"🔧 Running Matrix Config Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    test_config_file = os.path.join(temp_dir, \"validation_config.json\")\n    try:\n        # Test 1: Basic configuration lifecycle\n        print(\"\\n📝 Test 1: Basic Configuration Lifecycle\")\n        config = MatrixConfig(test_config_file)",
+        "detail": "tests.test_matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_matrix_config",
+        "description": "tests.test_matrix_config",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom matrix_config import MatrixConfig\nfrom tests import get_test_config\nclass TestMatrixConfig(unittest.TestCase):\n    \"\"\"Test cases for matrix configuration management\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()",
+        "detail": "tests.test_matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "TestMatrixDesign",
+        "kind": 6,
+        "importPath": "tests.test_matrix_design_library",
+        "description": "tests.test_matrix_design_library",
+        "peekOfCode": "class TestMatrixDesign(unittest.TestCase):\n    \"\"\"Test cases for matrix design functionality\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config = get_test_config()\n        self.design = MatrixDesign(\n            width=self.test_config[\"default_matrix_width\"],\n            height=self.test_config[\"default_matrix_height\"]\n        )",
+        "detail": "tests.test_matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "TestMatrixDesignAdvancedFeatures",
+        "kind": 6,
+        "importPath": "tests.test_matrix_design_library",
+        "description": "tests.test_matrix_design_library",
+        "peekOfCode": "class TestMatrixDesignAdvancedFeatures(unittest.TestCase):\n    \"\"\"Test cases for advanced matrix design features using numpy, time, and os\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures for advanced features\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.design = MatrixDesign(16, 16)\n    def tearDown(self):\n        \"\"\"Clean up test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "detail": "tests.test_matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "TestMatrixDesignUtilities",
+        "kind": 6,
+        "importPath": "tests.test_matrix_design_library",
+        "description": "tests.test_matrix_design_library",
+        "peekOfCode": "class TestMatrixDesignUtilities(unittest.TestCase):\n    \"\"\"Test cases for utility functions and helper methods\"\"\"\n    def test_color_conversion_utilities(self):\n        \"\"\"Test color conversion utility functions\"\"\"\n        # Test hex to RGB\n        rgb = MatrixDesign.hex_to_rgb('#ff0080')\n        self.assertEqual(rgb, (255, 0, 128))\n        # Test RGB to hex\n        hex_color = MatrixDesign.rgb_to_hex(255, 0, 128)\n        self.assertEqual(hex_color, '#ff0080')",
+        "detail": "tests.test_matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "run_design_library_validation",
+        "kind": 2,
+        "importPath": "tests.test_matrix_design_library",
+        "description": "tests.test_matrix_design_library",
+        "peekOfCode": "def run_design_library_validation():\n    \"\"\"Run validation tests for matrix design library\"\"\"\n    print(\"🔧 Running Matrix Design Library Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    try:\n        # Test 1: Basic design operations\n        print(\"\\n📝 Test 1: Basic Design Operations\")\n        design = MatrixDesign(16, 16)\n        # Test pattern generation",
+        "detail": "tests.test_matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_matrix_design_library",
+        "description": "tests.test_matrix_design_library",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom matrix_design_library import MatrixDesign\nfrom tests import get_test_config\nclass TestMatrixDesign(unittest.TestCase):\n    \"\"\"Test cases for matrix design functionality\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()",
+        "detail": "tests.test_matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "TestUnifiedWebServer",
+        "kind": 6,
+        "importPath": "tests.test_unified_web_server",
+        "description": "tests.test_unified_web_server",
+        "peekOfCode": "class TestUnifiedWebServer(unittest.TestCase):\n    \"\"\"Test cases for the unified web server\"\"\"\n    @classmethod\n    def setUpClass(cls):\n        \"\"\"Set up test server\"\"\"\n        cls.test_port = 3001  # Use different port for testing\n        cls.server = UnifiedMatrixWebServer(port=cls.test_port)\n        cls.base_url = f\"http://localhost:{cls.test_port}\"\n        # Start server in background thread\n        cls.server_thread = threading.Thread(target=cls.server.start, daemon=True)",
+        "detail": "tests.test_unified_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestNavigationIntegration",
+        "kind": 6,
+        "importPath": "tests.test_unified_web_server",
+        "description": "tests.test_unified_web_server",
+        "peekOfCode": "class TestNavigationIntegration(unittest.TestCase):\n    \"\"\"Test navigation integration between interfaces\"\"\"\n    def setUp(self):\n        self.base_url = \"http://localhost:3001\"  # Use test server\n    def test_cross_interface_navigation(self):\n        \"\"\"Test navigation between control and documentation\"\"\"\n        # Start at landing page\n        response = requests.get(self.base_url)\n        self.assertIn(\"/control\", response.text)\n        self.assertIn(\"/docs\", response.text)",
+        "detail": "tests.test_unified_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestPerformance",
+        "kind": 6,
+        "importPath": "tests.test_unified_web_server",
+        "description": "tests.test_unified_web_server",
+        "peekOfCode": "class TestPerformance(unittest.TestCase):\n    \"\"\"Test performance aspects of the unified server\"\"\"\n    def setUp(self):\n        self.base_url = \"http://localhost:3001\"  # Use test server\n    def test_response_times(self):\n        \"\"\"Test that response times are reasonable\"\"\"\n        start_time = time.time()\n        response = requests.get(self.base_url)\n        response_time = time.time() - start_time\n        self.assertEqual(response.status_code, 200)",
+        "detail": "tests.test_unified_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "run_tests",
+        "kind": 2,
+        "importPath": "tests.test_unified_web_server",
+        "description": "tests.test_unified_web_server",
+        "peekOfCode": "def run_tests():\n    \"\"\"Run all tests\"\"\"\n    print(\"🧪 Starting Unified Web Server Test Suite\")\n    print(\"=\" * 50)\n    # Create test suite\n    loader = unittest.TestLoader()\n    suite = unittest.TestSuite()\n    # Add test cases\n    suite.addTests(loader.loadTestsFromTestCase(TestUnifiedWebServer))\n    suite.addTests(loader.loadTestsFromTestCase(TestNavigationIntegration))",
+        "detail": "tests.test_unified_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestWiringDiagramGenerator",
+        "kind": 6,
+        "importPath": "tests.test_wiring_diagram_generator",
+        "description": "tests.test_wiring_diagram_generator",
+        "peekOfCode": "class TestWiringDiagramGenerator(unittest.TestCase):\n    \"\"\"Test cases for wiring diagram generator\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config = get_test_config()\n        self.generator = WiringDiagramGenerator()\n    def tearDown(self):\n        \"\"\"Clean up test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):",
+        "detail": "tests.test_wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "TestWiringDiagramJSONFunctionality",
+        "kind": 6,
+        "importPath": "tests.test_wiring_diagram_generator",
+        "description": "tests.test_wiring_diagram_generator",
+        "peekOfCode": "class TestWiringDiagramJSONFunctionality(unittest.TestCase):\n    \"\"\"Test cases for JSON export/import functionality\"\"\"\n    def setUp(self):\n        \"\"\"Set up JSON test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.generator = WiringDiagramGenerator()\n    def tearDown(self):\n        \"\"\"Clean up JSON test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "detail": "tests.test_wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "TestWiringDiagramIntegration",
+        "kind": 6,
+        "importPath": "tests.test_wiring_diagram_generator",
+        "description": "tests.test_wiring_diagram_generator",
+        "peekOfCode": "class TestWiringDiagramIntegration(unittest.TestCase):\n    \"\"\"Test integration with other modules\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.generator = WiringDiagramGenerator()\n    def test_power_calculation_integration(self):\n        \"\"\"Test integration with arduino_models power calculations\"\"\"\n        # Test that power calculations use shared functions\n        power_req = self.generator.calculate_power_requirements(16, 16, 128)\n        # Should use the shared calculation from arduino_models",
+        "detail": "tests.test_wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "run_wiring_diagram_validation",
+        "kind": 2,
+        "importPath": "tests.test_wiring_diagram_generator",
+        "description": "tests.test_wiring_diagram_generator",
+        "peekOfCode": "def run_wiring_diagram_validation():\n    \"\"\"Run validation tests for wiring diagram generator\"\"\"\n    print(\"🔧 Running Wiring Diagram Generator Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    try:\n        # Test 1: Basic diagram generation\n        print(\"\\n📝 Test 1: Basic Diagram Generation\")\n        generator = WiringDiagramGenerator()\n        # Test Mermaid diagram",
+        "detail": "tests.test_wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_wiring_diagram_generator",
+        "description": "tests.test_wiring_diagram_generator",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom wiring_diagram_generator import WiringDiagramGenerator\nfrom tests import get_test_config\nclass TestWiringDiagramGenerator(unittest.TestCase):\n    \"\"\"Test cases for wiring diagram generator\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()",
+        "detail": "tests.test_wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "print_header",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def print_header(title):\n    \"\"\"Print a formatted header\"\"\"\n    print(\"\\n\" + \"=\" * 60)\n    print(f\"🔍 {title}\")\n    print(\"=\" * 60)\ndef print_success(message):\n    \"\"\"Print success message\"\"\"\n    print(f\"✅ {message}\")\ndef print_error(message):\n    \"\"\"Print error message\"\"\"",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "print_success",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def print_success(message):\n    \"\"\"Print success message\"\"\"\n    print(f\"✅ {message}\")\ndef print_error(message):\n    \"\"\"Print error message\"\"\"\n    print(f\"❌ {message}\")\ndef print_warning(message):\n    \"\"\"Print warning message\"\"\"\n    print(f\"⚠️  {message}\")\ndef validate_files_exist():",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "print_error",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def print_error(message):\n    \"\"\"Print error message\"\"\"\n    print(f\"❌ {message}\")\ndef print_warning(message):\n    \"\"\"Print warning message\"\"\"\n    print(f\"⚠️  {message}\")\ndef validate_files_exist():\n    \"\"\"Validate that all required files exist\"\"\"\n    print_header(\"File Structure Validation\")\n    required_files = [",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "print_warning",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def print_warning(message):\n    \"\"\"Print warning message\"\"\"\n    print(f\"⚠️  {message}\")\ndef validate_files_exist():\n    \"\"\"Validate that all required files exist\"\"\"\n    print_header(\"File Structure Validation\")\n    required_files = [\n        \"modules/web_server.py\",\n        \"sites/control/index.html\",\n        \"sites/docs/index.html\",",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_files_exist",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_files_exist():\n    \"\"\"Validate that all required files exist\"\"\"\n    print_header(\"File Structure Validation\")\n    required_files = [\n        \"modules/web_server.py\",\n        \"sites/control/index.html\",\n        \"sites/docs/index.html\",\n        \"matrix.py\",\n        \"README.md\"\n    ]",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_unified_server_import",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_unified_server_import():\n    \"\"\"Validate that the unified server can be imported\"\"\"\n    print_header(\"Import Validation\")\n    try:\n        from modules.web_server import UnifiedMatrixWebServer\n        print_success(\"UnifiedMatrixWebServer imported successfully\")\n        return True\n    except ImportError as e:\n        print_error(f\"Failed to import UnifiedMatrixWebServer: {e}\")\n        return False",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_server_startup",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_server_startup():\n    \"\"\"Validate that the server can start up\"\"\"\n    print_header(\"Server Startup Validation\")\n    try:\n        from modules.web_server import UnifiedMatrixWebServer\n        # Test server creation\n        server = UnifiedMatrixWebServer(port=3002)  # Use different port for testing\n        print_success(\"Server instance created successfully\")\n        # Test server startup in background\n        def start_server():",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_routing",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_routing():\n    \"\"\"Validate that routing works correctly\"\"\"\n    print_header(\"Routing Validation\")\n    base_url = \"http://localhost:3002\"\n    routes_to_test = [\n        (\"/\", \"Landing page\"),\n        (\"/control\", \"Control interface\"),\n        (\"/docs\", \"Documentation\"),\n        (\"/nonexistent\", \"404 handling\")\n    ]",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_navigation_updates",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_navigation_updates():\n    \"\"\"Validate that navigation has been updated\"\"\"\n    print_header(\"Navigation Updates Validation\")\n    files_to_check = [\n        (\"sites/control/index.html\", [\"/docs\", \"Documentation\"]),\n        (\"sites/docs/index.html\", [\"/control\", \"Control Interface\"])\n    ]\n    all_updated = True\n    for file_path, expected_content in files_to_check:\n        try:",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_matrix_py_updates",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_matrix_py_updates():\n    \"\"\"Validate that matrix.py has been updated\"\"\"\n    print_header(\"Matrix.py Updates Validation\")\n    try:\n        with open(\"matrix.py\", 'r', encoding='utf-8') as f:\n            content = f.read()\n        checks = [\n            (\"UnifiedMatrixWebServer\", \"Unified server import\"),\n            (\"unified web server\", \"Unified server usage\"),\n            (\"/control\", \"Path-based routing reference\"),",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "validate_requirements",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def validate_requirements():\n    \"\"\"Validate that all requirements are met\"\"\"\n    print_header(\"Requirements Validation Summary\")\n    requirements = [\n        (\"Unified web server\", \"Single server serves both interfaces\"),\n        (\"Path-based routing\", \"Uses /control and /docs paths\"),\n        (\"Landing page\", \"Navigation page at root URL\"),\n        (\"Cross-interface navigation\", \"Links between control and docs\"),\n        (\"Error handling\", \"Custom 404 and error pages\"),\n        (\"API proxy\", \"Proxies requests to controller\"),",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "tests.validate_phase4_integration",
+        "description": "tests.validate_phase4_integration",
+        "peekOfCode": "def main():\n    \"\"\"Main validation function\"\"\"\n    print(\"🚀 Phase 4 Integration Validation\")\n    print(\"Testing unified web server implementation...\")\n    validation_steps = [\n        (\"File Structure\", validate_files_exist),\n        (\"Import System\", validate_unified_server_import),\n        (\"Server Startup\", validate_server_startup),\n        (\"Routing System\", validate_routing),\n        (\"Navigation Updates\", validate_navigation_updates),",
+        "detail": "tests.validate_phase4_integration",
+        "documentation": {}
+    },
+    {
+        "label": "print_banner",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\n    print()\ndef cmd_controller(args):\n    \"\"\"Start the matrix controller (web-based)\"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_controller",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_controller(args):\n    \"\"\"Start the matrix controller (web-based)\"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")\n    try:\n        from web_matrix_controller import WebMatrixController\n        controller = WebMatrixController()\n        controller.run()\n    except ImportError as e:\n        print(f\"❌ Error importing controller: {e}\")\n        print(",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_web",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_web(args):\n    \"\"\"Start the unified web interface server\"\"\"\n    site_type = getattr(args, 'type', 'unified')\n    # Get port from args or use default\n    if hasattr(args, 'port') and args.port is not None:\n        port = args.port\n    else:\n        port = 3000  # Always use port 3000 for unified server\n    print(f\"🌐 Starting Unified Web Server...\")\n    try:",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_start",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_start(args):\n    \"\"\"Start both controller and web interfaces in a unified web-only solution\"\"\"\n    import threading\n    import time\n    print(\"🚀 Starting Complete LED Matrix System...\")\n    print(\"   - Web-based Matrix Controller\")\n    print(\"   - Control Interface Server\")\n    print(\"   - Documentation Server\")\n    print()\n    # Start web controller in a separate thread",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_generate",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_generate(args):\n    \"\"\"Generate Arduino code\"\"\"\n    print(f\"🔧 Generating Arduino code for {args.model}...\")\n    try:\n        from arduino_generator import ArduinoGenerator\n        from arduino_models import validate_model\n        if not validate_model(args.model):\n            print(f\"❌ Invalid Arduino model: {args.model}\")\n            print(\"Available models: uno, nano, esp32, esp8266, mega\")\n            return False",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_design",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_design(args):\n    \"\"\"Start design library or perform design operations\"\"\"\n    print(\"🎨 LED Matrix Design Library...\")\n    try:\n        from matrix_design_library import MatrixDesign, create_sample_designs\n        if args.samples:\n            print(\"Creating sample designs...\")\n            create_sample_designs()\n            return True\n        if args.interactive:",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_wiring",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_wiring(args):\n    \"\"\"Generate wiring diagrams and documentation\"\"\"\n    print(f\"📋 Generating wiring diagrams for {args.controller}...\")\n    try:\n        from wiring_diagram_generator import WiringDiagramGenerator\n        generator = WiringDiagramGenerator()\n        # Generate markdown guide\n        guide_filename = generator.save_guide(\n            args.controller,\n            args.width,",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_config",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_config(args):\n    \"\"\"Configure matrix settings\"\"\"\n    print(\"⚙️ Matrix Configuration...\")\n    try:\n        from matrix_config import config\n        if args.show:\n            print(\"Current Configuration:\")\n            info = config.get_config_info()\n            print(f\"   Config File: {info['config_file']}\")\n            print(",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_test",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_test(args):\n    \"\"\"Run test suite\"\"\"\n    print(\"🧪 Running LED Matrix Test Suite...\")\n    try:\n        if args.module:\n            # Run specific test module\n            import unittest\n            test_module = f\"tests.test_{args.module}\"\n            suite = unittest.TestLoader().loadTestsFromName(test_module)\n            runner = unittest.TextTestRunner(verbosity=2)",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_info",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def cmd_info(args):\n    \"\"\"Show project information and status\"\"\"\n    print(\"ℹ️ LED Matrix Project Information\")\n    print()\n    try:\n        # Project status\n        from matrix_config import config\n        print(\"📊 Project Status:\")\n        print(\n            f\"   Matrix Size: {config.get('matrix_width')}×{config.get('matrix_height')}\"",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "def main():\n    \"\"\"Main entry point with argument parsing\"\"\"\n    parser = argparse.ArgumentParser(\n        description=\"LED Matrix Project - Unified Control Interface\",\n        formatter_class=argparse.RawDescriptionHelpFormatter,\n        epilog=\"\"\"\nExamples:\n  python matrix.py controller                    # Start GUI controller\n  python matrix.py web --type control           # Start control interface (port 3000)\n  python matrix.py web --type docs              # Start documentation (port 3001)",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "current_dir",
+        "kind": 5,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "modules_dir",
+        "kind": 5,
+        "importPath": "matrix",
+        "description": "matrix",
+        "peekOfCode": "modules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\n    print()",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "sys.argv",
+        "kind": 5,
+        "importPath": "run_tests",
+        "description": "run_tests",
+        "peekOfCode": "sys.argv = ['matrix.py', 'test'] + sys.argv[1:]\ntry:\n    from matrix import main\n    success = main()\n    sys.exit(0 if success else 1)\nexcept Exception as e:\n    print(f\"❌ Error running unified entry point: {e}\")\n    print(\"Falling back to direct test execution...\")\n    # Fallback to direct execution\n    try:",
+        "detail": "run_tests",
         "documentation": {}
     }
 ]

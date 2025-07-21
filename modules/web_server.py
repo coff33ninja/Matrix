@@ -33,23 +33,50 @@ logging.basicConfig(
 )
 logger = logging.getLogger('WebServer')
 
+def get_env_config():
+    """Get environment configuration for debugging"""
+    env_vars = {
+        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),
+        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),
+        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),
+        'ENABLE_CORS': os.getenv('ENABLE_CORS'),
+        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),
+        'SITES_DIR': os.getenv('SITES_DIR'),
+        'AUTOCREATE_DIRS': os.getenv('AUTOCREATE_DIRS'),
+        'PYTHONPATH': os.getenv('PYTHONPATH'),
+        'PATH': os.getenv('PATH')[:100] + '...' if os.getenv('PATH') and len(os.getenv('PATH')) > 100 else os.getenv('PATH')
+    }
+    return {k: v for k, v in env_vars.items() if v is not None}
+
 @dataclass
 class ServerConfig:
-    port: int = 3000
-    host: str = "localhost"
-    control_path: str = "sites/control"
-    docs_path: str = "sites/docs"
-    api_proxy_port: int = 8080
-    enable_cors: bool = True
-    enable_caching: bool = True
+    port: int = int(os.getenv('WEB_SERVER_PORT', 3000))
+    host: str = os.getenv('WEB_SERVER_HOST', "localhost")
+    control_path: str = os.getenv('CONTROL_PATH', "sites/control")
+    docs_path: str = os.getenv('DOCS_PATH', "sites/docs")
+    api_proxy_port: int = int(os.getenv('API_PROXY_PORT', 8080))
+    enable_cors: bool = os.getenv('ENABLE_CORS', 'true').lower() == 'true'
+    enable_caching: bool = os.getenv('ENABLE_CACHING', 'true').lower() == 'true'
 
 class UnifiedMatrixWebServer:
-    def __init__(self, port=3000):
+    def __init__(self, port=None):
+        # Use environment variable or passed port
+        if port is None:
+            port = int(os.getenv('WEB_SERVER_PORT', 3000))
         self.config = ServerConfig(port=port)
-        self.sites_dir = Path(__file__).parent.parent / "sites"
+        
+        # Use environment variable for sites directory if available
+        sites_base = os.getenv('SITES_DIR', str(Path(__file__).parent.parent / "sites"))
+        self.sites_dir = Path(sites_base)
         self.control_dir = self.sites_dir / "control"
         self.docs_dir = self.sites_dir / "docs"
         self.errors_dir = self.sites_dir / "errors"
+        
+        # Create directories if they don't exist (when AUTOCREATE_DIRS is set)
+        if os.getenv('AUTOCREATE_DIRS', 'false').lower() == 'true':
+            os.makedirs(self.control_dir, exist_ok=True)
+            os.makedirs(self.docs_dir, exist_ok=True)
+            os.makedirs(self.errors_dir, exist_ok=True)
         
         # Ensure directories exist
         if not self.control_dir.exists():
@@ -349,8 +376,14 @@ class UnifiedMatrixWebServer:
                     file_path = file_path.lstrip('/')
                     full_path = base_dir / file_path
                     
-                    # Ensure the path is within the base directory
-                    if not str(full_path.resolve()).startswith(str(base_dir.resolve())):
+                    # Ensure the path is within the base directory using os.path.commonpath
+                    try:
+                        common_path = os.path.commonpath([str(full_path.resolve()), str(base_dir.resolve())])
+                        if common_path != str(base_dir.resolve()):
+                            self.serve_404()
+                            return
+                    except ValueError:
+                        # Paths are on different drives (Windows) or invalid
                         self.serve_404()
                         return
                     
@@ -531,13 +564,25 @@ class UnifiedMatrixWebServer:
         try:
             handler_class = self.create_custom_handler()
             
+            # Check if port is available using os
+            if os.name == 'nt':  # Windows
+                # On Windows, we can check if the port is in use
+                import socket
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('localhost', self.config.port))
+                sock.close()
+                if result == 0:
+                    print(f"⚠️  Port {self.config.port} appears to be in use")
+            
             with socketserver.TCPServer(("", self.config.port), handler_class) as httpd:
                 print("=" * 70)
                 print("🌐 LED Matrix Unified Web Server")
                 print("=" * 70)
-                print(f"📅 Started: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"� Srtarted: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 print(f"🌍 Server: http://localhost:{self.config.port}")
                 print(f"📁 Sites Directory: {self.sites_dir}")
+                print(f"🖥️  Platform: {os.name} ({os.uname().sysname if hasattr(os, 'uname') else 'Windows'})")
+                print(f"🔧 Process ID: {os.getpid()}")
                 print("=" * 70)
                 print("🎯 Available Interfaces:")
                 print(f"   🏠 Landing Page:     http://localhost:{self.config.port}/")
@@ -548,6 +593,11 @@ class UnifiedMatrixWebServer:
                 print("💡 For full functionality, ensure Python controller is running:")
                 print("   Command: python matrix.py controller")
                 print("=" * 70)
+                print("🌍 Environment Variables:")
+                print(f"   WEB_SERVER_PORT: {os.getenv('WEB_SERVER_PORT', 'not set')}")
+                print(f"   API_PROXY_PORT: {os.getenv('API_PROXY_PORT', 'not set')}")
+                print(f"   ENABLE_CORS: {os.getenv('ENABLE_CORS', 'not set')}")
+                print("=" * 70)
                 print("Press Ctrl+C to stop the server")
                 print()
                 
@@ -556,6 +606,13 @@ class UnifiedMatrixWebServer:
         except KeyboardInterrupt:
             print("\n🛑 Unified server stopped by user")
             return True
+        except OSError as e:
+            if e.errno == 98 or "Address already in use" in str(e):
+                print(f"❌ Port {self.config.port} is already in use. Try a different port or stop the existing server.")
+                print(f"💡 Set WEB_SERVER_PORT environment variable to use a different port")
+            else:
+                print(f"❌ OS error starting server: {e}")
+            return False
         except Exception as e:
             print(f"❌ Unified server error: {e}")
             return False
@@ -573,8 +630,34 @@ class MatrixWebServer(UnifiedMatrixWebServer):
         print(f"🔄 Starting unified server with legacy compatibility for {self.site_type}")
         return super().start()
 
+def setup_signal_handlers():
+    """Setup signal handlers for graceful shutdown using os"""
+    import signal
+    
+    def signal_handler(signum, frame):
+        print(f"\n🔔 Received signal {signum}")
+        print("🛑 Shutting down gracefully...")
+        os._exit(0)
+    
+    # Register signal handlers if available
+    if hasattr(signal, 'SIGTERM'):
+        signal.signal(signal.SIGTERM, signal_handler)
+    if hasattr(signal, 'SIGINT'):
+        signal.signal(signal.SIGINT, signal_handler)
+
 def main():
     """Main entry point for standalone web server"""
+    # Setup signal handlers
+    setup_signal_handlers()
+    
+    # Print environment info if DEBUG is set
+    if os.getenv('DEBUG', 'false').lower() == 'true':
+        print("🐛 Debug mode enabled")
+        print("🌍 Environment configuration:")
+        for key, value in get_env_config().items():
+            print(f"   {key}: {value}")
+        print()
+    
     server = MatrixWebServer()
     server.start()
 
