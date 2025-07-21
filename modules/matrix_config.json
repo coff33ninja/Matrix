@@ -1,0 +1,15 @@
+{
+  "matrix_width": 21,
+  "matrix_height": 24,
+  "leds_per_meter": 144,
+  "wiring_pattern": "serpentine",
+  "serial_port": "COM3",
+  "baud_rate": 500000,
+  "brightness": 128,
+  "connection_mode": "USB",
+  "esp32_ip": "192.168.4.1",
+  "web_port": 8080,
+  "physical_width": 146,
+  "physical_height": 167,
+  "data_pin": 6
+}

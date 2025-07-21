@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Matrix Control Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #f1f1f1;
+            --text-muted: #a0a0a0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            position: relative;
+        }
+
+        .header-nav {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            border: 1px solid rgba(233, 69, 96, 0.2);
+        }
+
+        .header-nav a:hover {
+            color: var(--highlight);
+            background: rgba(233, 69, 96, 0.1);
+            border-color: rgba(233, 69, 96, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--highlight), #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 52, 96, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(233, 69, 96, 0.2);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(26, 26, 46, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: var(--highlight);
+            border-color: var(--highlight);
+            transform: translateY(-2px);
+        }
+
+        .content-section {
+            background: rgba(26, 26, 46, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(233, 69, 96, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+        .card {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid rgba(233, 69, 96, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(233, 69, 96, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.1);
+        }
+
+        .card h3 {
+            color: var(--highlight);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            background: var(--highlight);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #d63384;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary);
+            border-color: var(--highlight);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--highlight);
+            box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
+        }
+
+        .matrix-preview {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+            background: #000;
+            border: 2px solid var(--highlight);
+            border-radius: 10px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .matrix-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            gap: 1px;
+            padding: 5px;
+        }
+
+        .led-pixel {
+            background: #333;
+            border-radius: 2px;
+            transition: background-color 0.1s ease;
+        }
+
+        .log-container {
+            background: #000;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-entry.error { color: var(--error); }
+        .log-entry.success { color: var(--success); }
+        .log-entry.warning { color: var(--warning); }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .status-bar { flex-direction: column; gap: 10px; }
+            .nav-tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-nav">
+                <a href="/" class="nav-home">🏠 Home</a>
+                <a href="/docs" class="nav-docs">📚 Documentation</a>
+            </div>
+            <h1>🔥 LED Matrix Control Center</h1>
+            <p>Real-time control and monitoring for your LED matrix project</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="connection-status"></div>
+                <span id="connection-text">Connecting...</span>
+            </div>
+            <div class="status-item">
+                <span>Matrix: <strong id="matrix-size">16×16</strong></span>
+            </div>
+            <div class="status-item">
+                <span>LEDs: <strong id="led-count">256</strong></span>
+            </div>
+            <div class="status-item">
+                <span>FPS: <strong id="fps-counter">0</strong></span>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <a href="#" class="nav-tab active" data-section="control">🎮 Control</a>
+            <a href="#" class="nav-tab" data-section="generator">⚙️ Generator</a>
+            <a href="#" class="nav-tab" data-section="wiring">🔌 Wiring</a>
+            <a href="#" class="nav-tab" data-section="config">⚙️ Config</a>
+            <a href="#" class="nav-tab" data-section="monitor">📊 Monitor</a>
+            <a href="#" class="nav-tab" data-section="help">❓ Help</a>
+        </nav>
+
+        <main class="content-section">
+            <!-- Control Section -->
+            <div id="control-section" class="section active">
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>🎨 Pattern Control</h3>
+                        <div class="input-group">
+                            <label>Pattern Type</label>
+                            <select id="pattern-select">
+                                <option value="solid">Solid Color</option>
+                                <option value="rainbow">Rainbow</option>
+                                <option value="plasma">Plasma</option>
+                                <option value="fire">Fire Effect</option>
+                                <option value="matrix">Matrix Rain</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Color</label>
+                            <input type="color" id="color-picker" value="#e94560">
+                        </div>
+                        <div class="input-group">
+                            <label>Brightness: <span id="brightness-value">128</span></label>
+                            <input type="range" id="brightness-slider" min="0" max="255" value="128">
+                        </div>
+                        <div class="input-group">
+                            <label>Speed: <span id="speed-value">50</span></label>
+                            <input type="range" id="speed-slider" min="1" max="100" value="50">
+                        </div>
+                        <button class="btn" id="apply-pattern">Apply Pattern</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>📱 Matrix Preview</h3>
+                        <div class="matrix-preview">
+                            <div class="matrix-grid" id="matrix-grid"></div>
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button class="btn btn-secondary" id="clear-matrix">Clear</button>
+                            <button class="btn" id="test-pattern">Test Pattern</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3>📝 Activity Log</h3>
+                    <div class="log-container" id="activity-log">
+                        <div class="log-entry">System initialized</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generator Section -->
+            <div id="generator-section" class="section" style="display: none;">
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>🔧 Arduino Code Generator</h3>
+                        <div class="input-group">
+                            <label>Board Type</label>
+                            <select id="board-select">
+                                <option value="uno">Arduino Uno</option>
+                                <option value="nano">Arduino Nano</option>
+                                <option value="esp32">ESP32 Dev Board</option>
+                                <option value="esp8266">ESP8266 NodeMCU</option>
+                                <option value="mega">Arduino Mega 2560</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Matrix Width</label>
+                            <input type="number" id="matrix-width" value="16" min="1" max="64">
+                        </div>
+                        <div class="input-group">
+                            <label>Matrix Height</label>
+                            <input type="number" id="matrix-height" value="16" min="1" max="64">
+                        </div>
+                        <button class="btn" id="generate-code">Generate Arduino Code</button>
+                        <button class="btn btn-secondary" id="download-code">Download Code</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>📊 Board Comparison</h3>
+                        <div id="board-comparison">
+                            <p>Select matrix size to see board recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wiring Section -->
+            <div id="wiring-section" class="section" style="display: none;">
+                <div class="card">
+                    <h3>🔌 Wiring Diagram Generator</h3>
+                    <div class="grid grid-3">
+                        <div class="input-group">
+                            <label>Controller</label>
+                            <select id="wiring-controller">
+                                <option value="arduino_uno">Arduino Uno</option>
+                                <option value="arduino_nano">Arduino Nano</option>
+                                <option value="esp32">ESP32 Dev Board</option>
+                                <option value="esp8266">ESP8266 NodeMCU</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Matrix Width</label>
+                            <input type="number" id="wiring-width" value="16" min="1" max="64">
+                        </div>
+                        <div class="input-group">
+                            <label>Matrix Height</label>
+                            <input type="number" id="wiring-height" value="16" min="1" max="64">
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn" id="generate-wiring">Generate Wiring Guide</button>
+                        <button class="btn btn-secondary" id="download-wiring">Download Guide</button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3>💡 Power Requirements</h3>
+                    <div id="power-info">
+                        <p>Configure your matrix to see power requirements</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Section -->
+            <div id="config-section" class="section" style="display: none;">
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>⚙️ Matrix Configuration</h3>
+                        <div class="input-group">
+                            <label>Connection Mode</label>
+                            <select id="connection-mode">
+                                <option value="USB">USB Serial</option>
+                                <option value="WiFi">WiFi (ESP32/ESP8266)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Serial Port</label>
+                            <input type="text" id="serial-port" placeholder="COM3 or /dev/ttyUSB0">
+                        </div>
+                        <div class="input-group">
+                            <label>Baud Rate</label>
+                            <select id="baud-rate">
+                                <option value="9600">9600</option>
+                                <option value="115200" selected>115200</option>
+                                <option value="500000">500000</option>
+                            </select>
+                        </div>
+                        <button class="btn" id="save-config">Save Configuration</button>
+                        <button class="btn btn-secondary" id="test-connection">Test Connection</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>💾 Backup & Restore</h3>
+                        <p>Manage your configuration backups</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-secondary" id="create-backup">Create Backup</button>
+                            <button class="btn btn-secondary" id="restore-backup">Restore Backup</button>
+                        </div>
+                        <div id="backup-list" style="margin-top: 15px;">
+                            <!-- Backup list will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitor Section -->
+            <div id="monitor-section" class="section" style="display: none;">
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>📊 System Status</h3>
+                        <div id="system-stats">
+                            <p>Loading system information...</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🔧 Hardware Info</h3>
+                        <div id="hardware-info">
+                            <p>Loading hardware information...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3>📈 Performance Metrics</h3>
+                    <div id="performance-metrics">
+                        <p>Performance data will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div id="help-section" class="section" style="display: none;">
+                <div class="card">
+                    <h3>❓ Help & Documentation</h3>
+                    <p>Get help with using the LED Matrix Control Center and building your project.</p>
+                    
+                    <div class="grid grid-2" style="margin-top: 20px;">
+                        <div>
+                            <h4>📚 Documentation</h4>
+                            <ul style="margin-top: 10px;">
+                                <li><a href="/docs/" target="_blank" style="color: var(--highlight);">📖 Complete Project Guide</a></li>
+                                <li><a href="/docs/#components" target="_blank" style="color: var(--highlight);">🛒 Shopping List & Components</a></li>
+                                <li><a href="/docs/#wiring" target="_blank" style="color: var(--highlight);">🔌 Wiring Diagrams</a></li>
+                                <li><a href="/docs/#arduino" target="_blank" style="color: var(--highlight);">💻 Arduino Programming</a></li>
+                                <li><a href="/docs/#troubleshooting" target="_blank" style="color: var(--highlight);">🔍 Troubleshooting Guide</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>🚀 Quick Start</h4>
+                            <ol style="margin-top: 10px;">
+                                <li>Upload Arduino code to your board</li>
+                                <li>Connect your LED matrix</li>
+                                <li>Start the Python controller</li>
+                                <li>Use this interface to control patterns</li>
+                                <li>Monitor system performance</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(233, 69, 96, 0.2);">
+                        <h4>🔧 Control Interface Features</h4>
+                        <div class="grid grid-2" style="margin-top: 15px;">
+                            <div>
+                                <strong>🎮 Control Tab:</strong>
+                                <ul style="font-size: 14px; margin-top: 5px;">
+                                    <li>Real-time pattern control</li>
+                                    <li>Color and brightness adjustment</li>
+                                    <li>Live matrix preview</li>
+                                    <li>Activity logging</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong>⚙️ Generator Tab:</strong>
+                                <ul style="font-size: 14px; margin-top: 5px;">
+                                    <li>Arduino code generation</li>
+                                    <li>Board compatibility check</li>
+                                    <li>Memory usage analysis</li>
+                                    <li>One-click download</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong>🔌 Wiring Tab:</strong>
+                                <ul style="font-size: 14px; margin-top: 5px;">
+                                    <li>Interactive wiring guides</li>
+                                    <li>Power requirement calculations</li>
+                                    <li>Component specifications</li>
+                                    <li>Shopping list generation</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong>📊 Monitor Tab:</strong>
+                                <ul style="font-size: 14px; margin-top: 5px;">
+                                    <li>System performance metrics</li>
+                                    <li>Hardware status monitoring</li>
+                                    <li>Real-time statistics</li>
+                                    <li>Connection diagnostics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(15, 52, 96, 0.2); border-radius: 8px;">
+                        <h4>💡 Tips for Best Results</h4>
+                        <ul style="margin-top: 10px;">
+                            <li><strong>Start Small:</strong> Test with 10-20 LEDs before connecting the full matrix</li>
+                            <li><strong>Check Power:</strong> Ensure your power supply can handle the LED count</li>
+                            <li><strong>Monitor Current:</strong> Use the monitor tab to watch power consumption</li>
+                            <li><strong>Use Low Brightness:</strong> Start with 25% brightness for testing</li>
+                            <li><strong>Check Connections:</strong> Verify all wiring before powering on</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>LED Matrix Control Center - Built with Python & Modern Web Technologies</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
