@@ -422,43 +422,100 @@
             font-weight: bold;
         }
 
-        /* Drawing Section Styles */
+        /* Drawing Controls in Control Section */
         .drawing-controls {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-row {
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .control-group {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 8px;
         }
 
         .control-group label {
             font-weight: bold;
             color: var(--highlight);
+            font-size: 14px;
+            min-width: 40px;
+        }
+
+        .control-group select,
+        .control-group input[type="color"],
+        .control-group input[type="range"] {
+            font-size: 14px;
+        }
+
+        .control-group input[type="color"] {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         .color-presets {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            gap: 4px;
+            margin-top: 8px;
+            justify-content: center;
         }
 
         .color-preset {
-            width: 25px;
-            height: 25px;
-            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .color-preset:hover,
         .color-preset.active {
             border-color: var(--highlight);
+            transform: scale(1.1);
+        }
+
+        .quick-patterns {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .pattern-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .pattern-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .pattern-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--highlight);
+            transform: scale(1.05);
         }
 
         .drawing-actions {
@@ -705,9 +762,8 @@
         </div>
 
         <nav class="nav-tabs">
-            <a href="#" class="nav-tab active" data-section="control">🎮 Control</a>
+            <a href="#" class="nav-tab active" data-section="control">🎮 Control & Draw</a>
             <a href="#" class="nav-tab" data-section="generator">⚙️ Generator</a>
-            <a href="#" class="nav-tab" data-section="drawing">🎨 Draw</a>
             <a href="#" class="nav-tab" data-section="wiring">🔌 Wiring</a>
             <a href="#" class="nav-tab" data-section="arduino">📤 Arduino</a>
             <a href="#" class="nav-tab" data-section="config">⚙️ Config</a>
@@ -747,13 +803,68 @@
                     </div>
 
                     <div class="card">
-                        <h3>📱 Matrix Preview</h3>
+                        <h3>📱 Matrix Preview & Drawing</h3>
                         <div class="matrix-preview">
                             <div class="matrix-grid" id="matrix-grid"></div>
                         </div>
+                        
+                        <!-- Drawing Controls -->
+                        <div class="drawing-controls">
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <label>Mode:</label>
+                                    <select id="drawing-mode">
+                                        <option value="paint">🖌️ Paint</option>
+                                        <option value="erase">🧽 Erase</option>
+                                        <option value="fill">🪣 Fill</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label>Color:</label>
+                                    <input type="color" id="brush-color" value="#e94560">
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label>Size:</label>
+                                    <input type="range" id="brush-size" min="1" max="3" value="1">
+                                    <span id="brush-size-display">1x1</span>
+                                </div>
+                            </div>
+                            
+                            <div class="color-presets">
+                                <div class="color-preset" style="background: #ff0000" data-color="#ff0000" title="Red"></div>
+                                <div class="color-preset" style="background: #00ff00" data-color="#00ff00" title="Green"></div>
+                                <div class="color-preset" style="background: #0000ff" data-color="#0000ff" title="Blue"></div>
+                                <div class="color-preset" style="background: #ffff00" data-color="#ffff00" title="Yellow"></div>
+                                <div class="color-preset" style="background: #ff00ff" data-color="#ff00ff" title="Magenta"></div>
+                                <div class="color-preset" style="background: #00ffff" data-color="#00ffff" title="Cyan"></div>
+                                <div class="color-preset" style="background: #ffffff" data-color="#ffffff" title="White"></div>
+                                <div class="color-preset" style="background: #000000" data-color="#000000" title="Black"></div>
+                            </div>
+                        </div>
+                        
                         <div style="text-align: center; margin-top: 15px;">
                             <button class="btn btn-secondary" id="clear-matrix">Clear</button>
                             <button class="btn" id="test-pattern">Test Pattern</button>
+                            <button class="btn" id="clear-drawing">🗑️ Clear Drawing</button>
+                            <button class="btn btn-primary" id="send-to-matrix">📡 Send to Matrix</button>
+                        </div>
+                        
+                        <!-- Quick Patterns -->
+                        <div class="quick-patterns">
+                            <div class="pattern-buttons">
+                                <button class="pattern-btn" data-pattern="smiley" title="Smiley">😊</button>
+                                <button class="pattern-btn" data-pattern="heart" title="Heart">❤️</button>
+                                <button class="pattern-btn" data-pattern="arrow" title="Arrow">➡️</button>
+                                <button class="pattern-btn" data-pattern="star" title="Star">⭐</button>
+                                <button class="pattern-btn" data-pattern="checkerboard" title="Checkerboard">🏁</button>
+                                <button class="pattern-btn" data-pattern="border" title="Border">⬜</button>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-secondary" id="save-pattern">💾 Save</button>
+                                <button class="btn btn-secondary" id="load-pattern">📁 Load</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -798,94 +909,6 @@
                         <div id="board-comparison">
                             <p>Select matrix size to see board recommendations</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Drawing Section -->
-            <div id="drawing-section" class="section" style="display: none;">
-                <div class="card">
-                    <h3>🎨 Matrix Drawing</h3>
-                    <p>Draw patterns directly on the LED matrix. Click and drag to paint pixels.</p>
-                    
-                    <div class="drawing-controls">
-                        <div class="control-group">
-                            <label>Drawing Mode:</label>
-                            <select id="drawing-mode">
-                                <option value="paint">🖌️ Paint</option>
-                                <option value="erase">🧽 Erase</option>
-                                <option value="fill">🪣 Fill</option>
-                                <option value="line">📏 Line</option>
-                                <option value="rectangle">⬜ Rectangle</option>
-                                <option value="circle">⭕ Circle</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Brush Color:</label>
-                            <input type="color" id="brush-color" value="#e94560">
-                            <div class="color-presets">
-                                <div class="color-preset" style="background: #ff0000" data-color="#ff0000"></div>
-                                <div class="color-preset" style="background: #00ff00" data-color="#00ff00"></div>
-                                <div class="color-preset" style="background: #0000ff" data-color="#0000ff"></div>
-                                <div class="color-preset" style="background: #ffff00" data-color="#ffff00"></div>
-                                <div class="color-preset" style="background: #ff00ff" data-color="#ff00ff"></div>
-                                <div class="color-preset" style="background: #00ffff" data-color="#00ffff"></div>
-                                <div class="color-preset" style="background: #ffffff" data-color="#ffffff"></div>
-                                <div class="color-preset" style="background: #000000" data-color="#000000"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Brush Size:</label>
-                            <input type="range" id="brush-size" min="1" max="5" value="1">
-                            <span id="brush-size-display">1x1</span>
-                        </div>
-                    </div>
-                    
-                    <div class="drawing-actions">
-                        <button class="btn" id="clear-drawing">🗑️ Clear All</button>
-                        <button class="btn" id="fill-all">🎨 Fill All</button>
-                        <button class="btn" id="save-pattern">💾 Save Pattern</button>
-                        <button class="btn" id="load-pattern">📁 Load Pattern</button>
-                        <button class="btn btn-secondary" id="send-to-matrix">📡 Send to Matrix</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>🖼️ Pattern Library</h3>
-                    <div class="pattern-library">
-                        <div class="pattern-item" data-pattern="smiley">
-                            <div class="pattern-preview">😊</div>
-                            <span>Smiley</span>
-                        </div>
-                        <div class="pattern-item" data-pattern="heart">
-                            <div class="pattern-preview">❤️</div>
-                            <span>Heart</span>
-                        </div>
-                        <div class="pattern-item" data-pattern="arrow">
-                            <div class="pattern-preview">➡️</div>
-                            <span>Arrow</span>
-                        </div>
-                        <div class="pattern-item" data-pattern="star">
-                            <div class="pattern-preview">⭐</div>
-                            <span>Star</span>
-                        </div>
-                        <div class="pattern-item" data-pattern="checkerboard">
-                            <div class="pattern-preview">🏁</div>
-                            <span>Checker</span>
-                        </div>
-                        <div class="pattern-item" data-pattern="border">
-                            <div class="pattern-preview">⬜</div>
-                            <span>Border</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>💾 Saved Patterns</h3>
-                    <div id="saved-patterns" class="saved-patterns">
-                        <p>No saved patterns yet. Create and save your first pattern!</p>
                     </div>
                 </div>
             </div>

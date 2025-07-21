@@ -8,6 +8,14 @@ class MatrixController {
         this.currentPattern = 'solid';
         this.fps = 0;
         
+        // Initialize drawing variables
+        this.drawingMode = 'paint';
+        this.brushColor = '#e94560';
+        this.brushSize = 1;
+        this.isDrawing = false;
+        this.drawingData = [];
+        this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
+        
         this.init();
     }
 
@@ -95,16 +103,20 @@ class MatrixController {
 
     async loadSectionData(section) {
         switch(section) {
+            case 'control':
+                this.initializeMatrix();
+                // Wait a bit for DOM to be ready, then setup drawing
+                setTimeout(() => {
+                    this.initializeDrawingData();
+                    this.setupMatrixDrawing();
+                }, 100);
+                break;
             case 'monitor':
                 await this.loadSystemStats();
                 await this.loadHardwareInfo();
                 break;
             case 'generator':
                 this.updateBoardComparison();
-                break;
-            case 'drawing':
-                this.initializeDrawingData();
-                this.updateSavedPatterns();
                 break;
             case 'wiring':
                 this.updatePowerInfo();
@@ -764,26 +776,16 @@ class MatrixController {
         document.getElementById('load-pattern').addEventListener('click', () => this.loadPattern());
         document.getElementById('send-to-matrix').addEventListener('click', () => this.sendDrawingToMatrix());
         
-        // Pattern library
-        document.querySelectorAll('.pattern-item').forEach(item => {
-            item.addEventListener('click', (e) => {
+        // Pattern buttons (quick patterns)
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
                 const pattern = e.currentTarget.dataset.pattern;
                 this.loadPresetPattern(pattern);
             });
         });
         
-        // Initialize drawing state
-        this.drawingMode = 'paint';
-        this.brushColor = '#e94560';
-        this.brushSize = 1;
-        this.isDrawing = false;
-        this.drawingData = [];
-        this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
-        
-        // Initialize drawing data structure
-        this.initializeDrawingData();
-        
-        this.setupMatrixDrawing();
+        // Drawing variables are now initialized in constructor
+        // Just update saved patterns display
         this.updateSavedPatterns();
     }
     
@@ -805,6 +807,7 @@ class MatrixController {
     
     setupMatrixDrawing() {
         const pixels = document.querySelectorAll('.led-pixel');
+        console.log('Setting up drawing for', pixels.length, 'pixels');
         
         pixels.forEach((pixel, index) => {
             // Mouse events for drawing
@@ -869,6 +872,7 @@ class MatrixController {
     }
     
     drawPixel(index) {
+        console.log('Drawing pixel:', index, 'Mode:', this.drawingMode, 'Color:', this.brushColor);
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const x = index % width;
