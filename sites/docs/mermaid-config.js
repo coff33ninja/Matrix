@@ -157,6 +157,9 @@ class MermaidInteractive {
                     <i class="fas fa-expand-arrows-alt"></i>
                 </button>
                 <button class="mermaid-control-btn" onclick="mermaidInteractive.downloadSVG(this)" title="Download SVG">
+                    <i class="fas fa-file-code"></i>
+                </button>
+                <button class="mermaid-control-btn" onclick="mermaidInteractive.downloadPNG(this)" title="Download PNG">
                     <i class="fas fa-download"></i>
                 </button>
             `;
@@ -259,6 +262,56 @@ class MermaidInteractive {
             a.download = 'wiring-diagram.svg';
             a.click();
             URL.revokeObjectURL(url);
+        }
+    }
+    
+    downloadPNG(button) {
+        const container = button.closest('.mermaid-container');
+        const svg = container.querySelector('svg');
+        if (svg) {
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Get SVG dimensions
+            const svgRect = svg.getBoundingClientRect();
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            // Set canvas size with higher resolution for better quality
+            const scale = 2;
+            canvas.width = svgRect.width * scale;
+            canvas.height = svgRect.height * scale;
+            
+            // Create image from SVG
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                // Set white background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Scale context for higher resolution
+                ctx.scale(scale, scale);
+                
+                // Draw the SVG image
+                ctx.drawImage(img, 0, 0, svgRect.width, svgRect.height);
+                
+                // Convert canvas to PNG and download
+                canvas.toBlob(function(blob) {
+                    const pngUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = 'wiring-diagram.png';
+                    a.click();
+                    URL.revokeObjectURL(pngUrl);
+                }, 'image/png');
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
         }
     }
     

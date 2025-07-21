@@ -558,21 +558,160 @@ class MatrixController {
             if (response.ok) {
                 const data = await response.json();
                 this.log('Wiring guide generated successfully', 'success');
-                this.wiringGuide = data.guide;
+                this.wiringData = data.wiring;
                 
-                // Update power calculations
-                this.updatePowerCalculations(data);
+                // Update power calculations with wiring data
+                this.updatePowerCalculationsFromWiring(data.wiring);
                 
-                // Generate Mermaid diagram
-                this.generateMermaidDiagram(data);
+                // Generate Mermaid diagram from backend
+                this.displayMermaidDiagram(data.wiring.mermaidDiagram);
                 
                 // Update component list
-                this.updateComponentList(data);
+                this.updateComponentListFromWiring(data.wiring);
             } else {
                 throw new Error('Failed to generate wiring guide');
             }
         } catch (error) {
             this.log(`Error generating wiring: ${error.message}`, 'error');
+        }
+    }
+
+    updatePowerCalculationsFromWiring(wiringData) {
+        // Update power info display with data from backend
+        const powerInfo = document.getElementById('power-info');
+        if (powerInfo && wiringData.power) {
+            powerInfo.innerHTML = `
+                <div class="power-stat">
+                    <span class="power-label">Total LEDs:</span>
+                    <span class="power-value">${wiringData.matrix.totalLeds}</span>
+                </div>
+                <div class="power-stat">
+                    <span class="power-label">Max Current:</span>
+                    <span class="power-value">${wiringData.power.maxCurrent}A</span>
+                </div>
+                <div class="power-stat">
+                    <span class="power-label">Max Power:</span>
+                    <span class="power-value">${wiringData.power.maxPower}W</span>
+                </div>
+                <div class="power-stat">
+                    <span class="power-label">Recommended PSU:</span>
+                    <span class="power-value">${wiringData.power.recommendedPSU}</span>
+                </div>
+                <div class="power-stat">
+                    <span class="power-label">Strip Length:</span>
+                    <span class="power-value">${wiringData.strip.totalLength}m</span>
+                </div>
+            `;
+        }
+    }
+    
+    displayMermaidDiagram(mermaidCode) {
+        const diagramElement = document.getElementById('mermaid-diagram');
+        if (diagramElement && mermaidCode) {
+            // Create a container with controls
+            diagramElement.innerHTML = `
+                <div class="mermaid-container">
+                    <div class="mermaid-controls">
+                        <button class="mermaid-control-btn" onclick="this.parentElement.parentElement.querySelector('.mermaid').style.transform = 'scale(' + (parseFloat(this.parentElement.parentElement.querySelector('.mermaid').style.transform.match(/scale\\(([^)]+)\\)/)?.[1] || 1) * 1.2 + ')'" title="Zoom In">
+                            🔍+
+                        </button>
+                        <button class="mermaid-control-btn" onclick="this.parentElement.parentElement.querySelector('.mermaid').style.transform = 'scale(' + (parseFloat(this.parentElement.parentElement.querySelector('.mermaid').style.transform.match(/scale\\(([^)]+)\\)/)?.[1] || 1) * 0.8 + ')'" title="Zoom Out">
+                            🔍-
+                        </button>
+                        <button class="mermaid-control-btn" onclick="this.parentElement.parentElement.querySelector('.mermaid').style.transform = 'scale(1)'" title="Reset Zoom">
+                            ↻
+                        </button>
+                        <button class="mermaid-control-btn" onclick="matrixController.downloadDiagramPNG(this)" title="Download PNG">
+                            📥 PNG
+                        </button>
+                    </div>
+                    <div class="mermaid">${mermaidCode}</div>
+                </div>
+            `;
+            
+            // Re-initialize Mermaid if available
+            if (typeof mermaid !== 'undefined') {
+                mermaid.init(undefined, diagramElement.querySelector('.mermaid'));
+            }
+        }
+    }
+    
+    updateComponentListFromWiring(wiringData) {
+        const componentList = document.getElementById('component-list');
+        if (componentList && wiringData.components) {
+            let html = '<div class="component-grid">';
+            
+            wiringData.components.forEach(component => {
+                html += `
+                    <div class="component-item">
+                        <strong>${component.name}</strong>
+                        <span>Qty: ${component.quantity}</span>
+                        <small>${component.type}</small>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (wiringData.estimatedCost) {
+                html += `
+                    <div class="cost-summary">
+                        <strong>Estimated Total Cost: $${wiringData.estimatedCost}</strong>
+                    </div>
+                `;
+            }
+            
+            componentList.innerHTML = html;
+        }
+    }
+    
+    downloadDiagramPNG(button) {
+        const container = button.closest('.mermaid-container');
+        const svg = container.querySelector('svg');
+        if (svg) {
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Get SVG dimensions
+            const svgRect = svg.getBoundingClientRect();
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            // Set canvas size with higher resolution for better quality
+            const scale = 2;
+            canvas.width = svgRect.width * scale;
+            canvas.height = svgRect.height * scale;
+            
+            // Create image from SVG
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                // Set white background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Scale context for higher resolution
+                ctx.scale(scale, scale);
+                
+                // Draw the SVG image
+                ctx.drawImage(img, 0, 0, svgRect.width, svgRect.height);
+                
+                // Convert canvas to PNG and download
+                canvas.toBlob(function(blob) {
+                    const pngUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = 'led-matrix-wiring-diagram.png';
+                    a.click();
+                    URL.revokeObjectURL(pngUrl);
+                }, 'image/png');
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
         }
     }
 
@@ -812,18 +951,56 @@ graph TD
     }
 
     downloadWiring() {
-        if (this.wiringGuide) {
-            const blob = new Blob([this.wiringGuide], { type: 'text/markdown' });
+        if (this.wiringData) {
+            // Generate markdown content from wiring data
+            const markdown = this.generateWiringMarkdown(this.wiringData);
+            const blob = new Blob([markdown], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'wiring_guide.md';
+            a.download = `wiring_guide_${this.wiringData.controller}_${this.wiringData.matrix.width}x${this.wiringData.matrix.height}.md`;
             a.click();
             URL.revokeObjectURL(url);
             this.log('Wiring guide downloaded', 'success');
         } else {
             this.log('No wiring guide to download. Generate guide first.', 'warning');
         }
+    }
+    
+    generateWiringMarkdown(wiringData) {
+        const date = new Date().toISOString().split('T')[0];
+        return `# LED Matrix Wiring Guide
+# ${wiringData.matrix.width}×${wiringData.matrix.height} Matrix with ${wiringData.controller}
+
+Generated on: ${date}
+
+## Configuration Summary:
+- Controller: ${wiringData.controller}
+- Matrix Size: ${wiringData.matrix.width}×${wiringData.matrix.height} (${wiringData.matrix.totalLeds} LEDs)
+- Maximum Current: ${wiringData.power.maxCurrent}A
+- Maximum Power: ${wiringData.power.maxPower}W
+- Recommended PSU: ${wiringData.power.recommendedPSU}
+- Selected PSU: ${wiringData.power.selectedPSU}
+
+## Mermaid Wiring Diagram:
+\`\`\`mermaid
+${wiringData.mermaidDiagram}
+\`\`\`
+
+## Component List:
+${wiringData.components.map(comp => `- **${comp.name}** (${comp.quantity}) - ${comp.type}`).join('\n')}
+
+## Estimated Cost:
+**Total: $${wiringData.estimatedCost}**
+
+## Strip Configuration:
+- LEDs per meter: ${wiringData.strip.ledsPerMeter}
+- Total length needed: ${wiringData.strip.totalLength}m
+- Suggested segments: ${wiringData.strip.segments}
+
+---
+Generated by LED Matrix Control Center
+`;
     }
 
     updatePowerInfo() {

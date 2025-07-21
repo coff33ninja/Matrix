@@ -53,7 +53,10 @@ class WiringDiagramGenerator:
 
     def calculate_power_requirements(self, width, height, brightness=128):
         """Calculate power requirements for the matrix using shared function"""
-        from arduino_models import calculate_power_requirements
+        try:
+            from modules.arduino_models import calculate_power_requirements
+        except ImportError:
+            from arduino_models import calculate_power_requirements
 
         total_leds = width * height
         brightness_percent = (brightness / 255) * 100
