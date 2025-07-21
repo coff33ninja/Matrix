@@ -701,11 +701,44 @@ class WebMatrixController:
                 self.animation_thread.start()
                 return True
 
+            elif pattern == "custom":
+                # Handle custom pattern data
+                custom_data = data.get("data", [])
+                if custom_data:
+                    self._apply_custom_pattern(custom_data)
+                    return True
+                else:
+                    print("No custom pattern data provided")
+                    return False
+
             return False
 
         except Exception as e:
             print(f"Error applying pattern: {e}")
             return False
+
+    def _apply_custom_pattern(self, pattern_data):
+        """Apply custom pattern data to the matrix"""
+        try:
+            # Stop any existing animation
+            self.stop_animation()
+            
+            # Clear the matrix
+            self.matrix_data.fill(0)
+            
+            # Apply custom pattern data
+            # pattern_data should be a 2D array of RGB values
+            for y in range(min(len(pattern_data), self.H)):
+                for x in range(min(len(pattern_data[y]), self.W)):
+                    rgb = pattern_data[y][x]
+                    if isinstance(rgb, list) and len(rgb) >= 3:
+                        self.matrix_data[y, x] = [rgb[0], rgb[1], rgb[2]]
+            
+            # Send the frame
+            self.send_frame()
+            
+        except Exception as e:
+            print(f"Error applying custom pattern: {e}")
 
     def _plasma_animation_loop(self, speed):
         """Plasma animation loop"""

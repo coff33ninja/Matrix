@@ -62,6 +62,12 @@ class MatrixController {
         });
         document.getElementById('wiring-width').addEventListener('input', () => this.updatePowerCalculations());
         document.getElementById('wiring-height').addEventListener('input', () => this.updatePowerCalculations());
+
+        // Drawing section event listeners
+        this.setupDrawingEventListeners();
+        
+        // Arduino section event listeners
+        this.setupArduinoEventListeners();
         document.getElementById('leds-per-meter').addEventListener('change', () => this.updatePowerCalculations());
         document.getElementById('power-supply').addEventListener('change', () => this.updatePowerCalculations());
 
@@ -96,8 +102,15 @@ class MatrixController {
             case 'generator':
                 this.updateBoardComparison();
                 break;
+            case 'drawing':
+                this.initializeDrawingData();
+                this.updateSavedPatterns();
+                break;
             case 'wiring':
                 this.updatePowerInfo();
+                break;
+            case 'arduino':
+                this.syncArduinoSettings();
                 break;
             case 'config':
                 await this.loadConfig();
@@ -715,6 +728,598 @@ class MatrixController {
         }
     }
 
+    setupDrawingEventListeners() {
+        // Drawing mode and tools
+        document.getElementById('drawing-mode').addEventListener('change', (e) => {
+            this.drawingMode = e.target.value;
+            this.updateDrawingCursor();
+        });
+        
+        document.getElementById('brush-color').addEventListener('change', (e) => {
+            this.brushColor = e.target.value;
+        });
+        
+        document.getElementById('brush-size').addEventListener('input', (e) => {
+            this.brushSize = parseInt(e.target.value);
+            document.getElementById('brush-size-display').textContent = `${this.brushSize}x${this.brushSize}`;
+        });
+        
+        // Color presets
+        document.querySelectorAll('.color-preset').forEach(preset => {
+            preset.addEventListener('click', (e) => {
+                const color = e.target.dataset.color;
+                this.brushColor = color;
+                document.getElementById('brush-color').value = color;
+                
+                // Update active preset
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+        
+        // Drawing actions
+        document.getElementById('clear-drawing').addEventListener('click', () => this.clearDrawing());
+        document.getElementById('fill-all').addEventListener('click', () => this.fillAll());
+        document.getElementById('save-pattern').addEventListener('click', () => this.savePattern());
+        document.getElementById('load-pattern').addEventListener('click', () => this.loadPattern());
+        document.getElementById('send-to-matrix').addEventListener('click', () => this.sendDrawingToMatrix());
+        
+        // Pattern library
+        document.querySelectorAll('.pattern-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const pattern = e.currentTarget.dataset.pattern;
+                this.loadPresetPattern(pattern);
+            });
+        });
+        
+        // Initialize drawing state
+        this.drawingMode = 'paint';
+        this.brushColor = '#e94560';
+        this.brushSize = 1;
+        this.isDrawing = false;
+        this.drawingData = [];
+        this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
+        
+        // Initialize drawing data structure
+        this.initializeDrawingData();
+        
+        this.setupMatrixDrawing();
+        this.updateSavedPatterns();
+    }
+    
+    setupArduinoEventListeners() {
+        document.getElementById('arduino-brightness').addEventListener('input', (e) => {
+            document.getElementById('arduino-brightness-display').textContent = e.target.value;
+        });
+        
+        document.getElementById('arduino-board').addEventListener('change', () => {
+            this.syncArduinoSettings();
+        });
+        
+        document.getElementById('generate-arduino').addEventListener('click', () => this.generateArduinoPackage());
+        document.getElementById('preview-code').addEventListener('click', () => this.previewArduinoCode());
+        document.getElementById('download-package').addEventListener('click', () => this.downloadArduinoPackage());
+        document.getElementById('copy-code').addEventListener('click', () => this.copyArduinoCode());
+        document.getElementById('download-ino').addEventListener('click', () => this.downloadArduinoFile());
+    }
+    
+    setupMatrixDrawing() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        
+        pixels.forEach((pixel, index) => {
+            // Mouse events for drawing
+            pixel.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+            
+            pixel.addEventListener('mouseenter', (e) => {
+                if (this.isDrawing) {
+                    this.drawPixel(index);
+                }
+            });
+            
+            pixel.addEventListener('mouseup', () => {
+                this.isDrawing = false;
+            });
+            
+            // Touch events for mobile
+            pixel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+            
+            pixel.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (this.isDrawing) {
+                    const touch = e.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains('led-pixel')) {
+                        const touchIndex = parseInt(element.dataset.index);
+                        this.drawPixel(touchIndex);
+                    }
+                }
+            });
+            
+            pixel.addEventListener('touchend', () => {
+                this.isDrawing = false;
+            });
+        });
+        
+        // Prevent context menu on right click
+        document.getElementById('matrix-preview').addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+        
+        // Stop drawing when mouse leaves the matrix
+        document.getElementById('matrix-preview').addEventListener('mouseleave', () => {
+            this.isDrawing = false;
+        });
+        
+        // Initialize drawing data
+        this.initializeDrawingData();
+    }
+    
+    initializeDrawingData() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        this.drawingData = Array(height).fill().map(() => Array(width).fill('#000000'));
+    }
+    
+    drawPixel(index) {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const x = index % width;
+        const y = Math.floor(index / width);
+        
+        if (this.drawingMode === 'paint') {
+            this.paintPixels(x, y);
+        } else if (this.drawingMode === 'erase') {
+            this.erasePixels(x, y);
+        } else if (this.drawingMode === 'fill') {
+            this.fillArea(x, y);
+        }
+    }
+    
+    paintPixels(centerX, centerY) {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const size = this.brushSize;
+        const offset = Math.floor(size / 2);
+        
+        for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
+                const x = centerX + dx;
+                const y = centerY + dy;
+                
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    const index = y * width + x;
+                    const pixel = document.querySelector(`[data-index="${index}"]`);
+                    
+                    if (pixel) {
+                        pixel.style.backgroundColor = this.brushColor;
+                        this.drawingData[y][x] = this.brushColor;
+                    }
+                }
+            }
+        }
+    }
+    
+    erasePixels(centerX, centerY) {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const size = this.brushSize;
+        const offset = Math.floor(size / 2);
+        
+        for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
+                const x = centerX + dx;
+                const y = centerY + dy;
+                
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    const index = y * width + x;
+                    const pixel = document.querySelector(`[data-index="${index}"]`);
+                    
+                    if (pixel) {
+                        pixel.style.backgroundColor = '#333';
+                        this.drawingData[y][x] = '#000000';
+                    }
+                }
+            }
+        }
+    }
+    
+    fillArea(startX, startY) {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const targetColor = this.drawingData[startY][startX];
+        const fillColor = this.brushColor;
+        
+        if (targetColor === fillColor) return;
+        
+        const stack = [[startX, startY]];
+        
+        while (stack.length > 0) {
+            const [x, y] = stack.pop();
+            
+            if (x < 0 || x >= width || y < 0 || y >= height) continue;
+            if (this.drawingData[y][x] !== targetColor) continue;
+            
+            this.drawingData[y][x] = fillColor;
+            const index = y * width + x;
+            const pixel = document.querySelector(`[data-index="${index}"]`);
+            if (pixel) {
+                pixel.style.backgroundColor = fillColor;
+            }
+            
+            stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+        }
+    }
+    
+    clearDrawing() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach(pixel => {
+            pixel.style.backgroundColor = '#333';
+        });
+        this.initializeDrawingData();
+        this.log('Drawing cleared', 'success');
+    }
+    
+    fillAll() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach((pixel, index) => {
+            pixel.style.backgroundColor = this.brushColor;
+            const x = index % this.matrixSize.width;
+            const y = Math.floor(index / this.matrixSize.width);
+            this.drawingData[y][x] = this.brushColor;
+        });
+        this.log('Matrix filled with color', 'success');
+    }
+    
+    savePattern() {
+        const name = prompt('Enter pattern name:');
+        if (!name) return;
+        
+        const pattern = {
+            name: name,
+            width: this.matrixSize.width,
+            height: this.matrixSize.height,
+            data: JSON.parse(JSON.stringify(this.drawingData)),
+            timestamp: new Date().toISOString()
+        };
+        
+        this.savedPatterns.push(pattern);
+        localStorage.setItem('ledMatrixPatterns', JSON.stringify(this.savedPatterns));
+        this.updateSavedPatterns();
+        this.log(`Pattern "${name}" saved`, 'success');
+    }
+    
+    loadPattern() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const pattern = JSON.parse(e.target.result);
+                        this.applyPattern(pattern);
+                        this.log(`Pattern "${pattern.name}" loaded`, 'success');
+                    } catch (error) {
+                        this.log('Error loading pattern file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    }
+    
+    applyPattern(pattern) {
+        if (pattern.width !== this.matrixSize.width || pattern.height !== this.matrixSize.height) {
+            if (!confirm('Pattern size doesn\'t match current matrix. Apply anyway?')) {
+                return;
+            }
+        }
+        
+        this.clearDrawing();
+        
+        for (let y = 0; y < Math.min(pattern.height, this.matrixSize.height); y++) {
+            for (let x = 0; x < Math.min(pattern.width, this.matrixSize.width); x++) {
+                const color = pattern.data[y][x];
+                if (color !== '#000000') {
+                    const index = y * this.matrixSize.width + x;
+                    const pixel = document.querySelector(`[data-index="${index}"]`);
+                    if (pixel) {
+                        pixel.style.backgroundColor = color;
+                        this.drawingData[y][x] = color;
+                    }
+                }
+            }
+        }
+    }
+    
+    loadPresetPattern(patternName) {
+        const patterns = {
+            smiley: this.generateSmileyPattern(),
+            heart: this.generateHeartPattern(),
+            arrow: this.generateArrowPattern(),
+            star: this.generateStarPattern(),
+            checkerboard: this.generateCheckerboardPattern(),
+            border: this.generateBorderPattern()
+        };
+        
+        if (patterns[patternName]) {
+            this.applyPattern(patterns[patternName]);
+            this.log(`Applied ${patternName} pattern`, 'success');
+        }
+    }
+    
+    generateSmileyPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        // Simple smiley face for 16x16 matrix
+        if (width >= 16 && height >= 16) {
+            const centerX = Math.floor(width / 2);
+            const centerY = Math.floor(height / 2);
+            
+            // Eyes
+            data[centerY - 3][centerX - 3] = '#ffff00';
+            data[centerY - 3][centerX + 3] = '#ffff00';
+            
+            // Mouth
+            for (let x = centerX - 3; x <= centerX + 3; x++) {
+                data[centerY + 2][x] = '#ffff00';
+            }
+            data[centerY + 1][centerX - 2] = '#ffff00';
+            data[centerY + 1][centerX + 2] = '#ffff00';
+        }
+        
+        return { name: 'Smiley', width, height, data };
+    }
+    
+    generateHeartPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        // Simple heart pattern
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        
+        // Heart shape
+        const heartPoints = [
+            [centerX, centerY + 2],
+            [centerX - 1, centerY + 1], [centerX + 1, centerY + 1],
+            [centerX - 2, centerY], [centerX + 2, centerY],
+            [centerX - 2, centerY - 1], [centerX + 2, centerY - 1],
+            [centerX - 1, centerY - 2], [centerX + 1, centerY - 2]
+        ];
+        
+        heartPoints.forEach(([x, y]) => {
+            if (x >= 0 && x < width && y >= 0 && y < height) {
+                data[y][x] = '#ff0000';
+            }
+        });
+        
+        return { name: 'Heart', width, height, data };
+    }
+    
+    generateArrowPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        const centerY = Math.floor(height / 2);
+        
+        // Arrow pointing right
+        for (let x = 2; x < width - 2; x++) {
+            data[centerY][x] = '#00ff00';
+        }
+        
+        // Arrow head
+        for (let i = 1; i <= 3; i++) {
+            data[centerY - i][width - 2 - i] = '#00ff00';
+            data[centerY + i][width - 2 - i] = '#00ff00';
+        }
+        
+        return { name: 'Arrow', width, height, data };
+    }
+    
+    generateStarPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        
+        // Simple star pattern
+        const starPoints = [
+            [centerX, centerY - 3],
+            [centerX - 1, centerY - 1], [centerX + 1, centerY - 1],
+            [centerX - 3, centerY], [centerX + 3, centerY],
+            [centerX - 2, centerY + 1], [centerX + 2, centerY + 1],
+            [centerX, centerY + 3]
+        ];
+        
+        starPoints.forEach(([x, y]) => {
+            if (x >= 0 && x < width && y >= 0 && y < height) {
+                data[y][x] = '#ffff00';
+            }
+        });
+        
+        return { name: 'Star', width, height, data };
+    }
+    
+    generateCheckerboardPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                if ((x + y) % 2 === 0) {
+                    data[y][x] = '#ffffff';
+                }
+            }
+        }
+        
+        return { name: 'Checkerboard', width, height, data };
+    }
+    
+    generateBorderPattern() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const data = Array(height).fill().map(() => Array(width).fill('#000000'));
+        
+        // Top and bottom borders
+        for (let x = 0; x < width; x++) {
+            data[0][x] = '#0000ff';
+            data[height - 1][x] = '#0000ff';
+        }
+        
+        // Left and right borders
+        for (let y = 0; y < height; y++) {
+            data[y][0] = '#0000ff';
+            data[y][width - 1] = '#0000ff';
+        }
+        
+        return { name: 'Border', width, height, data };
+    }
+    
+    updateSavedPatterns() {
+        const container = document.getElementById('saved-patterns');
+        
+        if (this.savedPatterns.length === 0) {
+            container.innerHTML = '<p>No saved patterns yet. Create and save your first pattern!</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        this.savedPatterns.forEach((pattern, index) => {
+            const patternDiv = document.createElement('div');
+            patternDiv.className = 'saved-pattern';
+            patternDiv.innerHTML = `
+                <div class="saved-pattern-preview" id="preview-${index}"></div>
+                <span>${pattern.name}</span>
+                <small>${new Date(pattern.timestamp).toLocaleDateString()}</small>
+            `;
+            
+            patternDiv.addEventListener('click', () => {
+                this.applyPattern(pattern);
+                this.log(`Applied pattern "${pattern.name}"`, 'success');
+            });
+            
+            container.appendChild(patternDiv);
+            
+            // Generate mini preview
+            this.generatePatternPreview(pattern, `preview-${index}`);
+        });
+    }
+    
+    generatePatternPreview(pattern, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        const scaleX = 80 / pattern.width;
+        const scaleY = 80 / pattern.height;
+        const pixelSize = Math.min(scaleX, scaleY);
+        
+        for (let y = 0; y < pattern.height; y++) {
+            for (let x = 0; x < pattern.width; x++) {
+                const color = pattern.data[y][x];
+                if (color !== '#000000') {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'saved-pattern-pixel';
+                    pixel.style.left = `${x * pixelSize}px`;
+                    pixel.style.top = `${y * pixelSize}px`;
+                    pixel.style.width = `${pixelSize}px`;
+                    pixel.style.height = `${pixelSize}px`;
+                    pixel.style.backgroundColor = color;
+                    container.appendChild(pixel);
+                }
+            }
+        }
+    }
+    
+    async sendDrawingToMatrix() {
+        try {
+            const matrixData = this.convertDrawingToMatrixData();
+            
+            const response = await fetch(`${this.apiBase}/pattern`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    pattern: 'custom',
+                    data: matrixData,
+                    brightness: this.brightness || 128,
+                    speed: this.speed || 50
+                })
+            });
+            
+            if (response.ok) {
+                this.log('Drawing sent to matrix', 'success');
+            } else {
+                throw new Error('Failed to send drawing to matrix');
+            }
+        } catch (error) {
+            this.log(`Error sending drawing: ${error.message}`, 'error');
+        }
+    }
+    
+    convertDrawingToMatrixData() {
+        const width = this.matrixSize.width;
+        const height = this.matrixSize.height;
+        const matrixData = [];
+        
+        for (let y = 0; y < height; y++) {
+            const row = [];
+            for (let x = 0; x < width; x++) {
+                const color = this.drawingData[y][x];
+                const rgb = this.hexToRgb(color);
+                row.push([rgb.r, rgb.g, rgb.b]);
+            }
+            matrixData.push(row);
+        }
+        
+        return matrixData;
+    }
+    
+    hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 0, g: 0, b: 0 };
+    }
+    
+    updateDrawingCursor() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        const cursors = {
+            paint: 'crosshair',
+            erase: 'grab',
+            fill: 'pointer',
+            line: 'crosshair',
+            rectangle: 'crosshair',
+            circle: 'crosshair'
+        };
+        
+        pixels.forEach(pixel => {
+            pixel.style.cursor = cursors[this.drawingMode] || 'crosshair';
+        });
+    }
+
     updatePowerCalculations(data = null) {
         const width = parseInt(document.getElementById('wiring-width').value);
         const height = parseInt(document.getElementById('wiring-height').value);
@@ -1001,6 +1606,504 @@ ${wiringData.components.map(comp => `- **${comp.name}** (${comp.quantity}) - ${c
 ---
 Generated by LED Matrix Control Center
 `;
+    }
+
+    // Arduino Package Generation Methods
+    async generateArduinoPackage() {
+        const board = document.getElementById('arduino-board').value;
+        const dataPin = parseInt(document.getElementById('arduino-data-pin').value);
+        const width = parseInt(document.getElementById('arduino-width').value);
+        const height = parseInt(document.getElementById('arduino-height').value);
+        const brightness = parseInt(document.getElementById('arduino-brightness').value);
+        
+        const includePatterns = document.getElementById('include-patterns').checked;
+        const includeWiring = document.getElementById('include-wiring').checked;
+        const includeLibraries = document.getElementById('include-libraries').checked;
+        const includeReadme = document.getElementById('include-readme').checked;
+        
+        this.log('Generating Arduino package...', 'warning');
+        
+        try {
+            // Use existing Arduino generation API
+            const response = await fetch(`${this.apiBase}/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    board: board,
+                    width: width,
+                    height: height,
+                    data_pin: dataPin,
+                    brightness: brightness
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to generate Arduino code');
+            }
+            
+            const result = await response.json();
+            let arduinoCode = result.code;
+            
+            // Enhance the generated code with custom patterns if requested
+            if (includePatterns && this.savedPatterns.length > 0) {
+                arduinoCode = this.enhanceArduinoCodeWithPatterns(arduinoCode);
+            }
+            
+            // Generate package contents
+            this.arduinoPackage = {
+                code: arduinoCode,
+                board: board,
+                config: { dataPin, width, height, brightness },
+                patterns: includePatterns ? this.savedPatterns : [],
+                wiring: includeWiring ? this.wiringData : null,
+                includeLibraries,
+                includeReadme
+            };
+            
+            this.updatePackageContents();
+            this.log('Arduino package generated successfully', 'success');
+            
+        } catch (error) {
+            this.log(`Error generating Arduino package: ${error.message}`, 'error');
+        }
+    }
+    
+    enhanceArduinoCodeWithPatterns(baseCode) {
+        if (!this.savedPatterns || this.savedPatterns.length === 0) {
+            return baseCode;
+        }
+        
+        // Find the loop function and add custom pattern cases
+        let enhancedCode = baseCode;
+        
+        // Look for the switch statement in the loop function
+        const switchPattern = /switch\s*\([^)]+\)\s*{[^}]*}/;
+        const switchMatch = enhancedCode.match(switchPattern);
+        
+        if (switchMatch) {
+            let switchStatement = switchMatch[0];
+            
+            // Add custom pattern cases before the default case
+            let customCases = '';
+            this.savedPatterns.forEach((pattern, index) => {
+                // Find the highest case number and add after it
+                const caseNumbers = switchStatement.match(/case\s+(\d+):/g);
+                const maxCase = Math.max(...caseNumbers.map(c => parseInt(c.match(/\d+/)[0])));
+                customCases += `\n    case ${maxCase + 1 + index}: customPattern${index}(); break;`;
+            });
+            
+            // Insert custom cases before the default case
+            const defaultIndex = switchStatement.indexOf('default:');
+            if (defaultIndex !== -1) {
+                switchStatement = switchStatement.slice(0, defaultIndex) + 
+                                customCases + '\n    ' + 
+                                switchStatement.slice(defaultIndex);
+            }
+            
+            enhancedCode = enhancedCode.replace(switchMatch[0], switchStatement);
+        }
+        
+        // Add custom pattern functions at the end
+        let customFunctions = '\n\n// Custom Pattern Functions\n';
+        this.savedPatterns.forEach((pattern, index) => {
+            customFunctions += `\nvoid customPattern${index}() {\n`;
+            customFunctions += `  // Pattern: ${pattern.name}\n`;
+            customFunctions += `  // Size: ${pattern.width}x${pattern.height}\n`;
+            customFunctions += `  FastLED.clear();\n`;
+            
+            for (let y = 0; y < pattern.height; y++) {
+                for (let x = 0; x < pattern.width; x++) {
+                    const color = pattern.data[y][x];
+                    if (color !== '#000000') {
+                        const rgb = this.hexToRgb(color);
+                        customFunctions += `  leds[XY(${x}, ${y})] = CRGB(${rgb.r}, ${rgb.g}, ${rgb.b});\n`;
+                    }
+                }
+            }
+            
+            customFunctions += `}\n`;
+        });
+        
+        // Add the custom functions before the last closing brace
+        const lastBraceIndex = enhancedCode.lastIndexOf('}');
+        if (lastBraceIndex !== -1) {
+            enhancedCode = enhancedCode.slice(0, lastBraceIndex) + 
+                          customFunctions + '\n' + 
+                          enhancedCode.slice(lastBraceIndex);
+        }
+        
+        return enhancedCode;
+    }
+    
+    previewArduinoCode() {
+        if (!this.arduinoPackage) {
+            this.generateArduinoPackage();
+            return;
+        }
+        
+        document.getElementById('arduino-code-display').textContent = this.arduinoPackage.code;
+        document.getElementById('arduino-preview').style.display = 'block';
+        document.getElementById('arduino-preview').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    copyArduinoCode() {
+        if (!this.arduinoPackage) {
+            this.log('Generate Arduino package first', 'warning');
+            return;
+        }
+        
+        navigator.clipboard.writeText(this.arduinoPackage.code).then(() => {
+            this.log('Arduino code copied to clipboard', 'success');
+        }).catch(() => {
+            this.log('Failed to copy code to clipboard', 'error');
+        });
+    }
+    
+    downloadArduinoFile() {
+        if (!this.arduinoPackage) {
+            this.log('Generate Arduino package first', 'warning');
+            return;
+        }
+        
+        const blob = new Blob([this.arduinoPackage.code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `led_matrix_${this.arduinoPackage.config.width}x${this.arduinoPackage.config.height}.ino`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        this.log('Arduino file downloaded', 'success');
+    }
+    
+    async downloadArduinoPackage() {
+        if (!this.arduinoPackage) {
+            this.log('Generate Arduino package first', 'warning');
+            return;
+        }
+        
+        this.log('Preparing Arduino package download...', 'warning');
+        
+        try {
+            // Create ZIP file using JSZip (we'll need to include this library)
+            const zip = new JSZip();
+            
+            // Main Arduino file
+            const filename = `led_matrix_${this.arduinoPackage.config.width}x${this.arduinoPackage.config.height}`;
+            zip.file(`${filename}.ino`, this.arduinoPackage.code);
+            
+            // README file
+            if (this.arduinoPackage.includeReadme) {
+                const readme = this.generateReadmeFile();
+                zip.file('README.md', readme);
+            }
+            
+            // Wiring diagram
+            if (this.arduinoPackage.wiring) {
+                const wiringGuide = this.generateWiringMarkdown(this.arduinoPackage.wiring);
+                zip.file('WIRING.md', wiringGuide);
+            } else if (this.arduinoPackage.includeWiring) {
+                // Generate wiring data for the Arduino package
+                const wiringData = await this.generateWiringForArduino();
+                if (wiringData) {
+                    const wiringGuide = this.generateWiringMarkdown(wiringData);
+                    zip.file('WIRING.md', wiringGuide);
+                }
+            }
+            
+            // Pattern files
+            if (this.arduinoPackage.patterns.length > 0) {
+                const patternsFolder = zip.folder('patterns');
+                this.arduinoPackage.patterns.forEach((pattern, index) => {
+                    patternsFolder.file(`${pattern.name.replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(pattern, null, 2));
+                });
+            }
+            
+            // Library information
+            if (this.arduinoPackage.includeLibraries) {
+                const libraryInfo = this.generateLibraryInfo();
+                zip.file('LIBRARIES.md', libraryInfo);
+            }
+            
+            // Generate and download ZIP
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}_package.zip`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            this.log('Arduino package downloaded successfully', 'success');
+            
+        } catch (error) {
+            this.log(`Error creating package: ${error.message}`, 'error');
+        }
+    }
+    
+    generateReadmeFile() {
+        const config = this.arduinoPackage.config;
+        const board = this.arduinoPackage.board;
+        
+        return `# LED Matrix Project
+
+## Overview
+This Arduino project controls a ${config.width}×${config.height} LED matrix using FastLED library.
+
+## Hardware Requirements
+- ${board.replace('_', ' ').toUpperCase()} board
+- WS2812B LED strip (${config.width * config.height} LEDs)
+- 5V Power Supply (see WIRING.md for power requirements)
+- Jumper wires and breadboard
+- 1000µF capacitor
+- 330Ω resistor
+${board.includes('esp') ? '- 74HCT125 level shifter' : ''}
+
+## Software Requirements
+- Arduino IDE
+- FastLED library (install via Library Manager)
+
+## Installation
+1. Open Arduino IDE
+2. Install FastLED library: Tools → Manage Libraries → Search "FastLED"
+3. Open the .ino file
+4. Select your board: Tools → Board → ${board.replace('_', ' ')}
+5. Select correct COM port: Tools → Port
+6. Upload the code
+
+## Configuration
+- Matrix Size: ${config.width}×${config.height}
+- Data Pin: ${config.dataPin}
+- Brightness: ${config.brightness}/255
+- Total LEDs: ${config.width * config.height}
+
+## Patterns Included
+- Solid Colors
+- Rainbow
+- Plasma Effect
+- Fire Simulation
+- Matrix Rain
+- Twinkle
+${this.arduinoPackage.patterns.length > 0 ? `- ${this.arduinoPackage.patterns.length} Custom Patterns` : ''}
+
+## Usage
+The matrix will automatically cycle through patterns every 10 seconds. You can modify the pattern duration by changing the PATTERN_DURATION constant.
+
+## Troubleshooting
+- If LEDs don't light up, check power connections
+- If colors are wrong, verify COLOR_ORDER setting
+- If patterns are corrupted, check data pin connection
+- Monitor Serial output for debugging information
+
+## Customization
+You can modify patterns by editing the pattern functions or add new ones following the existing examples.
+
+Generated by LED Matrix Control Center
+`;
+    }
+    
+    generateLibraryInfo() {
+        return `# Required Libraries
+
+## FastLED
+**Version:** Latest (3.5.0 or newer recommended)
+**Installation:** Arduino IDE → Tools → Manage Libraries → Search "FastLED"
+**Purpose:** Controls WS2812B LED strips with optimized performance
+
+### Alternative Installation Methods:
+1. **Library Manager (Recommended):**
+   - Open Arduino IDE
+   - Go to Tools → Manage Libraries
+   - Search for "FastLED"
+   - Click Install
+
+2. **Manual Installation:**
+   - Download from: https://github.com/FastLED/FastLED
+   - Extract to Arduino/libraries/ folder
+   - Restart Arduino IDE
+
+3. **PlatformIO:**
+   \`\`\`
+   lib_deps = fastled/FastLED@^3.5.0
+   \`\`\`
+
+## Documentation
+- FastLED Documentation: https://fastled.io/
+- WS2812B Datasheet: Available from LED strip manufacturer
+- Arduino Reference: https://www.arduino.cc/reference/
+
+## Compatibility
+- Arduino Uno/Nano: Native 5V, no level shifter needed
+- ESP32/ESP8266: 3.3V logic, level shifter recommended for reliable operation
+
+Generated by LED Matrix Control Center
+`;
+    }
+    
+    updatePackageContents() {
+        const container = document.getElementById('package-contents');
+        if (!this.arduinoPackage) {
+            container.innerHTML = '<p>Generate a package to see contents...</p>';
+            return;
+        }
+        
+        const config = this.arduinoPackage.config;
+        const filename = `led_matrix_${config.width}x${config.height}`;
+        
+        let html = '<div class="package-file-list">';
+        
+        // Main Arduino file
+        html += `
+            <div class="package-file">
+                <span class="file-icon">📄</span>
+                <div>
+                    <div class="file-name">${filename}.ino</div>
+                    <div class="file-description">Main Arduino sketch with all patterns and configuration</div>
+                </div>
+            </div>
+        `;
+        
+        // README
+        if (this.arduinoPackage.includeReadme) {
+            html += `
+                <div class="package-file">
+                    <span class="file-icon">📖</span>
+                    <div>
+                        <div class="file-name">README.md</div>
+                        <div class="file-description">Complete setup and usage instructions</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Wiring diagram
+        if (this.arduinoPackage.wiring) {
+            html += `
+                <div class="package-file">
+                    <span class="file-icon">🔌</span>
+                    <div>
+                        <div class="file-name">WIRING.md</div>
+                        <div class="file-description">Wiring diagram and power calculations</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Library info
+        if (this.arduinoPackage.includeLibraries) {
+            html += `
+                <div class="package-file">
+                    <span class="file-icon">📚</span>
+                    <div>
+                        <div class="file-name">LIBRARIES.md</div>
+                        <div class="file-description">Required libraries and installation instructions</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Pattern files
+        if (this.arduinoPackage.patterns.length > 0) {
+            html += `
+                <div class="package-file">
+                    <span class="file-icon">📁</span>
+                    <div>
+                        <div class="file-name">patterns/ (${this.arduinoPackage.patterns.length} files)</div>
+                        <div class="file-description">Custom pattern data files for backup and sharing</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        
+        // Package summary
+        html += `
+            <div class="package-summary">
+                <h4>Package Summary</h4>
+                <ul>
+                    <li><strong>Board:</strong> ${this.arduinoPackage.board.replace('_', ' ').toUpperCase()}</li>
+                    <li><strong>Matrix Size:</strong> ${config.width}×${config.height} (${config.width * config.height} LEDs)</li>
+                    <li><strong>Data Pin:</strong> ${config.dataPin}</li>
+                    <li><strong>Brightness:</strong> ${config.brightness}/255</li>
+                    <li><strong>Custom Patterns:</strong> ${this.arduinoPackage.patterns.length}</li>
+                    <li><strong>Ready to Upload:</strong> Yes</li>
+                </ul>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+    
+    async generateWiringForArduino() {
+        try {
+            const config = this.arduinoPackage.config;
+            const board = this.arduinoPackage.board;
+            
+            const response = await fetch(`${this.apiBase}/wiring`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    controller: board,
+                    width: config.width,
+                    height: config.height,
+                    ledsPerMeter: 144,
+                    powerSupply: '5V10A'
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.wiring;
+            }
+        } catch (error) {
+            console.error('Error generating wiring data:', error);
+        }
+        return null;
+    }
+    
+    syncArduinoSettings() {
+        // Sync Arduino settings with current matrix configuration
+        document.getElementById('arduino-width').value = this.matrixSize.width;
+        document.getElementById('arduino-height').value = this.matrixSize.height;
+        
+        // Update data pin based on board selection
+        const board = document.getElementById('arduino-board').value;
+        const defaultPins = {
+            arduino_uno: 6,
+            arduino_nano: 6,
+            esp32: 13,
+            esp8266: 2
+        };
+        
+        if (defaultPins[board]) {
+            document.getElementById('arduino-data-pin').value = defaultPins[board];
+        }
+    }
+    
+    // Add API endpoint for custom pattern data
+    async sendCustomPattern(patternData) {
+        try {
+            const response = await fetch(`${this.apiBase}/pattern`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'custom',
+                    data: patternData,
+                    brightness: this.brightness,
+                    speed: this.speed
+                })
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            } else {
+                throw new Error('Failed to send custom pattern');
+            }
+        } catch (error) {
+            console.error('Error sending custom pattern:', error);
+            throw error;
+        }
     }
 
     updatePowerInfo() {
