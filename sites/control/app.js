@@ -1,7 +1,8 @@
 // LED Matrix Control Center - Main Application
 class MatrixController {
     constructor() {
-        this.apiBase = '/api'; // Use an absolute path
+        // Always use absolute path for API regardless of base tag
+        this.apiBase = '/api';
         this.connected = false;
         this.matrixSize = { width: 16, height: 16 };
         this.currentPattern = 'solid';
@@ -50,8 +51,19 @@ class MatrixController {
         // Wiring section
         document.getElementById('generate-wiring').addEventListener('click', () => this.generateWiring());
         document.getElementById('download-wiring').addEventListener('click', () => this.downloadWiring());
-        document.getElementById('wiring-width').addEventListener('input', () => this.updatePowerInfo());
-        document.getElementById('wiring-height').addEventListener('input', () => this.updatePowerInfo());
+        document.getElementById('update-calculations').addEventListener('click', () => this.updatePowerCalculations());
+        
+        // Add event listeners for real-time updates
+        ['wiring-width', 'wiring-height', 'leds-per-meter', 'power-supply', 'wiring-controller'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => this.updatePowerCalculations());
+            }
+        });
+        document.getElementById('wiring-width').addEventListener('input', () => this.updatePowerCalculations());
+        document.getElementById('wiring-height').addEventListener('input', () => this.updatePowerCalculations());
+        document.getElementById('leds-per-meter').addEventListener('change', () => this.updatePowerCalculations());
+        document.getElementById('power-supply').addEventListener('change', () => this.updatePowerCalculations());
 
         // Config section
         document.getElementById('save-config').addEventListener('click', () => this.saveConfig());
@@ -109,6 +121,201 @@ class MatrixController {
         
         document.getElementById('matrix-size').textContent = `${width}×${height}`;
         document.getElementById('led-count').textContent = width * height;
+        
+        // Update power calculations when matrix size changes
+        this.updatePowerCalculations();
+    }
+
+    // Power calculation methods
+    updatePowerCalculations() {
+        const width = parseInt(document.getElementById('wiring-width')?.value) || this.matrixSize.width;
+        const height = parseInt(document.getElementById('wiring-height')?.value) || this.matrixSize.height;
+        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter')?.value) || 60;
+        const powerSupply = document.getElementById('power-supply')?.value || '5V10A';
+        
+        const totalLeds = width * height;
+        const stripLength = totalLeds / ledsPerMeter;
+        const maxCurrentPerLed = 0.06; // 60mA per LED at full white
+        const maxCurrent = totalLeds * maxCurrentPerLed;
+        const maxPower = maxCurrent * 5; // 5V system
+        
+        // Parse power supply capacity
+        const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
+        const psuVoltage = psuMatch ? parseInt(psuMatch[1]) : 5;
+        const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
+        const psuPower = psuVoltage * psuCurrent;
+        
+        // Calculate power usage percentage
+        const powerPercentage = Math.min((maxPower / psuPower) * 100, 100);
+        
+        // Update display elements
+        const elements = {
+            'total-leds': totalLeds,
+            'max-current': `${maxCurrent.toFixed(2)}A`,
+            'recommended-psu': this.getRecommendedPSU(maxPower),
+            'power-consumption': `${maxPower.toFixed(1)}W`,
+            'estimated-cost': this.calculateEstimatedCost(totalLeds, stripLength, maxPower),
+            'power-percentage': `${powerPercentage.toFixed(0)}%`
+        };
+        
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        });
+        
+        // Update power usage bar
+        const powerBar = document.getElementById('power-usage-bar');
+        if (powerBar) {
+            powerBar.style.width = `${powerPercentage}%`;
+            powerBar.style.background = powerPercentage > 80 ? 'var(--error)' : 
+                                       powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+        }
+        
+        // Update shopping list
+        this.updateShoppingList(totalLeds, stripLength, maxPower);
+        
+        // Update Mermaid diagram
+        this.generateMermaidDiagram();
+    }
+
+    getRecommendedPSU(maxPower) {
+        if (maxPower <= 20) return '5V 5A';
+        if (maxPower <= 40) return '5V 10A';
+        if (maxPower <= 80) return '5V 20A';
+        if (maxPower <= 120) return '5V 30A';
+        return '5V 40A';
+    }
+
+    calculateEstimatedCost(totalLeds, stripLength, maxPower) {
+        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
+        const controllerCost = this.getControllerPrice(controller);
+        const stripCost = Math.ceil(stripLength) * 12; // $12 per meter
+        const psuCost = this.getPSUCost(maxPower);
+        const accessoriesCost = 15; // Level shifter, wires, etc.
+        
+        const total = controllerCost + stripCost + psuCost + accessoriesCost;
+        return `$${total - 10}-${total + 10}`;
+    }
+
+    getControllerPrice(controller) {
+        const prices = {
+            'arduino_uno': 25,
+            'arduino_nano': 15,
+            'esp32': 12,
+            'esp8266': 8
+        };
+        return prices[controller] || 25;
+    }
+
+    getPSUCost(maxPower) {
+        if (maxPower <= 20) return 25;
+        if (maxPower <= 40) return 35;
+        if (maxPower <= 80) return 55;
+        if (maxPower <= 120) return 75;
+        return 95;
+    }
+
+    updateShoppingList(totalLeds, stripLength, maxPower) {
+        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
+        const controllerName = this.getControllerName(controller);
+        const controllerPrice = this.getControllerPrice(controller);
+        const stripPrice = Math.ceil(stripLength) * 12;
+        const psuPrice = this.getPSUCost(maxPower);
+        const recommendedPSU = this.getRecommendedPSU(maxPower);
+        
+        const items = [
+            { name: controllerName, price: controllerPrice },
+            { name: `WS2812B LED Strip (${Math.ceil(stripLength)}m)`, price: stripPrice },
+            { name: `Power Supply ${recommendedPSU}`, price: psuPrice },
+            { name: '74HCT125 Level Shifter', price: 3 },
+            { name: 'Jumper Wires & Connectors', price: 8 },
+            { name: 'Breadboard/Perfboard', price: 5 }
+        ];
+        
+        const total = items.reduce((sum, item) => sum + item.price, 0);
+        
+        const listElement = document.getElementById('shopping-list');
+        if (listElement) {
+            listElement.innerHTML = `
+                <ul>
+                    ${items.map(item => `<li><span>${item.name}</span><span>$${item.price}</span></li>`).join('')}
+                    <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${total}</strong></span></li>
+                </ul>
+            `;
+        }
+    }
+
+    getControllerName(controller) {
+        const names = {
+            'arduino_uno': 'Arduino Uno R3',
+            'arduino_nano': 'Arduino Nano',
+            'esp32': 'ESP32 Dev Board',
+            'esp8266': 'ESP8266 NodeMCU'
+        };
+        return names[controller] || 'Arduino Uno R3';
+    }
+
+    // Mermaid diagram generation
+    generateMermaidDiagram() {
+        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
+        const controllerName = this.getControllerName(controller);
+        const dataPin = document.getElementById('data-pin')?.value || '6';
+        const levelShifter = document.getElementById('level-shifter')?.value || '74hct125';
+        
+        let mermaidCode = '';
+        
+        if (levelShifter === 'none') {
+            mermaidCode = `
+                graph TD
+                    A["🔌 Power Supply<br/>5V DC"] --> B["⚡ ${controllerName}"]
+                    A --> C["💡 LED Strip<br/>VCC (5V)"]
+                    B --> |"Pin ${dataPin}"| D["💡 LED Strip<br/>Data Input"]
+                    B --> E["⚫ GND"]
+                    A --> E
+                    C --> E
+                    
+                    style A fill:#ff6b6b,stroke:#333,stroke-width:2px,color:#fff
+                    style B fill:#4ecdc4,stroke:#333,stroke-width:2px,color:#fff
+                    style C fill:#45b7d1,stroke:#333,stroke-width:2px,color:#fff
+                    style D fill:#feca57,stroke:#333,stroke-width:2px,color:#333
+                    style E fill:#2d3436,stroke:#333,stroke-width:2px,color:#fff
+            `;
+        } else {
+            const shifterName = levelShifter === '74hct125' ? '74HCT125' : 
+                              levelShifter === 'sn74lv1t34' ? 'SN74LV1T34' : 'Level Shifter';
+            
+            mermaidCode = `
+                graph TD
+                    A["🔌 Power Supply<br/>5V DC"] --> B["⚡ ${controllerName}"]
+                    A --> C["💡 LED Strip<br/>VCC (5V)"]
+                    B --> |"Pin ${dataPin}<br/>3.3V Logic"| D["🔄 ${shifterName}<br/>Level Shifter"]
+                    D --> |"5V Logic"| E["💡 LED Strip<br/>Data Input"]
+                    B --> F["⚫ GND"]
+                    A --> F
+                    C --> F
+                    D --> F
+                    G["🔋 Capacitor<br/>1000µF"] --> A
+                    
+                    style A fill:#ff6b6b,stroke:#333,stroke-width:2px,color:#fff
+                    style B fill:#4ecdc4,stroke:#333,stroke-width:2px,color:#fff
+                    style C fill:#45b7d1,stroke:#333,stroke-width:2px,color:#fff
+                    style D fill:#96ceb4,stroke:#333,stroke-width:2px,color:#333
+                    style E fill:#feca57,stroke:#333,stroke-width:2px,color:#333
+                    style F fill:#2d3436,stroke:#333,stroke-width:2px,color:#fff
+                    style G fill:#fd79a8,stroke:#333,stroke-width:2px,color:#fff
+            `;
+        }
+        
+        // Update the Mermaid diagram
+        const diagramElement = document.getElementById('mermaid-diagram');
+        if (diagramElement) {
+            diagramElement.innerHTML = mermaidCode;
+            
+            // Re-initialize Mermaid if available
+            if (typeof mermaid !== 'undefined') {
+                mermaid.init(undefined, diagramElement);
+            }
+        }
     }
 
     async checkConnection() {
@@ -328,26 +535,280 @@ class MatrixController {
 
     async generateWiring() {
         const controller = document.getElementById('wiring-controller').value;
-        const width = document.getElementById('wiring-width').value;
-        const height = document.getElementById('wiring-height').value;
+        const width = parseInt(document.getElementById('wiring-width').value);
+        const height = parseInt(document.getElementById('wiring-height').value);
+        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter').value);
+        const powerSupply = document.getElementById('power-supply').value;
+
+        this.log('Generating wiring guide...', 'warning');
 
         try {
             const response = await fetch(`${this.apiBase}/wiring`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ controller, width: parseInt(width), height: parseInt(height) })
+                body: JSON.stringify({
+                    controller: controller,
+                    width: width,
+                    height: height,
+                    ledsPerMeter: ledsPerMeter,
+                    powerSupply: powerSupply
+                })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                this.log(`Wiring guide generated for ${controller}`, 'success');
+                this.log('Wiring guide generated successfully', 'success');
                 this.wiringGuide = data.guide;
+                
+                // Update power calculations
+                this.updatePowerCalculations(data);
+                
+                // Generate Mermaid diagram
+                this.generateMermaidDiagram(data);
+                
+                // Update component list
+                this.updateComponentList(data);
             } else {
                 throw new Error('Failed to generate wiring guide');
             }
         } catch (error) {
             this.log(`Error generating wiring: ${error.message}`, 'error');
         }
+    }
+
+    updatePowerCalculations(data = null) {
+        const width = parseInt(document.getElementById('wiring-width').value);
+        const height = parseInt(document.getElementById('wiring-height').value);
+        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter').value);
+        
+        const totalLeds = width * height;
+        const maxCurrentPerLed = 0.06; // 60mA per LED at full white
+        const maxCurrent = totalLeds * maxCurrentPerLed;
+        const maxPower = maxCurrent * 5; // 5V system
+        const stripLength = totalLeds / ledsPerMeter;
+        
+        // Update display
+        document.getElementById('total-leds').textContent = totalLeds;
+        document.getElementById('max-current').textContent = `${maxCurrent.toFixed(2)}A`;
+        document.getElementById('max-power').textContent = `${maxPower.toFixed(1)}W`;
+        document.getElementById('strip-length').textContent = `${stripLength.toFixed(2)}m`;
+        
+        // Recommend power supply
+        let recommendedPsu = '5V2A';
+        if (maxPower > 80) recommendedPsu = '5V20A';
+        else if (maxPower > 40) recommendedPsu = '5V10A';
+        else if (maxPower > 20) recommendedPsu = '5V5A';
+        
+        document.getElementById('recommended-psu').textContent = recommendedPsu;
+        
+        // Update power supply selection if needed
+        const psuSelect = document.getElementById('power-supply');
+        const currentPsu = psuSelect.value;
+        const currentWatts = this.getPowerSupplyWatts(currentPsu);
+        
+        if (currentWatts < maxPower) {
+            // Highlight insufficient power supply
+            psuSelect.style.borderColor = '#ef4444';
+            psuSelect.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        } else {
+            psuSelect.style.borderColor = '';
+            psuSelect.style.backgroundColor = '';
+        }
+    }
+
+    getPowerSupplyWatts(psuValue) {
+        const wattsMap = {
+            '5V2A': 10,
+            '5V5A': 25,
+            '5V10A': 50,
+            '5V20A': 100,
+            '5V30A': 150,
+            '5V40A': 200
+        };
+        return wattsMap[psuValue] || 10;
+    }
+
+    async generateMermaidDiagram(data) {
+        const controller = document.getElementById('wiring-controller').value;
+        const width = parseInt(document.getElementById('wiring-width').value);
+        const height = parseInt(document.getElementById('wiring-height').value);
+        const dataPin = document.getElementById('data-pin')?.value || 6;
+        
+        // Create Mermaid diagram
+        const mermaidCode = this.createMermaidWiringDiagram(controller, width, height, dataPin);
+        
+        // Initialize Mermaid if not already done
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({ 
+                startOnLoad: false,
+                theme: 'dark',
+                themeVariables: {
+                    primaryColor: '#1a1a2e',
+                    primaryTextColor: '#f1f1f1',
+                    primaryBorderColor: '#e94560',
+                    lineColor: '#e94560',
+                    secondaryColor: '#16213e',
+                    tertiaryColor: '#0f3460'
+                }
+            });
+            
+            try {
+                const diagramDiv = document.getElementById('mermaid-diagram');
+                diagramDiv.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
+                await mermaid.run();
+            } catch (error) {
+                console.error('Mermaid rendering error:', error);
+                document.getElementById('mermaid-diagram').innerHTML = 
+                    `<p style="color: #ef4444;">Error rendering diagram: ${error.message}</p>`;
+            }
+        } else {
+            document.getElementById('mermaid-diagram').innerHTML = 
+                '<p style="color: #fbbf24;">Mermaid library not loaded</p>';
+        }
+    }
+
+    createMermaidWiringDiagram(controller, width, height, dataPin) {
+        const totalLeds = width * height;
+        const controllerName = controller.replace('_', ' ').toUpperCase();
+        
+        return `
+graph TD
+    PSU[Power Supply<br/>5V DC] --> |+5V Red| LED1[LED Strip<br/>${totalLeds} LEDs]
+    PSU --> |GND Black| LED1
+    PSU --> |+5V Red| MCU[${controllerName}]
+    PSU --> |GND Black| MCU
+    
+    MCU --> |Pin ${dataPin}<br/>Data Green| LED1
+    MCU --> |GND Black| LED1
+    
+    LED1 --> |Data Out| LED2[Additional Strips<br/>if needed]
+    
+    %% Styling
+    classDef psu fill:#ff6b6b,stroke:#ff5252,stroke-width:2px,color:#fff
+    classDef mcu fill:#4ecdc4,stroke:#26a69a,stroke-width:2px,color:#fff  
+    classDef led fill:#ffd93d,stroke:#ffc107,stroke-width:2px,color:#000
+    
+    class PSU psu
+    class MCU mcu
+    class LED1,LED2 led
+        `;
+    }
+
+    updateComponentList(data) {
+        const controller = document.getElementById('wiring-controller').value;
+        const width = parseInt(document.getElementById('wiring-width').value);
+        const height = parseInt(document.getElementById('wiring-height').value);
+        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter').value);
+        const powerSupply = document.getElementById('power-supply').value;
+        
+        const totalLeds = width * height;
+        const stripLength = Math.ceil(totalLeds / ledsPerMeter);
+        
+        // Component pricing (approximate)
+        const components = [
+            {
+                name: controller.replace('_', ' ').toUpperCase(),
+                quantity: 1,
+                price: this.getControllerPrice(controller),
+                description: 'Microcontroller board'
+            },
+            {
+                name: `WS2812B LED Strip (${ledsPerMeter} LEDs/m)`,
+                quantity: stripLength,
+                price: this.getStripPrice(ledsPerMeter) * stripLength,
+                description: `${stripLength}m of LED strip`
+            },
+            {
+                name: powerSupply.replace('V', 'V ').replace('A', 'A Power Supply'),
+                quantity: 1,
+                price: this.getPowerSupplyPrice(powerSupply),
+                description: 'Switching power supply'
+            },
+            {
+                name: 'Jumper Wires',
+                quantity: 1,
+                price: 5,
+                description: 'Male-to-male jumper wires'
+            },
+            {
+                name: 'Breadboard (optional)',
+                quantity: 1,
+                price: 8,
+                description: 'For prototyping connections'
+            },
+            {
+                name: '1000µF Capacitor',
+                quantity: 1,
+                price: 3,
+                description: 'Power supply smoothing'
+            },
+            {
+                name: '470Ω Resistor',
+                quantity: 1,
+                price: 1,
+                description: 'Data line protection'
+            }
+        ];
+        
+        const totalCost = components.reduce((sum, comp) => sum + comp.price, 0);
+        
+        let html = '<div class="grid grid-2" style="gap: 10px; margin-bottom: 15px;">';
+        components.forEach(comp => {
+            html += `
+                <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(15, 52, 96, 0.2); border-radius: 5px;">
+                    <div>
+                        <strong>${comp.name}</strong><br>
+                        <small style="color: var(--text-muted);">${comp.description}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>Qty: ${comp.quantity}</div>
+                        <div style="color: var(--success);">$${comp.price}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        html += `
+            <div style="text-align: center; padding: 15px; background: rgba(233, 69, 96, 0.1); border-radius: 8px; border: 1px solid rgba(233, 69, 96, 0.3);">
+                <strong style="font-size: 1.2em; color: var(--highlight);">Total Estimated Cost: $${totalCost}</strong>
+                <br><small style="color: var(--text-muted);">Prices are approximate and may vary by supplier</small>
+            </div>
+        `;
+        
+        document.getElementById('component-list').innerHTML = html;
+    }
+
+    getControllerPrice(controller) {
+        const prices = {
+            'arduino_uno': 25,
+            'arduino_nano': 15,
+            'esp32': 12,
+            'esp8266': 8
+        };
+        return prices[controller] || 20;
+    }
+
+    getStripPrice(ledsPerMeter) {
+        const prices = {
+            30: 15,
+            60: 25,
+            144: 45,
+            256: 80
+        };
+        return prices[ledsPerMeter] || 25;
+    }
+
+    getPowerSupplyPrice(powerSupply) {
+        const prices = {
+            '5V2A': 15,
+            '5V5A': 25,
+            '5V10A': 35,
+            '5V20A': 55,
+            '5V30A': 75,
+            '5V40A': 95
+        };
+        return prices[powerSupply] || 35;
     }
 
     downloadWiring() {

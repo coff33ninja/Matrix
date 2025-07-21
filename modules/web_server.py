@@ -11,14 +11,27 @@ import socketserver
 import urllib.parse
 import mimetypes
 import json
+import logging
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Dict, Any
+from datetime import datetime
 try:
     import requests
 except ImportError:
     print("⚠️  requests library not found. API proxy functionality will be limited.")
     requests = None
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('web_server.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger('WebServer')
 
 @dataclass
 class ServerConfig:
@@ -277,20 +290,29 @@ class UnifiedMatrixWebServer:
                 """Route requests based on path"""
                 parsed_path = urllib.parse.urlparse(self.path)
                 path = parsed_path.path
+                client_ip = self.client_address[0]
+                
+                logger.info(f"📥 {self.command} {path} from {client_ip}")
                 
                 try:
-                    if path == "/" or path == "":
+                    # Handle API requests first, regardless of prefix
+                    if path.startswith("/api") or path.startswith("/control/api"):
+                        logger.info(f"🔌 Proxying API request: {path}")
+                        self.proxy_api_request(path, parsed_path.query)
+                    elif path == "/" or path == "":
+                        logger.info("🏠 Serving landing page")
                         self.serve_landing_page()
                     elif path.startswith("/control"):
+                        logger.info(f"🎮 Serving control interface: {path}")
                         self.serve_control_interface(path)
                     elif path.startswith("/docs"):
+                        logger.info(f"📚 Serving docs interface: {path}")
                         self.serve_docs_interface(path)
-                    elif path.startswith("/api"):
-                        self.proxy_api_request(path, parsed_path.query)
                     else:
+                        logger.warning(f"❓ Unknown path requested: {path}")
                         self.serve_404()
                 except Exception as e:
-                    print(f"❌ Error handling request {path}: {e}")
+                    logger.error(f"❌ Error handling request {path}: {e}", exc_info=True)
                     self.serve_500(str(e))
             
             def serve_landing_page(self):
@@ -359,27 +381,36 @@ class UnifiedMatrixWebServer:
             def proxy_api_request(self, path, query):
                 """Proxy API requests to the Python controller"""
                 if not requests:
+                    logger.error("❌ Requests library not available for API proxy")
                     self.serve_503("Requests library not available")
                     return
                     
                 try:
-                    # Remove /api prefix
-                    api_path = path[4:]
+                    # Handle both /api and /control/api paths
+                    if path.startswith("/control/api"):
+                        api_path = "/api" + path[12:]  # Convert /control/api to /api
+                        logger.info(f"🔄 Converting {path} to {api_path}")
+                    else:
+                        api_path = path  # Keep full /api path
+                        
                     if query:
                         api_path += f"?{query}"
                     
                     # Proxy to controller
                     controller_url = f"http://localhost:{server_instance.config.api_proxy_port}{api_path}"
+                    logger.info(f"🔗 Proxying to: {controller_url}")
                     
                     if self.command == 'GET':
                         response = requests.get(controller_url, timeout=5)
                     elif self.command == 'POST':
                         content_length = int(self.headers.get('Content-Length', 0))
                         post_data = self.rfile.read(content_length)
+                        logger.info(f"📤 POST data length: {content_length}")
                         response = requests.post(controller_url, data=post_data, 
                                                headers={'Content-Type': self.headers.get('Content-Type', 'application/json')},
                                                timeout=5)
                     else:
+                        logger.warning(f"❓ Unsupported method: {self.command}")
                         self.serve_404()
                         return
                     

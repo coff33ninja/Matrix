@@ -37,12 +37,12 @@ def print_banner():
 
 
 def cmd_controller(args):
-    """Start the matrix controller GUI"""
+    """Start the matrix controller (web-based)"""
     print("🎮 Starting LED Matrix Controller...")
     try:
-        from matrix_controller import UnifiedMatrixController
+        from web_matrix_controller import WebMatrixController
 
-        controller = UnifiedMatrixController()
+        controller = WebMatrixController()
         controller.run()
     except ImportError as e:
         print(f"❌ Error importing controller: {e}")
@@ -88,25 +88,25 @@ def cmd_web(args):
 
 
 def cmd_start(args):
-    """Start both controller and web interfaces"""
+    """Start both controller and web interfaces in a unified web-only solution"""
     import threading
     import time
     
     print("🚀 Starting Complete LED Matrix System...")
-    print("   - Python Controller (GUI + API)")
+    print("   - Web-based Matrix Controller")
     print("   - Control Interface Server")
     print("   - Documentation Server")
     print()
     
-    # Start controller in a separate thread
+    # Start web controller in a separate thread
     def start_controller():
-        from matrix_controller import UnifiedMatrixController
-        controller = UnifiedMatrixController()
+        from modules.web_matrix_controller import WebMatrixController
+        controller = WebMatrixController(port=8080)
         controller.run()
     
     # Start unified web server
     def start_unified_web():
-        time.sleep(2)  # Give controller time to start
+        time.sleep(1)  # Give controller time to start
         from modules.web_server import UnifiedMatrixWebServer
         server = UnifiedMatrixWebServer(port=3000)
         server.start()
@@ -123,7 +123,6 @@ def cmd_start(args):
         print("🎮 Control Interface: http://localhost:3000/control")
         print("📚 Documentation: http://localhost:3000/docs")
         print("🔌 API Server: http://localhost:8080")
-        print("🖥️ GUI Controller: Desktop window")
         print()
         print("Press Ctrl+C to stop all services")
         print("=" * 70)

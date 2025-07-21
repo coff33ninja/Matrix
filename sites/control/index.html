@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED Matrix Control Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <link rel="icon" href="favicon.ico" type="image/svg+xml">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -290,11 +292,69 @@
             font-size: 14px;
         }
 
+        /* Power calculation styles */
+        .power-calc {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .power-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .power-usage {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--error));
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        /* Mermaid diagram styles */
+        .mermaid {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Shopping list styles */
+        #shopping-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #shopping-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(233, 69, 96, 0.1);
+        }
+
+        #shopping-list li:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .header h1 { font-size: 2rem; }
             .status-bar { flex-direction: column; gap: 10px; }
             .nav-tabs { flex-direction: column; }
+            .power-calc { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -424,12 +484,12 @@
             <!-- Wiring Section -->
             <div id="wiring-section" class="section" style="display: none;">
                 <div class="card">
-                    <h3>🔌 Wiring Diagram Generator</h3>
+                    <h3>🔌 Wiring Configuration</h3>
                     <div class="grid grid-3">
                         <div class="input-group">
                             <label>Controller</label>
                             <select id="wiring-controller">
-                                <option value="arduino_uno">Arduino Uno</option>
+                                <option value="arduino_uno">Arduino Uno R3</option>
                                 <option value="arduino_nano">Arduino Nano</option>
                                 <option value="esp32">ESP32 Dev Board</option>
                                 <option value="esp8266">ESP8266 NodeMCU</option>
@@ -444,16 +504,72 @@
                             <input type="number" id="wiring-height" value="16" min="1" max="64">
                         </div>
                     </div>
+                    
+                    <div class="grid grid-2" style="margin-top: 15px;">
+                        <div class="input-group">
+                            <label>LED Density</label>
+                            <select id="leds-per-meter">
+                                <option value="30">30 LEDs/m (Low Density)</option>
+                                <option value="60">60 LEDs/m (Medium Density)</option>
+                                <option value="144" selected>144 LEDs/m (High Density)</option>
+                                <option value="256">256 LEDs/m (Ultra High Density)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Power Supply</label>
+                            <select id="power-supply">
+                                <option value="5V2A">5V 2A (10W) - $15</option>
+                                <option value="5V5A">5V 5A (25W) - $25</option>
+                                <option value="5V10A" selected>5V 10A (50W) - $35</option>
+                                <option value="5V20A">5V 20A (100W) - $55</option>
+                                <option value="5V30A">5V 30A (150W) - $75</option>
+                                <option value="5V40A">5V 40A (200W) - $95</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div style="margin-top: 20px;">
                         <button class="btn" id="generate-wiring">Generate Wiring Guide</button>
                         <button class="btn btn-secondary" id="download-wiring">Download Guide</button>
+                        <button class="btn btn-secondary" id="update-calculations">Update Calculations</button>
                     </div>
                 </div>
 
                 <div class="card" style="margin-top: 20px;">
                     <h3>💡 Power Requirements</h3>
                     <div id="power-info">
-                        <p>Configure your matrix to see power requirements</p>
+                        <div class="grid grid-3">
+                            <div>
+                                <strong>Total LEDs:</strong>
+                                <span id="total-leds">256</span>
+                            </div>
+                            <div>
+                                <strong>Max Current:</strong>
+                                <span id="max-current">15.36A</span>
+                            </div>
+                            <div>
+                                <strong>Max Power:</strong>
+                                <span id="max-power">76.8W</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div><strong>Strip Length:</strong> <span id="strip-length">1.78m</span></div>
+                            <div><strong>Recommended PSU:</strong> <span id="recommended-psu">5V20A</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3>📊 Wiring Diagram</h3>
+                    <div id="mermaid-diagram" style="text-align: center; min-height: 300px;">
+                        <p>Click "Generate Wiring Guide" to see the diagram</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3>🛒 Component List</h3>
+                    <div id="component-list">
+                        <p>Generate wiring guide to see component list and pricing</p>
                     </div>
                 </div>
             </div>
