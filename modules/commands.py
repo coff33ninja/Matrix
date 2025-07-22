@@ -18,7 +18,7 @@ sys.path.insert(0, modules_dir)
 def cmd_controller(args):
     """
     Starts the web-based LED Matrix Controller.
-    
+
     Returns:
         bool: True if the controller starts successfully, False if an error occurs.
     """
@@ -43,7 +43,7 @@ def cmd_controller(args):
 def cmd_start(args):
     """
     Starts the complete LED matrix system, launching both the web-based matrix controller and the unified web server in separate daemon threads.
-    
+
     Returns:
         bool: True if services are stopped via keyboard interrupt, False if an error occurs during startup.
     """
@@ -108,7 +108,7 @@ def cmd_start(args):
 def cmd_generate(args):
     """
     Generates Arduino code for a specified LED matrix model, with options for model comparison, organized output, and upload instructions.
-    
+
     Returns:
         bool: True if code generation succeeds or model comparison is shown; False if an error occurs or the model is invalid.
     """
@@ -155,7 +155,7 @@ def cmd_generate(args):
 def cmd_design(args):
     """
     Launches the LED Matrix Design Library to create, export, or generate code for matrix designs.
-    
+
     Depending on the arguments, this function can create sample designs, enter an interactive mode for custom pattern creation (including rainbow, gradient, checkerboard, and plasma effects), export designs, or generate Arduino code. Returns True on success, or False if an error occurs.
     """
     print("🎨 LED Matrix Design Library...")
@@ -239,7 +239,7 @@ def cmd_design(args):
 def cmd_wiring(args):
     """
     Generates wiring diagrams, configuration files, and a shopping list for a specified LED matrix controller and matrix size.
-    
+
     Creates a markdown wiring guide, exports a JSON configuration, and generates a shopping list JSON file based on the provided controller, matrix dimensions, data pin, and power supply. Prints a summary of the wiring configuration, including power requirements and estimated cost. Returns True on success, or False if an error occurs.
     """
     print(f"📋 Generating wiring diagrams for {args.controller}...")
@@ -276,8 +276,9 @@ def cmd_wiring(args):
         )
 
         shopping_filename = (
-            f"shopping_list_{args.controller}_{args.width}x{height}.json"
+            f"shopping_list_{args.controller}_{args.width}x{args.height}.json"
         )
+        # Save shopping list to JSON file
         import json
 
         with open(shopping_filename, "w") as f:
@@ -311,7 +312,7 @@ def cmd_wiring(args):
 def cmd_config(args):
     """
     Configures LED matrix settings, allowing users to view, interactively update, or set configuration values for the matrix.
-    
+
     Depending on the provided arguments, this function can display the current configuration, prompt the user for interactive updates, or set individual configuration parameters such as matrix width, height, brightness, and serial port. Changes are saved persistently. Returns True on success, or False if an error occurs.
     """
     print("⚙️ Matrix Configuration...")
@@ -386,7 +387,7 @@ def cmd_config(args):
 def cmd_test(args):
     """
     Runs the LED matrix test suite, either for a specific module or the entire project.
-    
+
     If `args.module` is specified, runs tests for that module using the unittest framework. Otherwise, executes the full test suite. Prints status messages and returns `True` if tests pass, `False` otherwise.
     """
     print("🧪 Running LED Matrix Test Suite...")
@@ -414,7 +415,7 @@ def cmd_test(args):
 def cmd_info(args):
     """
     Displays detailed information about the LED Matrix Project, including matrix configuration, available modules, hardware status, and test suite availability.
-    
+
     Returns:
         bool: True if information is displayed successfully, False if an error occurs.
     """

@@ -7,7 +7,7 @@ class MatrixController {
         this.matrixSize = { width: 16, height: 16 };
         this.currentPattern = 'solid';
         this.fps = 0;
-        
+
         // Initialize drawing variables
         this.drawingMode = 'paint';
         this.brushColor = '#e94560';
@@ -15,7 +15,7 @@ class MatrixController {
         this.isDrawing = false;
         this.drawingData = [];
         this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
-        
+
         this.init();
     }
 
@@ -52,10 +52,10 @@ class MatrixController {
     }
 
     async loadSectionData(section) {
-        switch(section) {
+        switch (section) {
             case 'control':
-                initializeControlSection();
-                setupControlEventListeners();
+                this.initializeControlSection();
+                this.setupControlEventListeners();
                 break;
             case 'generator':
                 initializeGeneratorSection();
@@ -80,32 +80,817 @@ class MatrixController {
             case 'palette':
                 initializePaletteSection();
                 break;
-
             case 'custom-matrix':
                 initializeCustomMatrixSection();
                 break;
         }
     }
 
+    initializeControlSection() {
+        this.initializeMatrix();
+        // Wait a bit for DOM to be ready, then setup drawing
+        setTimeout(() => {
+            this.setupMatrixDrawing();
+        }, 100);
+    }
+
+    setupControlEventListeners() {
+        // Matrix configuration
+        const applyConfigBtn = document.getElementById('apply-matrix-config');
+        if (applyConfigBtn) {
+            applyConfigBtn.addEventListener('click', () => this.applyMatrixConfig());
+        }
+
+        const testConnectionBtn = document.getElementById('test-connection');
+        if (testConnectionBtn) {
+            testConnectionBtn.addEventListener('click', () => this.testConnection());
+        }
+
+        // Pattern control
+        const applyPatternBtn = document.getElementById('apply-pattern');
+        if (applyPatternBtn) {
+            applyPatternBtn.addEventListener('click', () => this.applyPattern());
+        }
+
+        const clearMatrixBtn = document.getElementById('clear-matrix');
+        if (clearMatrixBtn) {
+            clearMatrixBtn.addEventListener('click', () => this.clearMatrix());
+        }
+
+        const testPatternBtn = document.getElementById('test-pattern');
+        if (testPatternBtn) {
+            testPatternBtn.addEventListener('click', () => this.testPattern());
+        }
+
+        // Sliders
+        const brightnessSlider = document.getElementById('brightness-slider');
+        if (brightnessSlider) {
+            brightnessSlider.addEventListener('input', (e) => {
+                document.getElementById('brightness-value').textContent = e.target.value;
+            });
+        }
+
+        const speedSlider = document.getElementById('speed-slider');
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                document.getElementById('speed-value').textContent = e.target.value;
+            });
+        }
+
+        // Drawing section event listeners
+        this.setupDrawingEventListeners();
+    }
+
+    setupDrawingEventListeners() {
+        // Drawing mode and tools
+        const drawingModeSelect = document.getElementById('drawing-mode');
+        if (drawingModeSelect) {
+            drawingModeSelect.addEventListener('change', (e) => {
+                this.drawingMode = e.target.value;
+                this.updateDrawingCursor();
+            });
+        }
+
+        const brushColorInput = document.getElementById('brush-color');
+        if (brushColorInput) {
+            brushColorInput.addEventListener('change', (e) => {
+                this.brushColor = e.target.value;
+            });
+        }
+
+        const brushSizeSlider = document.getElementById('brush-size');
+        if (brushSizeSlider) {
+            brushSizeSlider.addEventListener('input', (e) => {
+                this.brushSize = parseInt(e.target.value);
+                const display = document.getElementById('brush-size-display');
+                if (display) {
+                    display.textContent = `${this.brushSize}x${this.brushSize}`;
+                }
+            });
+        }
+
+        // Color presets
+        document.querySelectorAll('.color-preset').forEach(preset => {
+            preset.addEventListener('click', (e) => {
+                const color = e.target.dataset.color;
+                this.brushColor = color;
+                const brushColorInput = document.getElementById('brush-color');
+                if (brushColorInput) {
+                    brushColorInput.value = color;
+                }
+
+                // Update active preset
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        // Palette actions
+        const addToPaletteBtn = document.getElementById('add-to-palette');
+        if (addToPaletteBtn) {
+            addToPaletteBtn.addEventListener('click', () => this.addToCustomPalette());
+        }
+
+        const savePaletteBtn = document.getElementById('save-palette');
+        if (savePaletteBtn) {
+            savePaletteBtn.addEventListener('click', () => this.savePalette());
+        }
+
+        const loadPaletteBtn = document.getElementById('load-palette');
+        if (loadPaletteBtn) {
+            loadPaletteBtn.addEventListener('click', () => this.loadPalette());
+        }
+
+        // Drawing actions
+        const clearDrawingBtn = document.getElementById('clear-drawing');
+        if (clearDrawingBtn) {
+            clearDrawingBtn.addEventListener('click', () => this.clearDrawing());
+        }
+
+        const sendToMatrixBtn = document.getElementById('send-to-matrix');
+        if (sendToMatrixBtn) {
+            sendToMatrixBtn.addEventListener('click', () => this.sendDrawingToMatrix());
+        }
+
+        // Quick Patterns
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pattern = e.currentTarget.dataset.pattern;
+                this.loadPresetPattern(pattern);
+            });
+        });
+
+        // File operations
+        const savePatternBtn = document.getElementById('save-pattern');
+        if (savePatternBtn) {
+            savePatternBtn.addEventListener('click', () => this.savePattern());
+        }
+
+        const loadPatternBtn = document.getElementById('load-pattern');
+        if (loadPatternBtn) {
+            loadPatternBtn.addEventListener('click', () => this.loadPattern());
+        }
+
+        const importImageBtn = document.getElementById('import-image-btn');
+        if (importImageBtn) {
+            importImageBtn.addEventListener('click', () => {
+                const fileInput = document.getElementById('import-image');
+                if (fileInput) fileInput.click();
+            });
+        }
+
+        const importImageInput = document.getElementById('import-image');
+        if (importImageInput) {
+            importImageInput.addEventListener('change', (e) => this.importImage(e));
+        }
+    }
+
+    async applyMatrixConfig() {
+        const width = parseInt(document.getElementById('matrix-width-config').value);
+        const height = parseInt(document.getElementById('matrix-height-config').value);
+        const connectionMode = document.getElementById('connection-mode').value;
+
+        if (width && height && width >= 8 && height >= 8 && width <= 64 && height <= 64) {
+            this.matrixSize = { width, height };
+            this.initializeMatrix();
+            this.log(`Matrix configuration updated: ${width}×${height}`, 'success');
+
+            // Send configuration to server
+            try {
+                const response = await fetch(`${this.apiBase}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        width,
+                        height,
+                        connectionMode
+                    })
+                });
+
+                if (response.ok) {
+                    this.log('Configuration sent to controller', 'success');
+                } else {
+                    throw new Error('Failed to send configuration');
+                }
+            } catch (error) {
+                this.log(`Error sending configuration: ${error.message}`, 'error');
+            }
+        } else {
+            this.log('Invalid matrix dimensions. Use values between 8-64.', 'error');
+        }
+    }
+
+    async testConnection() {
+        this.log('Testing connection...', 'warning');
+        await this.checkConnection();
+    }
+
+    addToCustomPalette() {
+        const color = this.brushColor;
+        const customPalette = document.getElementById('custom-palette');
+
+        if (customPalette) {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', (e) => {
+                this.brushColor = color;
+                const brushColorInput = document.getElementById('brush-color');
+                if (brushColorInput) {
+                    brushColorInput.value = color;
+                }
+
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+
+            customPalette.appendChild(colorDiv);
+            this.log(`Added ${color} to custom palette`, 'success');
+        }
+    }
+
+    savePalette() {
+        const customColors = Array.from(document.querySelectorAll('#custom-palette .color-preset'))
+            .map(preset => preset.dataset.color);
+
+        if (customColors.length > 0) {
+            localStorage.setItem('customPalette', JSON.stringify(customColors));
+            this.log(`Saved palette with ${customColors.length} colors`, 'success');
+        } else {
+            this.log('No custom colors to save', 'warning');
+        }
+    }
+
+    loadPalette() {
+        const savedPalette = localStorage.getItem('customPalette');
+        if (savedPalette) {
+            const colors = JSON.parse(savedPalette);
+            const customPalette = document.getElementById('custom-palette');
+
+            if (customPalette) {
+                customPalette.innerHTML = '';
+                colors.forEach(color => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'color-preset';
+                    colorDiv.style.background = color;
+                    colorDiv.dataset.color = color;
+                    colorDiv.title = color;
+
+                    colorDiv.addEventListener('click', (e) => {
+                        this.brushColor = color;
+                        const brushColorInput = document.getElementById('brush-color');
+                        if (brushColorInput) {
+                            brushColorInput.value = color;
+                        }
+
+                        document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+
+                    customPalette.appendChild(colorDiv);
+                });
+
+                this.log(`Loaded palette with ${colors.length} colors`, 'success');
+            }
+        } else {
+            this.log('No saved palette found', 'warning');
+        }
+    }
+
+    loadPresetPattern(patternName) {
+        const { width, height } = this.matrixSize;
+        const patterns = {
+            smiley: this.generateSmileyPattern(width, height),
+            heart: this.generateHeartPattern(width, height),
+            arrow: this.generateArrowPattern(width, height),
+            star: this.generateStarPattern(width, height),
+            checkerboard: this.generateCheckerboardPattern(width, height),
+            border: this.generateBorderPattern(width, height)
+        };
+
+        const pattern = patterns[patternName];
+        if (pattern) {
+            this.drawingData = pattern;
+            this.updateMatrixFromDrawingData();
+            this.log(`Loaded ${patternName} pattern`, 'success');
+        }
+    }
+
+    generateSmileyPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        const yellow = '#ffff00';
+
+        // Face outline (simplified for small matrices)
+        if (width >= 8 && height >= 8) {
+            // Eyes
+            if (centerY - 2 >= 0 && centerX - 2 >= 0) pattern[centerY - 2][centerX - 2] = yellow;
+            if (centerY - 2 >= 0 && centerX + 2 < width) pattern[centerY - 2][centerX + 2] = yellow;
+
+            // Smile
+            if (centerY + 1 < height && centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = yellow;
+            if (centerY + 1 < height) pattern[centerY + 1][centerX] = yellow;
+            if (centerY + 1 < height && centerX + 1 < width) pattern[centerY + 1][centerX + 1] = yellow;
+        }
+
+        return pattern;
+    }
+
+    generateHeartPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const red = '#ff0000';
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+
+        // Simple heart shape
+        if (width >= 6 && height >= 6) {
+            // Top of heart
+            if (centerY - 1 >= 0) {
+                if (centerX - 1 >= 0) pattern[centerY - 1][centerX - 1] = red;
+                if (centerX + 1 < width) pattern[centerY - 1][centerX + 1] = red;
+            }
+
+            // Middle
+            if (centerX - 2 >= 0) pattern[centerY][centerX - 2] = red;
+            if (centerX - 1 >= 0) pattern[centerY][centerX - 1] = red;
+            pattern[centerY][centerX] = red;
+            if (centerX + 1 < width) pattern[centerY][centerX + 1] = red;
+            if (centerX + 2 < width) pattern[centerY][centerX + 2] = red;
+
+            // Bottom
+            if (centerY + 1 < height) {
+                if (centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = red;
+                pattern[centerY + 1][centerX] = red;
+                if (centerX + 1 < width) pattern[centerY + 1][centerX + 1] = red;
+            }
+
+            if (centerY + 2 < height) {
+                pattern[centerY + 2][centerX] = red;
+            }
+        }
+
+        return pattern;
+    }
+
+    generateArrowPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const blue = '#0000ff';
+        const centerY = Math.floor(height / 2);
+
+        // Arrow pointing right
+        for (let x = 0; x < width - 2; x++) {
+            pattern[centerY][x] = blue;
+        }
+
+        // Arrow head
+        if (width >= 4) {
+            const headX = width - 2;
+            if (centerY - 1 >= 0) pattern[centerY - 1][headX] = blue;
+            if (centerY + 1 < height) pattern[centerY + 1][headX] = blue;
+            if (headX + 1 < width) pattern[centerY][headX + 1] = blue;
+        }
+
+        return pattern;
+    }
+
+    generateStarPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const yellow = '#ffff00';
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+
+        // Simple star pattern
+        pattern[centerY][centerX] = yellow;
+
+        // Cross pattern
+        if (centerY - 1 >= 0) pattern[centerY - 1][centerX] = yellow;
+        if (centerY + 1 < height) pattern[centerY + 1][centerX] = yellow;
+        if (centerX - 1 >= 0) pattern[centerY][centerX - 1] = yellow;
+        if (centerX + 1 < width) pattern[centerY][centerX + 1] = yellow;
+
+        // Diagonal
+        if (centerY - 1 >= 0 && centerX - 1 >= 0) pattern[centerY - 1][centerX - 1] = yellow;
+        if (centerY - 1 >= 0 && centerX + 1 < width) pattern[centerY - 1][centerX + 1] = yellow;
+        if (centerY + 1 < height && centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = yellow;
+        if (centerY + 1 < height && centerX + 1 < width) pattern[centerY + 1][centerX + 1] = yellow;
+
+        return pattern;
+    }
+
+    generateCheckerboardPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const white = '#ffffff';
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                if ((x + y) % 2 === 0) {
+                    pattern[y][x] = white;
+                }
+            }
+        }
+
+        return pattern;
+    }
+
+    generateBorderPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const white = '#ffffff';
+
+        // Top and bottom borders
+        for (let x = 0; x < width; x++) {
+            pattern[0][x] = white;
+            pattern[height - 1][x] = white;
+        }
+
+        // Left and right borders
+        for (let y = 0; y < height; y++) {
+            pattern[y][0] = white;
+            pattern[y][width - 1] = white;
+        }
+
+        return pattern;
+    }
+
+    updateMatrixFromDrawingData() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        const { width } = this.matrixSize;
+
+        pixels.forEach((pixel, index) => {
+            const x = index % width;
+            const y = Math.floor(index / width);
+            const color = this.drawingData[y][x];
+            pixel.style.backgroundColor = color === '#000000' ? '#333' : color;
+        });
+    }
+
+    savePattern() {
+        const patternName = prompt('Enter pattern name:');
+        if (patternName) {
+            const pattern = {
+                name: patternName,
+                data: this.drawingData,
+                width: this.matrixSize.width,
+                height: this.matrixSize.height,
+                timestamp: new Date().toISOString()
+            };
+
+            this.savedPatterns.push(pattern);
+            localStorage.setItem('ledMatrixPatterns', JSON.stringify(this.savedPatterns));
+            this.log(`Pattern "${patternName}" saved`, 'success');
+        }
+    }
+
+    loadPattern() {
+        if (this.savedPatterns.length === 0) {
+            this.log('No saved patterns found', 'warning');
+            return;
+        }
+
+        const patternNames = this.savedPatterns.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+        const selection = prompt(`Select pattern to load:\n${patternNames}\n\nEnter number:`);
+
+        if (selection) {
+            const index = parseInt(selection) - 1;
+            if (index >= 0 && index < this.savedPatterns.length) {
+                const pattern = this.savedPatterns[index];
+                this.drawingData = pattern.data;
+                this.updateMatrixFromDrawingData();
+                this.log(`Pattern "${pattern.name}" loaded`, 'success');
+            } else {
+                this.log('Invalid selection', 'error');
+            }
+        }
+    }
+
+    importImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                this.processImageForMatrix(img);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    processImageForMatrix(img) {
+        const { width, height } = this.matrixSize;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and scale image to matrix size
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Get pixel data
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+
+        // Convert to matrix format
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const index = (y * width + x) * 4;
+                const r = data[index];
+                const g = data[index + 1];
+                const b = data[index + 2];
+
+                // Convert to hex color
+                const color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                this.drawingData[y][x] = color;
+            }
+        }
+
+        this.updateMatrixFromDrawingData();
+        this.log('Image imported successfully', 'success');
+    }
+
+    log(message, type = 'info') {
+        const logContainer = document.getElementById('activity-log');
+        if (logContainer) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+
     initializeMatrix() {
         const grid = document.getElementById('matrix-grid');
         const { width, height } = this.matrixSize;
-        
+
         grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
         grid.innerHTML = '';
-        
+
         for (let i = 0; i < width * height; i++) {
             const pixel = document.createElement('div');
             pixel.className = 'led-pixel';
             pixel.dataset.index = i;
+            pixel.style.backgroundColor = '#333';
             grid.appendChild(pixel);
         }
-        
+
         document.getElementById('matrix-size').textContent = `${width}×${height}`;
         document.getElementById('led-count').textContent = width * height;
-        
+        document.getElementById('matrix-display-size').textContent = `${width}×${height}`;
+        document.getElementById('led-display-count').textContent = width * height;
+
+        // Initialize drawing data
+        this.initializeDrawingData();
+
         // Update power calculations when matrix size changes
         this.updatePowerCalculations();
+    }
+
+    initializeDrawingData() {
+        const { width, height } = this.matrixSize;
+        this.drawingData = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+    }
+
+    setupMatrixDrawing() {
+        const grid = document.getElementById('matrix-grid');
+        if (!grid) return;
+
+        const pixels = grid.querySelectorAll('.led-pixel');
+
+        pixels.forEach((pixel, index) => {
+            // Mouse events for drawing
+            pixel.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+
+            pixel.addEventListener('mouseenter', (e) => {
+                if (this.isDrawing) {
+                    this.drawPixel(index);
+                }
+            });
+
+            pixel.addEventListener('mouseup', () => {
+                this.isDrawing = false;
+            });
+
+            // Touch events for mobile
+            pixel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+
+            pixel.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (this.isDrawing) {
+                    const touch = e.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains('led-pixel')) {
+                        const touchIndex = parseInt(element.dataset.index);
+                        this.drawPixel(touchIndex);
+                    }
+                }
+            });
+
+            pixel.addEventListener('touchend', () => {
+                this.isDrawing = false;
+            });
+        });
+
+        // Prevent context menu on right click
+        grid.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Stop drawing when mouse leaves the grid
+        grid.addEventListener('mouseleave', () => {
+            this.isDrawing = false;
+        });
+    }
+
+    drawPixel(index) {
+        const { width, height } = this.matrixSize;
+        const x = index % width;
+        const y = Math.floor(index / width);
+
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
+
+        const pixel = document.querySelector(`[data-index="${index}"]`);
+        if (!pixel) return;
+
+        switch (this.drawingMode) {
+            case 'paint':
+                this.paintPixel(pixel, x, y);
+                break;
+            case 'erase':
+                this.erasePixel(pixel, x, y);
+                break;
+            case 'fill':
+                this.fillArea(x, y);
+                break;
+            case 'line':
+                // Line drawing would need start/end points - simplified for now
+                this.paintPixel(pixel, x, y);
+                break;
+        }
+    }
+
+    paintPixel(pixel, x, y) {
+        const color = this.brushColor;
+        pixel.style.backgroundColor = color;
+        this.drawingData[y][x] = color;
+
+        // Apply brush size
+        if (this.brushSize > 1) {
+            const offset = Math.floor(this.brushSize / 2);
+            for (let dy = -offset; dy <= offset; dy++) {
+                for (let dx = -offset; dx <= offset; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < this.matrixSize.width && ny >= 0 && ny < this.matrixSize.height) {
+                        const neighborIndex = ny * this.matrixSize.width + nx;
+                        const neighborPixel = document.querySelector(`[data-index="${neighborIndex}"]`);
+                        if (neighborPixel) {
+                            neighborPixel.style.backgroundColor = color;
+                            this.drawingData[ny][nx] = color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    erasePixel(pixel, x, y) {
+        pixel.style.backgroundColor = '#333';
+        this.drawingData[y][x] = '#000000';
+
+        // Apply brush size for erasing
+        if (this.brushSize > 1) {
+            const offset = Math.floor(this.brushSize / 2);
+            for (let dy = -offset; dy <= offset; dy++) {
+                for (let dx = -offset; dx <= offset; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < this.matrixSize.width && ny >= 0 && ny < this.matrixSize.height) {
+                        const neighborIndex = ny * this.matrixSize.width + nx;
+                        const neighborPixel = document.querySelector(`[data-index="${neighborIndex}"]`);
+                        if (neighborPixel) {
+                            neighborPixel.style.backgroundColor = '#333';
+                            this.drawingData[ny][nx] = '#000000';
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fillArea(startX, startY) {
+        const targetColor = this.drawingData[startY][startX];
+        const fillColor = this.brushColor;
+
+        if (targetColor === fillColor) return;
+
+        const stack = [[startX, startY]];
+        const { width, height } = this.matrixSize;
+
+        while (stack.length > 0) {
+            const [x, y] = stack.pop();
+
+            if (x < 0 || x >= width || y < 0 || y >= height) continue;
+            if (this.drawingData[y][x] !== targetColor) continue;
+
+            this.drawingData[y][x] = fillColor;
+            const index = y * width + x;
+            const pixel = document.querySelector(`[data-index="${index}"]`);
+            if (pixel) {
+                pixel.style.backgroundColor = fillColor;
+            }
+
+            // Add neighboring pixels to stack
+            stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+        }
+    }
+
+    clearDrawing() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach(pixel => {
+            pixel.style.backgroundColor = '#333';
+        });
+
+        this.initializeDrawingData();
+        this.log('Canvas cleared', 'success');
+    }
+
+    async sendDrawingToMatrix() {
+        try {
+            const response = await fetch(`${this.apiBase}/matrix`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    matrix: this.drawingData,
+                    width: this.matrixSize.width,
+                    height: this.matrixSize.height
+                })
+            });
+
+            if (response.ok) {
+                this.log('Drawing sent to matrix successfully', 'success');
+            } else {
+                throw new Error('Failed to send drawing to matrix');
+            }
+        } catch (error) {
+            this.log(`Error sending drawing: ${error.message}`, 'error');
+        }
+    }
+
+    updateDrawingCursor() {
+        const grid = document.getElementById('matrix-grid');
+        if (!grid) return;
+
+        // Update cursor based on drawing mode
+        switch (this.drawingMode) {
+            case 'paint':
+                grid.style.cursor = 'crosshair';
+                break;
+            case 'erase':
+                grid.style.cursor = 'grab';
+                break;
+            case 'fill':
+                grid.style.cursor = 'pointer';
+                break;
+            case 'line':
+                grid.style.cursor = 'crosshair';
+                break;
+            default:
+                grid.style.cursor = 'default';
+        }
     }
 
     // Power calculation methods
@@ -114,22 +899,22 @@ class MatrixController {
         const height = parseInt(document.getElementById('wiring-height')?.value) || this.matrixSize.height;
         const ledsPerMeter = parseInt(document.getElementById('leds-per-meter')?.value) || 60;
         const powerSupply = document.getElementById('power-supply')?.value || '5V10A';
-        
+
         const totalLeds = width * height;
         const stripLength = totalLeds / ledsPerMeter;
         const maxCurrentPerLed = 0.06; // 60mA per LED at full white
         const maxCurrent = totalLeds * maxCurrentPerLed;
         const maxPower = maxCurrent * 5; // 5V system
-        
+
         // Parse power supply capacity
         const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
         const psuVoltage = psuMatch ? parseInt(psuMatch[1]) : 5;
         const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
         const psuPower = psuVoltage * psuCurrent;
-        
+
         // Calculate power usage percentage
         const powerPercentage = Math.min((maxPower / psuPower) * 100, 100);
-        
+
         // Update display elements
         const elements = {
             'total-leds': totalLeds,
@@ -139,23 +924,23 @@ class MatrixController {
             'estimated-cost': this.calculateEstimatedCost(totalLeds, stripLength, maxPower),
             'power-percentage': `${powerPercentage.toFixed(0)}%`
         };
-        
+
         Object.entries(elements).forEach(([id, value]) => {
             const element = document.getElementById(id);
             if (element) element.textContent = value;
         });
-        
+
         // Update power usage bar
         const powerBar = document.getElementById('power-usage-bar');
         if (powerBar) {
             powerBar.style.width = `${powerPercentage}%`;
-            powerBar.style.background = powerPercentage > 80 ? 'var(--error)' : 
-                                       powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+            powerBar.style.background = powerPercentage > 80 ? 'var(--error)' :
+                powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
         }
-        
+
         // Update shopping list
         this.updateShoppingList(totalLeds, stripLength, maxPower);
-        
+
         // Update Mermaid diagram
         this.generateMermaidDiagram();
     }
@@ -166,7 +951,7 @@ class MatrixController {
         const stripCost = Math.ceil(stripLength) * 12; // $12 per meter
         const psuCost = this.getPSUCost(maxPower);
         const accessoriesCost = 15; // Level shifter, wires, etc.
-        
+
         const total = controllerCost + stripCost + psuCost + accessoriesCost;
         return `$${total - 10}-${total + 10}`;
     }
@@ -186,7 +971,7 @@ class MatrixController {
         const stripPrice = Math.ceil(stripLength) * 12;
         const psuPrice = this.getPSUCost(maxPower);
         const recommendedPSU = getRecommendedPSU(maxPower);
-        
+
         const items = [
             { name: controllerName, price: controllerPrice },
             { name: `WS2812B LED Strip (${Math.ceil(stripLength)}m)`, price: stripPrice },
@@ -195,9 +980,9 @@ class MatrixController {
             { name: 'Jumper Wires & Connectors', price: 8 },
             { name: 'Breadboard/Perfboard', price: 5 }
         ];
-        
+
         const total = items.reduce((sum, item) => sum + item.price, 0);
-        
+
         const listElement = document.getElementById('shopping-list');
         if (listElement) {
             listElement.innerHTML = `
@@ -215,9 +1000,9 @@ class MatrixController {
         const controllerName = getControllerName(controller);
         const dataPin = document.getElementById('data-pin')?.value || '6';
         const levelShifter = document.getElementById('level-shifter')?.value || '74hct125';
-        
+
         let mermaidCode = '';
-        
+
         if (levelShifter === 'none') {
             mermaidCode = `
                 graph TD
@@ -235,9 +1020,9 @@ class MatrixController {
                     style E fill:#2d3436,stroke:#333,stroke-width:2px,color:#fff
             `;
         } else {
-            const shifterName = levelShifter === '74hct125' ? '74HCT125' : 
-                              levelShifter === 'sn74lv1t34' ? 'SN74LV1T34' : 'Level Shifter';
-            
+            const shifterName = levelShifter === '74hct125' ? '74HCT125' :
+                levelShifter === 'sn74lv1t34' ? 'SN74LV1T34' : 'Level Shifter';
+
             mermaidCode = `
                 graph TD
                     A["🔌 Power Supply<br/>5V DC"] --> B["⚡ ${controllerName}"]
@@ -259,12 +1044,12 @@ class MatrixController {
                     style G fill:#fd79a8,stroke:#333,stroke-width:2px,color:#fff
             `;
         }
-        
+
         // Update the Mermaid diagram
         const diagramElement = document.getElementById('mermaid-diagram');
         if (diagramElement) {
             diagramElement.innerHTML = mermaidCode;
-            
+
             // Re-initialize Mermaid if available
             if (typeof mermaid !== 'undefined') {
                 mermaid.init(undefined, diagramElement);
@@ -280,7 +1065,7 @@ class MatrixController {
                 this.connected = true;
                 this.updateConnectionStatus(true);
                 this.log('Connected to matrix controller', 'success');
-                
+
                 // Update matrix size from server
                 if (data.matrix) {
                     this.matrixSize = { width: data.matrix.width, height: data.matrix.height };
@@ -299,7 +1084,7 @@ class MatrixController {
     updateConnectionStatus(connected) {
         const statusDot = document.getElementById('connection-status');
         const statusText = document.getElementById('connection-text');
-        
+
         if (connected) {
             statusDot.classList.add('connected');
             statusText.textContent = 'Connected';
@@ -348,8 +1133,8 @@ class MatrixController {
 
     updateMatrixPreview(pattern, color) {
         const pixels = document.querySelectorAll('.led-pixel');
-        
-        switch(pattern) {
+
+        switch (pattern) {
             case 'solid':
                 pixels.forEach(pixel => pixel.style.backgroundColor = color);
                 break;
@@ -440,7 +1225,7 @@ class MatrixController {
         this.log('Running test pattern', 'success');
         const pixels = document.querySelectorAll('.led-pixel');
         let index = 0;
-        
+
         const testSequence = () => {
             if (index < pixels.length) {
                 pixels[index].style.backgroundColor = '#e94560';
@@ -453,7 +1238,7 @@ class MatrixController {
                 this.log('Test pattern completed', 'success');
             }
         };
-        
+
         testSequence();
     }
 
@@ -500,7 +1285,7 @@ class MatrixController {
         const width = parseInt(document.getElementById('matrix-width').value);
         const height = parseInt(document.getElementById('matrix-height').value);
         const totalLeds = width * height;
-        
+
         const boards = {
             'uno': { name: 'Arduino Uno', memory: 2048, maxLeds: 500, voltage: '5V' },
             'nano': { name: 'Arduino Nano', memory: 2048, maxLeds: 500, voltage: '5V' },
@@ -510,11 +1295,11 @@ class MatrixController {
         };
 
         let html = '<h4>Board Recommendations:</h4><div class="grid grid-2" style="gap: 10px; margin-top: 10px;">';
-        
+
         Object.entries(boards).forEach(([key, board]) => {
             const suitable = totalLeds <= board.maxLeds;
             const memoryUsage = (totalLeds * 3 / board.memory * 100).toFixed(1);
-            
+
             html += `
                 <div class="card" style="padding: 10px; ${suitable ? 'border-color: var(--success)' : 'border-color: var(--error)'}">
                     <strong>${board.name}</strong><br>
@@ -522,7 +1307,7 @@ class MatrixController {
                 </div>
             `;
         });
-        
+
         html += '</div>';
         document.getElementById('board-comparison').innerHTML = html;
     }
@@ -553,13 +1338,13 @@ class MatrixController {
                 const data = await response.json();
                 this.log('Wiring guide generated successfully', 'success');
                 this.wiringData = data.wiring;
-                
+
                 // Update power calculations with wiring data
                 this.updatePowerCalculationsFromWiring(data.wiring);
-                
+
                 // Generate Mermaid diagram from backend
                 this.displayMermaidDiagram(data.wiring.mermaidDiagram);
-                
+
                 // Update component list
                 this.updateComponentListFromWiring(data.wiring);
             } else {
@@ -598,7 +1383,7 @@ class MatrixController {
             `;
         }
     }
-    
+
     displayMermaidDiagram(mermaidCode) {
         const diagramElement = document.getElementById('mermaid-diagram');
         if (diagramElement && mermaidCode) {
@@ -622,19 +1407,19 @@ class MatrixController {
                     <div class="mermaid">${mermaidCode}</div>
                 </div>
             `;
-            
+
             // Re-initialize Mermaid if available
             if (typeof mermaid !== 'undefined') {
                 mermaid.init(undefined, diagramElement.querySelector('.mermaid'));
             }
         }
     }
-    
+
     updateComponentListFromWiring(wiringData) {
         const componentList = document.getElementById('component-list');
         if (componentList && wiringData.components) {
             let html = '<div class="component-grid">';
-            
+
             wiringData.components.forEach(component => {
                 html += `
                     <div class="component-item">
@@ -644,9 +1429,9 @@ class MatrixController {
                     </div>
                 `;
             });
-            
+
             html += '</div>';
-            
+
             if (wiringData.estimatedCost) {
                 html += `
                     <div class="cost-summary">
@@ -654,11 +1439,11 @@ class MatrixController {
                     </div>
                 `;
             }
-            
+
             componentList.innerHTML = html;
         }
     }
-    
+
     downloadDiagramPNG(button) {
         const container = button.closest('.mermaid-container');
         const svg = container.querySelector('svg');
@@ -666,34 +1451,34 @@ class MatrixController {
             // Create a canvas element
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             // Get SVG dimensions
             const svgRect = svg.getBoundingClientRect();
             const svgData = new XMLSerializer().serializeToString(svg);
-            
+
             // Set canvas size with higher resolution for better quality
             const scale = 2;
             canvas.width = svgRect.width * scale;
             canvas.height = svgRect.height * scale;
-            
+
             // Create image from SVG
             const img = new Image();
             const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
             const url = URL.createObjectURL(svgBlob);
-            
-            img.onload = function() {
+
+            img.onload = function () {
                 // Set white background
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Scale context for higher resolution
                 ctx.scale(scale, scale);
-                
+
                 // Draw the SVG image
                 ctx.drawImage(img, 0, 0, svgRect.width, svgRect.height);
-                
+
                 // Convert canvas to PNG and download
-                canvas.toBlob(function(blob) {
+                canvas.toBlob(function (blob) {
                     const pngUrl = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = pngUrl;
@@ -701,10 +1486,10 @@ class MatrixController {
                     a.click();
                     URL.revokeObjectURL(pngUrl);
                 }, 'image/png');
-                
+
                 URL.revokeObjectURL(url);
             };
-            
+
             img.src = url;
         }
     }
@@ -712,7 +1497,7 @@ class MatrixController {
     setupMatrixDrawing() {
         const pixels = document.querySelectorAll('.led-pixel');
         console.log('Setting up drawing for', pixels.length, 'pixels');
-        
+
         pixels.forEach((pixel, index) => {
             // Mouse events for drawing
             pixel.addEventListener('mousedown', (e) => {
@@ -720,24 +1505,24 @@ class MatrixController {
                 this.isDrawing = true;
                 this.drawPixel(index);
             });
-            
+
             pixel.addEventListener('mouseenter', (e) => {
                 if (this.isDrawing) {
                     this.drawPixel(index);
                 }
             });
-            
+
             pixel.addEventListener('mouseup', () => {
                 this.isDrawing = false;
             });
-            
+
             // Touch events for mobile
             pixel.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 this.isDrawing = true;
                 this.drawPixel(index);
             });
-            
+
             pixel.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 if (this.isDrawing) {
@@ -749,39 +1534,39 @@ class MatrixController {
                     }
                 }
             });
-            
+
             pixel.addEventListener('touchend', () => {
                 this.isDrawing = false;
             });
         });
-        
+
         // Prevent context menu on right click
         document.getElementById('matrix-preview').addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
-        
+
         // Stop drawing when mouse leaves the matrix
         document.getElementById('matrix-preview').addEventListener('mouseleave', () => {
             this.isDrawing = false;
         });
-        
+
         // Initialize drawing data
         this.initializeDrawingData();
     }
-    
+
     initializeDrawingData() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         this.drawingData = Array(height).fill().map(() => Array(width).fill('#000000'));
     }
-    
+
     drawPixel(index) {
         console.log('Drawing pixel:', index, 'Mode:', this.drawingMode, 'Color:', this.brushColor);
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const x = index % width;
         const y = Math.floor(index / width);
-        
+
         if (this.drawingMode === 'paint') {
             this.paintPixels(x, y);
         } else if (this.drawingMode === 'erase') {
@@ -819,22 +1604,22 @@ class MatrixController {
             }
         }
     }
-    
+
     paintPixels(centerX, centerY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const size = this.brushSize;
         const offset = Math.floor(size / 2);
-        
+
         for (let dy = -offset; dy <= offset; dy++) {
             for (let dx = -offset; dx <= offset; dx++) {
                 const x = centerX + dx;
                 const y = centerY + dy;
-                
+
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     const index = y * width + x;
                     const pixel = document.querySelector(`[data-index="${index}"]`);
-                    
+
                     if (pixel) {
                         pixel.style.backgroundColor = this.brushColor;
                         this.drawingData[y][x] = this.brushColor;
@@ -843,22 +1628,22 @@ class MatrixController {
             }
         }
     }
-    
+
     erasePixels(centerX, centerY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const size = this.brushSize;
         const offset = Math.floor(size / 2);
-        
+
         for (let dy = -offset; dy <= offset; dy++) {
             for (let dx = -offset; dx <= offset; dx++) {
                 const x = centerX + dx;
                 const y = centerY + dy;
-                
+
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     const index = y * width + x;
                     const pixel = document.querySelector(`[data-index="${index}"]`);
-                    
+
                     if (pixel) {
                         pixel.style.backgroundColor = '#333';
                         this.drawingData[y][x] = '#000000';
@@ -867,34 +1652,34 @@ class MatrixController {
             }
         }
     }
-    
+
     fillArea(startX, startY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const targetColor = this.drawingData[startY][startX];
         const fillColor = this.brushColor;
-        
+
         if (targetColor === fillColor) return;
-        
+
         const stack = [[startX, startY]];
-        
+
         while (stack.length > 0) {
             const [x, y] = stack.pop();
-            
+
             if (x < 0 || x >= width || y < 0 || y >= height) continue;
             if (this.drawingData[y][x] !== targetColor) continue;
-            
+
             this.drawingData[y][x] = fillColor;
             const index = y * width + x;
             const pixel = document.querySelector(`[data-index="${index}"]`);
             if (pixel) {
                 pixel.style.backgroundColor = fillColor;
             }
-            
+
             stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
         }
     }
-    
+
     clearDrawing() {
         const pixels = document.querySelectorAll('.led-pixel');
         pixels.forEach(pixel => {
@@ -903,7 +1688,7 @@ class MatrixController {
         this.initializeDrawingData();
         this.log('Drawing cleared', 'success');
     }
-    
+
     fillAll() {
         const pixels = document.querySelectorAll('.led-pixel');
         pixels.forEach((pixel, index) => {
@@ -914,11 +1699,11 @@ class MatrixController {
         });
         this.log('Matrix filled with color', 'success');
     }
-    
+
     savePattern() {
         const name = prompt('Enter pattern name:');
         if (!name) return;
-        
+
         const pattern = {
             name: name,
             width: this.matrixSize.width,
@@ -926,13 +1711,13 @@ class MatrixController {
             data: JSON.parse(JSON.stringify(this.drawingData)),
             timestamp: new Date().toISOString()
         };
-        
+
         this.savedPatterns.push(pattern);
         localStorage.setItem('ledMatrixPatterns', JSON.stringify(this.savedPatterns));
         this.updateSavedPatterns();
         this.log(`Pattern "${name}" saved`, 'success');
     }
-    
+
     loadPattern() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -955,16 +1740,16 @@ class MatrixController {
         };
         input.click();
     }
-    
+
     applySavedPattern(pattern) {
         if (pattern.width !== this.matrixSize.width || pattern.height !== this.matrixSize.height) {
             if (!confirm('Pattern size doesn\'t match current matrix. Apply anyway?')) {
                 return;
             }
         }
-        
+
         this.clearDrawing();
-        
+
         for (let y = 0; y < Math.min(pattern.height, this.matrixSize.height); y++) {
             for (let x = 0; x < Math.min(pattern.width, this.matrixSize.width); x++) {
                 const color = pattern.data[y][x];
@@ -979,7 +1764,7 @@ class MatrixController {
             }
         }
     }
-    
+
     loadPresetPattern(patternName) {
         const patterns = {
             smiley: this.generateSmileyPattern(),
@@ -989,27 +1774,27 @@ class MatrixController {
             checkerboard: this.generateCheckerboardPattern(),
             border: this.generateBorderPattern()
         };
-        
+
         if (patterns[patternName]) {
             this.applySavedPattern(patterns[patternName]);
             this.log(`Applied ${patternName} pattern`, 'success');
         }
     }
-    
+
     generateSmileyPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Simple smiley face for 16x16 matrix
         if (width >= 16 && height >= 16) {
             const centerX = Math.floor(width / 2);
             const centerY = Math.floor(height / 2);
-            
+
             // Eyes
             data[centerY - 3][centerX - 3] = '#ffff00';
             data[centerY - 3][centerX + 3] = '#ffff00';
-            
+
             // Mouth
             for (let x = centerX - 3; x <= centerX + 3; x++) {
                 data[centerY + 2][x] = '#ffff00';
@@ -1017,19 +1802,19 @@ class MatrixController {
             data[centerY + 1][centerX - 2] = '#ffff00';
             data[centerY + 1][centerX + 2] = '#ffff00';
         }
-        
+
         return { name: 'Smiley', width, height, data };
     }
-    
+
     generateHeartPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Simple heart pattern
         const centerX = Math.floor(width / 2);
         const centerY = Math.floor(height / 2);
-        
+
         // Heart shape
         const heartPoints = [
             [centerX, centerY + 2],
@@ -1038,45 +1823,45 @@ class MatrixController {
             [centerX - 2, centerY - 1], [centerX + 2, centerY - 1],
             [centerX - 1, centerY - 2], [centerX + 1, centerY - 2]
         ];
-        
+
         heartPoints.forEach(([x, y]) => {
             if (x >= 0 && x < width && y >= 0 && y < height) {
                 data[y][x] = '#ff0000';
             }
         });
-        
+
         return { name: 'Heart', width, height, data };
     }
-    
+
     generateArrowPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         const centerY = Math.floor(height / 2);
-        
+
         // Arrow pointing right
         for (let x = 2; x < width - 2; x++) {
             data[centerY][x] = '#00ff00';
         }
-        
+
         // Arrow head
         for (let i = 1; i <= 3; i++) {
             data[centerY - i][width - 2 - i] = '#00ff00';
             data[centerY + i][width - 2 - i] = '#00ff00';
         }
-        
+
         return { name: 'Arrow', width, height, data };
     }
-    
+
     generateStarPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         const centerX = Math.floor(width / 2);
         const centerY = Math.floor(height / 2);
-        
+
         // Simple star pattern
         const starPoints = [
             [centerX, centerY - 3],
@@ -1085,21 +1870,21 @@ class MatrixController {
             [centerX - 2, centerY + 1], [centerX + 2, centerY + 1],
             [centerX, centerY + 3]
         ];
-        
+
         starPoints.forEach(([x, y]) => {
             if (x >= 0 && x < width && y >= 0 && y < height) {
                 data[y][x] = '#ffff00';
             }
         });
-        
+
         return { name: 'Star', width, height, data };
     }
-    
+
     generateCheckerboardPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 if ((x + y) % 2 === 0) {
@@ -1107,40 +1892,40 @@ class MatrixController {
                 }
             }
         }
-        
+
         return { name: 'Checkerboard', width, height, data };
     }
-    
+
     generateBorderPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Top and bottom borders
         for (let x = 0; x < width; x++) {
             data[0][x] = '#0000ff';
             data[height - 1][x] = '#0000ff';
         }
-        
+
         // Left and right borders
         for (let y = 0; y < height; y++) {
             data[y][0] = '#0000ff';
             data[y][width - 1] = '#0000ff';
         }
-        
+
         return { name: 'Border', width, height, data };
     }
-    
+
     updateSavedPatterns() {
         const container = document.getElementById('saved-patterns');
-        
+
         if (this.savedPatterns.length === 0) {
             container.innerHTML = '<p>No saved patterns yet. Create and save your first pattern!</p>';
             return;
         }
-        
+
         container.innerHTML = '';
-        
+
         this.savedPatterns.forEach((pattern, index) => {
             const patternDiv = document.createElement('div');
             patternDiv.className = 'saved-pattern';
@@ -1149,29 +1934,29 @@ class MatrixController {
                 <span>${pattern.name}</span>
                 <small>${new Date(pattern.timestamp).toLocaleDateString()}</small>
             `;
-            
+
             patternDiv.addEventListener('click', () => {
                 this.applySavedPattern(pattern);
                 this.log(`Applied pattern "${pattern.name}"`, 'success');
             });
-            
+
             container.appendChild(patternDiv);
-            
+
             // Generate mini preview
             this.generatePatternPreview(pattern, `preview-${index}`);
         });
     }
-    
+
     generatePatternPreview(pattern, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         container.innerHTML = '';
-        
+
         const scaleX = 80 / pattern.width;
         const scaleY = 80 / pattern.height;
         const pixelSize = Math.min(scaleX, scaleY);
-        
+
         for (let y = 0; y < pattern.height; y++) {
             for (let x = 0; x < pattern.width; x++) {
                 const color = pattern.data[y][x];
@@ -1188,22 +1973,22 @@ class MatrixController {
             }
         }
     }
-    
+
     async sendDrawingToMatrix() {
         try {
             const matrixData = this.convertDrawingToMatrixData();
-            
+
             const response = await fetch(`${this.apiBase}/pattern`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     pattern: 'custom',
                     data: matrixData,
                     brightness: this.brightness || 128,
                     speed: this.speed || 50
                 })
             });
-            
+
             if (response.ok) {
                 this.log('Drawing sent to matrix', 'success');
             } else {
@@ -1213,12 +1998,12 @@ class MatrixController {
             this.log(`Error sending drawing: ${error.message}`, 'error');
         }
     }
-    
+
     convertDrawingToMatrixData() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const matrixData = [];
-        
+
         for (let y = 0; y < height; y++) {
             const row = [];
             for (let x = 0; x < width; x++) {
@@ -1228,10 +2013,10 @@ class MatrixController {
             }
             matrixData.push(row);
         }
-        
+
         return matrixData;
     }
-    
+
     updateDrawingCursor() {
         const pixels = document.querySelectorAll('.led-pixel');
         const cursors = {
@@ -1242,7 +2027,7 @@ class MatrixController {
             rectangle: 'crosshair',
             circle: 'crosshair'
         };
-        
+
         pixels.forEach(pixel => {
             pixel.style.cursor = cursors[this.drawingMode] || 'crosshair';
         });
@@ -1254,7 +2039,7 @@ class MatrixController {
         const totalLeds = width * height;
         const maxCurrent = (totalLeds * 0.06).toFixed(2); // 60mA per LED
         const recommendedPSU = maxCurrent > 10 ? '20A' : maxCurrent > 5 ? '10A' : '5A';
-        
+
         document.getElementById('power-info').innerHTML = `
             <div class="grid grid-2" style="gap: 15px;">
                 <div>
@@ -1389,9 +2174,235 @@ class MatrixController {
     log(message, type = 'info') {
         log(message, type);
     }
+
+    // Matrix Configuration Methods
+    async applyMatrixConfig() {
+        const width = parseInt(document.getElementById('matrix-width-config').value);
+        const height = parseInt(document.getElementById('matrix-height-config').value);
+        const connection = document.getElementById('connection-mode').value;
+
+        if (width < 8 || width > 64 || height < 8 || height > 64) {
+            this.log('Matrix size must be between 8x8 and 64x64', 'error');
+            return;
+        }
+
+        this.matrixSize = { width, height };
+        this.initializeMatrix();
+        this.initializeDrawingData();
+        this.setupMatrixDrawing();
+
+        // Update display elements
+        const displaySize = document.getElementById('matrix-display-size');
+        const displayCount = document.getElementById('led-display-count');
+        if (displaySize) displaySize.textContent = `${width}×${height}`;
+        if (displayCount) displayCount.textContent = width * height;
+
+        this.log(`Matrix configured to ${width}×${height} (${connection})`, 'success');
+
+        // Send configuration to backend if connected
+        if (this.connected) {
+            try {
+                const response = await fetch(`${this.apiBase}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ width, height, connection })
+                });
+                if (response.ok) {
+                    this.log('Configuration sent to controller', 'success');
+                }
+            } catch (error) {
+                this.log('Failed to send configuration to controller', 'warning');
+            }
+        }
+    }
+
+    // Palette Management Methods
+    addToCustomPalette() {
+        const color = this.brushColor;
+        const customPalette = document.getElementById('custom-palette');
+
+        // Check if color already exists
+        const existing = customPalette.querySelector(`[data-color="${color}"]`);
+        if (existing) {
+            this.log('Color already in palette', 'warning');
+            return;
+        }
+
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'color-preset custom-color';
+        colorDiv.style.background = color;
+        colorDiv.dataset.color = color;
+        colorDiv.title = color;
+
+        colorDiv.addEventListener('click', () => {
+            this.brushColor = color;
+            document.getElementById('brush-color').value = color;
+            document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+            colorDiv.classList.add('active');
+        });
+
+        // Add remove functionality on right-click
+        colorDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (confirm('Remove this color from palette?')) {
+                colorDiv.remove();
+                this.saveCustomPalette();
+            }
+        });
+
+        customPalette.appendChild(colorDiv);
+        this.saveCustomPalette();
+        this.log('Color added to palette', 'success');
+    }
+
+    saveCustomPalette() {
+        const colors = Array.from(document.querySelectorAll('.custom-color')).map(el => el.dataset.color);
+        localStorage.setItem('customPalette', JSON.stringify(colors));
+    }
+
+    loadCustomPalette() {
+        const colors = JSON.parse(localStorage.getItem('customPalette') || '[]');
+        const customPalette = document.getElementById('custom-palette');
+        customPalette.innerHTML = '';
+
+        colors.forEach(color => {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset custom-color';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', () => {
+                this.brushColor = color;
+                document.getElementById('brush-color').value = color;
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                colorDiv.classList.add('active');
+            });
+
+            colorDiv.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (confirm('Remove this color from palette?')) {
+                    colorDiv.remove();
+                    this.saveCustomPalette();
+                }
+            });
+
+            customPalette.appendChild(colorDiv);
+        });
+    }
+
+    savePalette() {
+        const name = prompt('Enter palette name:');
+        if (!name) return;
+
+        const colors = Array.from(document.querySelectorAll('.custom-color')).map(el => el.dataset.color);
+        const palettes = JSON.parse(localStorage.getItem('savedPalettes') || '{}');
+        palettes[name] = colors;
+        localStorage.setItem('savedPalettes', JSON.stringify(palettes));
+        this.log(`Palette "${name}" saved`, 'success');
+    }
+
+    loadPalette() {
+        const palettes = JSON.parse(localStorage.getItem('savedPalettes') || '{}');
+        const names = Object.keys(palettes);
+
+        if (names.length === 0) {
+            this.log('No saved palettes found', 'warning');
+            return;
+        }
+
+        const name = prompt(`Choose palette to load:\n${names.join('\n')}`);
+        if (!name || !palettes[name]) return;
+
+        const customPalette = document.getElementById('custom-palette');
+        customPalette.innerHTML = '';
+
+        palettes[name].forEach(color => {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset custom-color';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', () => {
+                this.brushColor = color;
+                document.getElementById('brush-color').value = color;
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                colorDiv.classList.add('active');
+            });
+
+            customPalette.appendChild(colorDiv);
+        });
+
+        this.log(`Palette "${name}" loaded`, 'success');
+    }
+
+    // Image Import Method
+    importImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = this.matrixSize.width;
+                canvas.height = this.matrixSize.height;
+
+                // Draw image scaled to matrix size
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Get pixel data
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                // Clear current drawing
+                this.clearDrawing();
+
+                // Convert to matrix data
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const i = (y * canvas.width + x) * 4;
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const a = data[i + 3];
+
+                        // Skip transparent pixels
+                        if (a < 128) continue;
+
+                        const color = `rgb(${r}, ${g}, ${b})`;
+                        const index = y * this.matrixSize.width + x;
+                        const pixel = document.querySelector(`[data-index="${index}"]`);
+
+                        if (pixel) {
+                            pixel.style.backgroundColor = color;
+                            this.drawingData[y][x] = this.rgbToHex(r, g, b);
+                        }
+                    }
+                }
+
+                this.log('Image imported successfully', 'success');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Helper method to convert RGB to hex
+    rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
 }
 
-// Initialize the application when DOM is loaded
+// Initialize the matrix controller when the page loads
+let matrixController;
+
 document.addEventListener('DOMContentLoaded', () => {
-    window.matrixController = new MatrixController();
+    matrixController = new MatrixController();
+    // Make it globally available for debugging and external access
+    window.matrixController = matrixController;
 });

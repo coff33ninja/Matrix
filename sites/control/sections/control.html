@@ -1,44 +1,77 @@
-<!-- Control Section -->
+<!-- Unified Control & Drawing Section -->
 <div id="control-section" class="section active">
-    <div class="grid grid-2">
-        <div class="card">
-            <h3>🎨 Pattern Control</h3>
+    <!-- Matrix Configuration -->
+    <div class="card" style="margin-bottom: 20px;">
+        <h3>⚙️ Matrix Configuration</h3>
+        <div class="grid grid-3">
             <div class="input-group">
-                <label>Pattern Type</label>
-                <select id="pattern-select">
-                    <option value="solid">Solid Color</option>
-                    <option value="rainbow">Rainbow</option>
-                    <option value="plasma">Plasma</option>
-                    <option value="fire">Fire Effect</option>
-                    <option value="matrix">Matrix Rain</option>
+                <label>Matrix Width</label>
+                <input type="number" id="matrix-width-config" min="8" max="64" value="16">
+            </div>
+            <div class="input-group">
+                <label>Matrix Height</label>
+                <input type="number" id="matrix-height-config" min="8" max="64" value="16">
+            </div>
+            <div class="input-group">
+                <label>Connection</label>
+                <select id="connection-mode">
+                    <option value="USB">USB Serial</option>
+                    <option value="WiFi">WiFi (ESP32)</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Color</label>
-                <input type="color" id="color-picker" value="#e94560">
-            </div>
-            <div class="input-group">
-                <label>Brightness: <span id="brightness-value">128</span></label>
-                <input type="range" id="brightness-slider" min="0" max="255" value="128">
-            </div>
-            <div class="input-group">
-                <label>Speed: <span id="speed-value">50</span></label>
-                <input type="range" id="speed-slider" min="1" max="100" value="50">
-            </div>
-            <button class="btn" id="apply-pattern">Apply Pattern</button>
         </div>
+        <div style="margin-top: 15px;">
+            <button class="btn" id="apply-matrix-config">Apply Configuration</button>
+            <button class="btn btn-secondary" id="test-connection">Test Connection</button>
+        </div>
+    </div>
 
+    <!-- Main Control Interface -->
+    <div class="grid grid-2">
+        <!-- Left Panel: Pattern Control & Drawing Tools -->
         <div class="card">
-            <h3>📱 Matrix Preview & Drawing</h3>
-            <div class="matrix-preview">
-                <div class="matrix-grid" id="matrix-grid"></div>
+            <h3>🎨 Pattern & Drawing Control</h3>
+            
+            <!-- Pattern Selection -->
+            <div class="control-section">
+                <h4>Preset Patterns</h4>
+                <div class="input-group">
+                    <label>Pattern Type</label>
+                    <select id="pattern-select">
+                        <option value="solid">Solid Color</option>
+                        <option value="rainbow">Rainbow</option>
+                        <option value="plasma">Plasma</option>
+                        <option value="fire">Fire Effect</option>
+                        <option value="matrix">Matrix Rain</option>
+                        <option value="custom">Custom Drawing</option>
+                    </select>
+                </div>
+                <div class="grid grid-2">
+                    <div class="input-group">
+                        <label>Color</label>
+                        <input type="color" id="color-picker" value="#e94560">
+                    </div>
+                    <div class="input-group">
+                        <label>Brightness: <span id="brightness-value">128</span></label>
+                        <input type="range" id="brightness-slider" min="0" max="255" value="128">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Speed: <span id="speed-value">50</span></label>
+                    <input type="range" id="speed-slider" min="1" max="100" value="50">
+                </div>
+                <div class="button-row">
+                    <button class="btn" id="apply-pattern">Apply Pattern</button>
+                    <button class="btn btn-secondary" id="clear-matrix">Clear Matrix</button>
+                </div>
             </div>
 
-            <!-- Drawing Controls -->
-            <div class="drawing-controls">
-                <div class="control-row">
-                    <div class="control-group">
-                        <label>Mode:</label>
+            <!-- Drawing Tools -->
+            <div class="control-section">
+                <h4>Drawing Tools</h4>
+                <div class="grid grid-3">
+                    <div class="input-group">
+                        <label>Mode</label>
                         <select id="drawing-mode">
                             <option value="paint">🖌️ Paint</option>
                             <option value="erase">🧽 Erase</option>
@@ -46,19 +79,21 @@
                             <option value="line">📏 Line</option>
                         </select>
                     </div>
-
-                    <div class="control-group">
-                        <label>Color:</label>
+                    <div class="input-group">
+                        <label>Brush Color</label>
                         <input type="color" id="brush-color" value="#e94560">
                     </div>
-
-                    <div class="control-group">
-                        <label>Size:</label>
+                    <div class="input-group">
+                        <label>Brush Size</label>
                         <input type="range" id="brush-size" min="1" max="3" value="1">
                         <span id="brush-size-display">1x1</span>
                     </div>
                 </div>
+            </div>
 
+            <!-- Color Palette -->
+            <div class="control-section">
+                <h4>Color Palette</h4>
                 <div class="color-presets">
                     <div class="color-preset" style="background: #ff0000" data-color="#ff0000" title="Red"></div>
                     <div class="color-preset" style="background: #00ff00" data-color="#00ff00" title="Green"></div>
@@ -69,17 +104,17 @@
                     <div class="color-preset" style="background: #ffffff" data-color="#ffffff" title="White"></div>
                     <div class="color-preset" style="background: #000000" data-color="#000000" title="Black"></div>
                 </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 15px;">
-                <button class="btn btn-secondary" id="clear-matrix">Clear</button>
-                <button class="btn" id="test-pattern">Test Pattern</button>
-                <button class="btn" id="clear-drawing">🗑️ Clear Drawing</button>
-                <button class="btn btn-primary" id="send-to-matrix">📡 Send to Matrix</button>
+                <div class="custom-palette" id="custom-palette"></div>
+                <div class="palette-actions">
+                    <button class="btn-small" id="add-to-palette">+ Add Color</button>
+                    <button class="btn-small" id="save-palette">💾 Save</button>
+                    <button class="btn-small" id="load-palette">📁 Load</button>
+                </div>
             </div>
 
             <!-- Quick Patterns -->
-            <div class="quick-patterns">
+            <div class="control-section">
+                <h4>Quick Patterns</h4>
                 <div class="pattern-buttons">
                     <button class="pattern-btn" data-pattern="smiley" title="Smiley">😊</button>
                     <button class="pattern-btn" data-pattern="heart" title="Heart">❤️</button>
@@ -88,18 +123,47 @@
                     <button class="pattern-btn" data-pattern="checkerboard" title="Checkerboard">🏁</button>
                     <button class="pattern-btn" data-pattern="border" title="Border">⬜</button>
                 </div>
-                <div style="margin-top: 10px;">
+            </div>
+
+            <!-- File Operations -->
+            <div class="control-section">
+                <h4>File Operations</h4>
+                <div class="button-row">
                     <button class="btn btn-secondary" id="save-pattern">💾 Save</button>
                     <button class="btn btn-secondary" id="load-pattern">📁 Load</button>
+                    <button class="btn btn-secondary" id="import-image-btn">🖼️ Import</button>
                 </div>
+                <input type="file" id="import-image" accept="image/*" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Right Panel: Matrix Drawing Interface -->
+        <div class="card">
+            <h3>🖌️ Matrix Canvas</h3>
+            <div class="matrix-container">
+                <div class="matrix-preview">
+                    <div class="matrix-grid" id="matrix-grid"></div>
+                </div>
+                <div class="matrix-info">
+                    <span>Size: <strong id="matrix-display-size">16×16</strong></span>
+                    <span>LEDs: <strong id="led-display-count">256</strong></span>
+                </div>
+            </div>
+
+            <!-- Drawing Actions -->
+            <div class="drawing-actions">
+                <button class="btn" id="test-pattern">🔍 Test Pattern</button>
+                <button class="btn" id="clear-drawing">🗑️ Clear Canvas</button>
+                <button class="btn btn-primary" id="send-to-matrix">📡 Send to Matrix</button>
             </div>
         </div>
     </div>
 
+    <!-- Activity Log -->
     <div class="card" style="margin-top: 20px;">
         <h3>📝 Activity Log</h3>
         <div class="log-container" id="activity-log">
-            <div class="log-entry">System initialized</div>
+            <div class="log-entry">System initialized - Ready for drawing and pattern control</div>
         </div>
     </div>
 </div>

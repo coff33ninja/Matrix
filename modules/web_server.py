@@ -335,6 +335,18 @@ class UnifiedMatrixWebServer:
                     elif path.startswith("/docs"):
                         logger.info(f"📚 Serving docs interface: {path}")
                         self.serve_docs_interface(path)
+                    # Handle static assets that should be served from control directory
+                    elif (path.startswith("/css/") or path.startswith("/js/") or 
+                          path.startswith("/sections/") or path.startswith("/favicon.ico") or 
+                          path.startswith("/app.js")):
+                        # Check if referrer is from control interface
+                        referrer = self.headers.get('Referer', '')
+                        if '/control' in referrer:
+                            logger.info(f"🎮 Serving control static asset: {path}")
+                            self.serve_control_interface(path)
+                        else:
+                            logger.warning(f"❓ Static asset requested without control context: {path}")
+                            self.serve_404()
                     else:
                         logger.warning(f"❓ Unknown path requested: {path}")
                         self.serve_404()
@@ -353,10 +365,15 @@ class UnifiedMatrixWebServer:
             
             def serve_control_interface(self, path):
                 """Serve files from control interface"""
-                # Remove /control prefix and serve from control directory
-                file_path = path[8:] if len(path) > 8 else "/"
-                if file_path == "/" or file_path == "":
-                    file_path = "/index.html"
+                # Handle different path patterns
+                if path.startswith("/control"):
+                    # Remove /control prefix and serve from control directory
+                    file_path = path[8:] if len(path) > 8 else "/"
+                    if file_path == "/" or file_path == "":
+                        file_path = "/index.html"
+                else:
+                    # Direct static asset request (css, js, etc.)
+                    file_path = path
                 
                 self.serve_static_file(server_instance.control_dir, file_path)
             
