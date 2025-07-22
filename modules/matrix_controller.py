@@ -55,6 +55,11 @@ from wiring_diagram_generator import WiringDiagramGenerator
 
 class WebMatrixController:
     def __init__(self, port=8080):
+        """
+        Initialize the WebMatrixController with matrix configuration and start the web server.
+        
+        Sets up matrix dimensions, state variables, and the data buffer for LED control. Launches the HTTP server on the specified port for web-based matrix management.
+        """
         logger.info(f"INIT: Initializing WebMatrixController on port {port}")
 
         # Matrix properties from shared config
@@ -82,16 +87,30 @@ class WebMatrixController:
         self._start_web_server()
 
     def _start_web_server(self):
-        """Start the web API server"""
+        """
+        Starts the web API server in a background thread, providing HTTP endpoints for matrix control, configuration, system status, hardware info, wiring diagram generation, and static file serving.
+        
+        The server handles RESTful API requests for controlling the LED matrix, uploading images, applying patterns, displaying text, generating Arduino code, and managing configuration and backups. It also serves static web content for the control interface.
+        """
         controller = self
 
         class WebHandler(BaseHTTPRequestHandler):
             def send_cors_headers(self):
+                """
+                Send HTTP headers to enable Cross-Origin Resource Sharing (CORS) for all origins, allowing GET, POST, and OPTIONS methods with the Content-Type header.
+                """
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
                 self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
             def send_json_response(self, data, status=200):
+                """
+                Send a JSON response with the specified data and HTTP status code.
+                
+                Parameters:
+                    data (dict): The data to serialize and send as a JSON response.
+                    status (int, optional): The HTTP status code for the response. Defaults to 200.
+                """
                 self.send_response(status)
                 self.send_cors_headers()
                 self.send_header("Content-type", "application/json")
@@ -99,11 +118,19 @@ class WebMatrixController:
                 self.wfile.write(json.dumps(data).encode())
 
             def do_OPTIONS(self):
+                """
+                Handle HTTP OPTIONS requests by sending a 200 OK response with appropriate CORS headers.
+                """
                 self.send_response(200)
                 self.send_cors_headers()
                 self.end_headers()
 
             def do_GET(self):
+                """
+                Handles HTTP GET requests for the web-based LED matrix controller API and static content.
+                
+                Processes API endpoints for status, configuration, system statistics, hardware info, available backups, options, and a matrix preview image. Normalizes API paths for compatibility. Serves static files from the control site directory, defaulting to `index.html` for the root path. Returns appropriate JSON responses or static file content, and handles errors with relevant HTTP status codes.
+                """
                 parsed_url = urllib.parse.urlparse(self.path)
                 path = parsed_url.path
                 client_ip = self.client_address[0]
@@ -286,6 +313,22 @@ class WebMatrixController:
                         self.wfile.write(f"<html><body><h1>500 Server Error</h1><p>{str(e)}</p></body></html>".encode())
 
             def do_POST(self):
+                """
+                Handle HTTP POST requests for API endpoints, processing commands to control the LED matrix, update configuration, generate code, create backups, and upload images.
+                
+                Supported endpoints:
+                - `/api/pattern`: Applies a specified pattern to the LED matrix with optional color, brightness, and speed.
+                - `/api/clear`: Clears the LED matrix display.
+                - `/api/text`: Displays or scrolls text on the matrix.
+                - `/api/generate`: Generates Arduino code for a specified board and matrix size.
+                - `/api/wiring`: Generates wiring diagram data, component list, and cost estimate for the matrix setup.
+                - `/api/config`: Updates and saves configuration parameters.
+                - `/api/backup`: Creates a configuration backup.
+                - `/api/upload`: Accepts a base64-encoded image, resizes it to matrix dimensions, and displays it on the matrix.
+                
+                Returns:
+                    JSON responses indicating success or error for each operation.
+                """
                 parsed_url = urllib.parse.urlparse(self.path)
                 path = parsed_url.path
                 client_ip = self.client_address[0]
@@ -484,6 +527,11 @@ class WebMatrixController:
                     self.send_json_response({"status": "error", "message": "Endpoint not found"}, 404)
 
         def run_server():
+            """
+            Starts the threaded HTTP server for the web-based matrix controller and serves requests indefinitely.
+            
+            Prints the server address and matrix size on startup. If an error occurs during server operation, prints the error message.
+            """
             try:
                 server = socketserver.ThreadingTCPServer(("", controller.port), WebHandler)
                 print(f"\n🌐 Web Matrix Controller started on http://localhost:{controller.port}")
@@ -495,13 +543,23 @@ class WebMatrixController:
         threading.Thread(target=run_server, daemon=True).start()
 
     def clear_matrix(self):
-        """Clear the LED matrix display"""
+        """
+        Clears the LED matrix display by resetting all pixels to off and updates the hardware.
+        
+        Returns:
+            bool: True if the operation completes.
+        """
         self.matrix_data.fill(0)
         self.send_frame()
         return True
 
     def rainbow_pattern(self):
-        """Display a rainbow pattern on the matrix"""
+        """
+        Fills the LED matrix with a static rainbow gradient pattern and updates the display.
+        
+        Returns:
+            bool: True if the pattern was applied and the frame was sent successfully.
+        """
         for y in range(int(self.H)):
             for x in range(int(self.W)):
                 hue = (x + y) * 360 / (int(self.W) + int(self.H))
@@ -511,7 +569,12 @@ class WebMatrixController:
         return True
 
     def send_frame(self):
-        """Send the current matrix frame to hardware"""
+        """
+        Sends the current LED matrix data to the hardware interface.
+        
+        Returns:
+            bool: True if the frame was sent successfully, False if an error occurred.
+        """
         try:
             hardware.send_frame(self.matrix_data)
             return True
@@ -520,7 +583,15 @@ class WebMatrixController:
             return False
 
     def draw_text(self, text):
-        """Draw text on the matrix"""
+        """
+        Renders the specified text centered on the LED matrix and updates the display.
+        
+        Parameters:
+            text (str): The text string to render on the matrix.
+        
+        Returns:
+            bool: True if the text was successfully rendered and sent to the matrix, False otherwise.
+        """
         try:
             if not text:
                 return False
@@ -557,7 +628,15 @@ class WebMatrixController:
             return False
 
     def scroll_text(self, text):
-        """Scroll text across matrix"""
+        """
+        Starts a scrolling text animation on the LED matrix display.
+        
+        Parameters:
+            text (str): The text string to scroll across the matrix.
+        
+        Returns:
+            bool: True if the animation was started, False if the input text is empty.
+        """
         if not text:
             return False
 
@@ -571,7 +650,11 @@ class WebMatrixController:
         return True
 
     def _text_loop(self, text):
-        """Text scrolling loop"""
+        """
+        Animates scrolling text across the LED matrix display in a loop.
+        
+        Continuously shifts the provided text horizontally across the matrix, rendering each character using a fixed-width font. The animation runs as long as streaming is active and the mode is set to "text".
+        """
         scroll_pos = int(self.W)
 
         while self.is_streaming and self.current_mode == "text":
@@ -591,7 +674,14 @@ class WebMatrixController:
             time.sleep(0.1)
 
     def _draw_char(self, char, x, y):
-        """Simple character drawing"""
+        """
+        Draws a single character onto the matrix at the specified coordinates using a predefined 5x5 pixel pattern.
+        
+        Parameters:
+            char (str): The character to draw. Only characters with defined patterns will be rendered; others are treated as spaces.
+            x (int): The x-coordinate (column) of the top-left corner where the character will be drawn.
+            y (int): The y-coordinate (row) of the top-left corner where the character will be drawn.
+        """
         # Basic 5x5 character patterns
         patterns = {
             "A": [
@@ -633,7 +723,12 @@ class WebMatrixController:
                     self.matrix_data[y + py, x + px] = [255, 255, 255]
 
     def stop_animation(self):
-        """Stop current animation"""
+        """
+        Stops any currently running animation and resets the controller to idle mode.
+        
+        Returns:
+            bool: True if the animation was stopped or no animation was running.
+        """
         self.is_streaming = False
         self.current_mode = "idle"
         if hasattr(self, 'animation_thread') and self.animation_thread and self.animation_thread.is_alive():
@@ -641,7 +736,20 @@ class WebMatrixController:
         return True
 
     def apply_pattern(self, pattern, color, brightness, speed):
-        """Apply a pattern to the matrix"""
+        """
+        Applies a visual pattern to the LED matrix display with specified color, brightness, and speed.
+        
+        Supported patterns include solid color fill, rainbow gradient, animated plasma, fire, matrix rain effects, and custom RGB data. For animated patterns, starts the corresponding animation in a background thread. For custom patterns, applies a provided 2D RGB array. Stops any existing animation before applying the new pattern.
+        
+        Parameters:
+            pattern (str): The name of the pattern to apply ("solid", "rainbow", "plasma", "fire", "matrix", or "custom").
+            color (str): Hex color string (e.g., "#FF0000") used for applicable patterns.
+            brightness (int): Brightness level (0–255) applied to the color.
+            speed (int): Animation speed for animated patterns.
+        
+        Returns:
+            bool: True if the pattern was applied successfully, False otherwise.
+        """
         try:
             # Stop any existing animation
             self.stop_animation()
@@ -718,7 +826,12 @@ class WebMatrixController:
             return False
 
     def _apply_custom_pattern(self, pattern_data):
-        """Apply custom pattern data to the matrix"""
+        """
+        Applies a custom 2D RGB pattern to the LED matrix and updates the display.
+        
+        Parameters:
+            pattern_data (list): A 2D list where each element is an RGB list representing the color for a matrix pixel.
+        """
         try:
             # Stop any existing animation
             self.stop_animation()
@@ -741,7 +854,11 @@ class WebMatrixController:
             print(f"Error applying custom pattern: {e}")
 
     def _plasma_animation_loop(self, speed):
-        """Plasma animation loop"""
+        """
+        Runs the animated plasma effect on the LED matrix, updating colors in a dynamic, wave-like pattern based on sine functions.
+        
+        The animation continues while streaming is active and the current mode is set to "plasma". Matrix colors are updated each frame using a mathematical plasma formula, and the resulting frame is sent to the hardware.
+        """
         import math
 
         frame = 0
@@ -768,7 +885,12 @@ class WebMatrixController:
             time.sleep(0.05)
 
     def _fire_animation_loop(self, speed):
-        """Fire animation loop"""
+        """
+        Runs the animated fire effect on the LED matrix, simulating rising flames using a heat buffer and color palette. The animation continues while streaming is active and the mode is set to "fire".
+        
+        Parameters:
+            speed (int): Controls the cooling rate and animation speed.
+        """
         import random
 
         # Create fire buffer (with extra row at bottom for heat source)
@@ -818,7 +940,11 @@ class WebMatrixController:
             time.sleep(0.05)
 
     def _matrix_rain_animation_loop(self, speed):
-        """Matrix-style digital rain animation"""
+        """
+        Runs a "Matrix" digital rain animation on the LED matrix, simulating falling green drops with fading tails.
+        
+        The animation continues while streaming is active and the current mode is set to "matrix". Each column randomly spawns new drops, which move downward with a bright head and a fading green tail. Pixel intensity is gradually reduced to create a trailing effect. The animation speed is controlled by the `speed` parameter.
+        """
         import random
 
         # Initialize drops
@@ -871,7 +997,11 @@ class WebMatrixController:
             time.sleep(0.1 * (100 - speed) / 100.0)  # Adjust speed
 
     def run(self):
-        """Run the controller"""
+        """
+        Starts the main loop for the web-based matrix controller, keeping it active until interrupted by the user.
+        
+        The controller remains running, handling web requests and matrix updates, until a keyboard interrupt (Ctrl+C) is received, at which point any running animations are stopped before exiting.
+        """
         try:
             print("Web Matrix Controller running. Press Ctrl+C to exit.")
             while True:
@@ -886,7 +1016,18 @@ if __name__ == "__main__":
     controller = WebMatrixController()
     controller.run()
     def generate_mermaid_wiring(self, controller_type, width, height, power_supply):
-        """Generate Mermaid diagram for wiring"""
+        """
+        Generate a Mermaid diagram string representing the wiring connections between the specified controller, power supply, level shifter, and LED matrix.
+        
+        Parameters:
+            controller_type (str): The type of microcontroller (e.g., 'arduino_uno', 'esp32').
+            width (int): The width of the LED matrix.
+            height (int): The height of the LED matrix.
+            power_supply (str): The label or description of the power supply.
+        
+        Returns:
+            str: A Mermaid flowchart diagram describing the wiring layout for the LED matrix project.
+        """
         total_leds = width * height
 
         # Controller pin mappings
@@ -932,7 +1073,17 @@ if __name__ == "__main__":
         return mermaid
 
     def get_psu_recommendations(self, max_current):
-        """Get power supply recommendations based on current requirements"""
+        """
+        Return recommended power supply options based on the required maximum current.
+        
+        Adds a 20% safety margin to the specified maximum current and selects the smallest available power supply unit (PSU) that meets or exceeds this requirement. Returns the recommended PSU name, a list of available PSU options, and the calculated required current.
+        
+        Parameters:
+            max_current (float): The maximum expected current draw in amperes.
+        
+        Returns:
+            dict: A dictionary containing the recommended PSU name, all PSU options, and the required current with safety margin.
+        """
         # Add 20% safety margin
         recommended_current = max_current * 1.2
 
@@ -962,7 +1113,18 @@ if __name__ == "__main__":
         }
 
     def generate_component_list(self, controller_type, total_leds, strip_length, power_supply):
-        """Generate component shopping list"""
+        """
+        Generate a list of recommended components and estimated prices for building an LED matrix project.
+        
+        Parameters:
+            controller_type (str): The type of microcontroller to use (e.g., 'arduino_uno', 'esp32').
+            total_leds (int): The total number of LEDs in the matrix.
+            strip_length (float): The total length of LED strip segments required, in meters.
+            power_supply (str): The power supply model or rating (e.g., '5V10A').
+        
+        Returns:
+            list: A list of dictionaries, each representing a component with category, name, quantity, unit price, and total price.
+        """
         components = []
 
         # Controller
@@ -1049,7 +1211,15 @@ if __name__ == "__main__":
         return components
 
     def calculate_estimated_cost(self, components):
-        """Calculate total estimated cost"""
+        """
+        Calculate the estimated subtotal, shipping, and total cost for a list of components.
+        
+        Parameters:
+            components (list): A list of component dictionaries, each containing a "total" price.
+        
+        Returns:
+            dict: A dictionary with keys "subtotal", "shipping" (10% of subtotal), and "total" (subtotal plus shipping), all rounded to two decimal places.
+        """
         total = sum(component["total"] for component in components)
         return {
             "subtotal": round(total, 2),

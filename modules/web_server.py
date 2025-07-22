@@ -560,7 +560,14 @@ class UnifiedMatrixWebServer:
         return UnifiedRequestHandler
     
     def start(self):
-        """Start the unified web server"""
+        """
+        Starts the unified web server, serving the landing page, control interface, documentation, and API proxy.
+        
+        Checks if the configured port is available, prints startup information, and runs the server until interrupted. Handles keyboard interrupts and port conflicts gracefully, providing user guidance for resolving issues.
+        
+        Returns:
+            bool: True if stopped by user, False if an error occurred during startup.
+        """
         try:
             handler_class = self.create_custom_handler()
             
@@ -618,7 +625,9 @@ class UnifiedMatrixWebServer:
             return False
 
 def setup_signal_handlers():
-    """Setup signal handlers for graceful shutdown using os"""
+    """
+    Register signal handlers to enable graceful shutdown of the server on SIGTERM and SIGINT signals.
+    """
     import signal
     
     def signal_handler(signum, frame):
@@ -633,7 +642,11 @@ def setup_signal_handlers():
         signal.signal(signal.SIGINT, signal_handler)
 
 def main():
-    """Main entry point for standalone web server"""
+    """
+    Starts the unified web server for the LED Matrix Control Center as a standalone application.
+    
+    Initializes signal handlers for graceful shutdown, optionally prints environment configuration if debug mode is enabled, and launches the server.
+    """
     # Setup signal handlers
     setup_signal_handlers()
     

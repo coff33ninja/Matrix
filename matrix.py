@@ -28,7 +28,9 @@ from modules.commands import (
 
 
 def print_banner():
-    """Print the LED Matrix Project banner"""
+    """
+    Display a formatted banner with the LED Matrix Project name and the current date and time.
+    """
     print("=" * 70)
     print("🔥 LED Matrix Project - Unified Control Interface")
     print("=" * 70)
@@ -37,7 +39,12 @@ def print_banner():
 
 
 def main():
-    """Main entry point with argument parsing"""
+    """
+    Parses command-line arguments and dispatches commands for the LED Matrix Project CLI.
+    
+    Returns:
+        bool: True if the selected command completes successfully, False otherwise.
+    """
     parser = argparse.ArgumentParser(
         description="LED Matrix Project - Unified Control Interface",
         formatter_class=argparse.RawDescriptionHelpFormatter,
