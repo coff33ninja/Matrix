@@ -1,0 +1,18 @@
+# Testing requirements for WebMatrixController
+# Using Python standard library unittest, but these are additional useful testing tools
+
+# For mocking HTTP requests in integration tests
+responses>=0.20.0
+
+# For better assertion messages
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# For testing asyncio code if needed
+pytest-asyncio>=0.20.0
+
+# For mock enhancements
+mock>=4.0.0
+
+# For testing with fixtures and better test organization  
+pytest-fixtures>=0.1.0

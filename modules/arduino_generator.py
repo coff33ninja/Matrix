@@ -32,6 +32,7 @@ class ArduinoGenerator:
         data_pin=None,
         brightness=None,
         custom_config=None,
+        num_leds=None,
     ):
         """Generate Arduino code for specified model and configuration"""
 
@@ -39,12 +40,14 @@ class ArduinoGenerator:
             raise ValueError(f"Invalid Arduino model: {model_key}")
 
         model = get_model_info(model_key)
+        if not model:
+            raise ValueError(f"Could not get model info for: {model_key}")
 
         # Use provided values or fall back to config/defaults
-        width = matrix_width or self.config.get("matrix_width")
-        height = matrix_height or self.config.get("matrix_height")
+        width = matrix_width or self.config.get("matrix_width") or 16
+        height = matrix_height or self.config.get("matrix_height") or 16
         pin = data_pin or model["default_pin"]
-        bright = brightness or self.config.get("brightness")
+        bright = brightness or self.config.get("brightness") or 128
 
         # Apply custom configuration if provided
         if custom_config:
@@ -52,8 +55,10 @@ class ArduinoGenerator:
             height = custom_config.get("height", height)
             pin = custom_config.get("data_pin", pin)
             bright = custom_config.get("brightness", bright)
+            num_leds = custom_config.get("num_leds", num_leds)
 
-        num_leds = width * height
+        if num_leds is None:
+            num_leds = (width or 16) * (height or 16)
 
         # Check if configuration is suitable for this model
         if num_leds > model["max_leds_recommended"]:
@@ -69,6 +74,9 @@ class ArduinoGenerator:
     def _build_arduino_code(self, model, width, height, pin, brightness, num_leds):
         """Build the complete Arduino code"""
 
+        if not model:
+            raise ValueError("Model information is required")
+
         # Header comment
         header = f"""/*
  * LED Matrix Controller for {model['display_name']}
@@ -76,6 +84,8 @@ class ArduinoGenerator:
  * 
  * Matrix Configuration:
  * - Size: {width}×{height} = {num_leds} LEDs
+ * - OR
+ * - Strip Length: {num_leds} LEDs
  * - Data Pin: {pin}
  * - Brightness: {brightness}/255
  * - Controller: {model['display_name']} ({model['voltage']})
@@ -93,11 +103,20 @@ class ArduinoGenerator:
         includes = "\n".join(f"#include {inc}" for inc in model["includes"])
 
         # Configuration defines
-        defines = f"""
+        if width and height:
+            defines = f"""
 // Matrix Configuration - Update these values for your setup
 #define MATRIX_WIDTH {width}
 #define MATRIX_HEIGHT {height}
 #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)  // {num_leds} LEDs
+#define DATA_PIN {pin}
+#define BRIGHTNESS {brightness}
+
+CRGB leds[NUM_LEDS];"""
+        else:
+            defines = f"""
+// LED Strip Configuration - Update these values for your setup
+#define NUM_LEDS {num_leds}
 #define DATA_PIN {pin}
 #define BRIGHTNESS {brightness}
 
@@ -163,16 +182,20 @@ void loop() {{
             f.write(code)
 
         # Calculate some stats
-        num_leds = kwargs.get(
-            "matrix_width", self.config.get("matrix_width")
-        ) * kwargs.get("matrix_height", self.config.get("matrix_height"))
+        width = kwargs.get("matrix_width", self.config.get("matrix_width")) or 16
+        height = kwargs.get("matrix_height", self.config.get("matrix_height")) or 16
+        num_leds = width * height
+
+        model = get_model_info(model_key)
+        if not model:
+            print("✅ Arduino code generated successfully!")
+            print(f"   File: {filename}")
+            return filename
 
         print("✅ Arduino code generated successfully!")
         print(f"   File: {filename}")
         print(f"   Model: {model['display_name']}")
-        print(
-            f"   Matrix: {kwargs.get('matrix_width', self.config.get('matrix_width'))}×{kwargs.get('matrix_height', self.config.get('matrix_height'))} = {num_leds} LEDs"
-        )
+        print(f"   Matrix: {width}×{height} = {num_leds} LEDs")
         print(
             f"   Memory Usage: {num_leds * 3}/{model['memory_sram']} bytes ({(num_leds * 3 / model['memory_sram'] * 100):.1f}%)"
         )
@@ -390,8 +413,8 @@ void loop() {{
 
     def get_model_recommendations(self, matrix_width=None, matrix_height=None):
         """Get model recommendations based on matrix size"""
-        width = matrix_width or self.config.get("matrix_width")
-        height = matrix_height or self.config.get("matrix_height")
+        width = matrix_width or self.config.get("matrix_width") or 16
+        height = matrix_height or self.config.get("matrix_height") or 16
         num_leds = width * height
 
         recommendations = []
@@ -428,8 +451,8 @@ void loop() {{
         """Print a comparison table of Arduino models"""
         recommendations = self.get_model_recommendations(matrix_width, matrix_height)
 
-        width = matrix_width or self.config.get("matrix_width")
-        height = matrix_height or self.config.get("matrix_height")
+        width = matrix_width or self.config.get("matrix_width") or 16
+        height = matrix_height or self.config.get("matrix_height") or 16
         num_leds = width * height
 
         print(
@@ -500,12 +523,14 @@ def main():
 
         # Get matrix configuration
         width = int(
-            input(f"Matrix width [{config.get('matrix_width')}]: ")
+            input(f"Matrix width [{config.get('matrix_width') or 16}]: ")
             or config.get("matrix_width")
+            or 16
         )
         height = int(
-            input(f"Matrix height [{config.get('matrix_height')}]: ")
+            input(f"Matrix height [{config.get('matrix_height') or 16}]: ")
             or config.get("matrix_height")
+            or 16
         )
 
         # Show model comparison
@@ -513,6 +538,9 @@ def main():
 
         # Confirm generation
         model = get_model_info(model_key)
+        if not model:
+            print(f"Error: Could not get model info for {model_key}")
+            return
         print(f"\nGenerating code for {model['display_name']}...")
 
         # Ask user about file organization
@@ -540,7 +568,7 @@ def main():
                 if arduino_ports:
                     for port_info in arduino_ports:
                         if generator.test_arduino_connection(
-                            port_info["device"], model["baud_rate"]
+                            port_info["device"], model["baud_rate"] if model else 115200
                         ):
                             break
                 else:
@@ -550,7 +578,7 @@ def main():
                     ).strip()
                     if manual_port:
                         generator.test_arduino_connection(
-                            manual_port, model["baud_rate"]
+                            manual_port, model["baud_rate"] if model else 115200
                         )
 
         # Show existing files for this model

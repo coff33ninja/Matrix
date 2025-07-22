@@ -1,0 +1,84 @@
+<!-- Arduino Package Section -->
+<div id="arduino-section" class="section" style="display: none;">
+    <div class="card">
+        <h3>📤 Arduino Package Generator</h3>
+        <p>Generate a complete Arduino package with your matrix configuration, wiring, and patterns.</p>
+
+        <div class="arduino-config">
+            <div class="grid grid-2">
+                <div class="input-group">
+                    <label>Target Board</label>
+                    <select id="arduino-board">
+                        <option value="arduino_uno">Arduino Uno R3</option>
+                        <option value="arduino_nano">Arduino Nano</option>
+                        <option value="esp32">ESP32 Dev Board</option>
+                        <option value="esp8266">ESP8266 NodeMCU</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Data Pin</label>
+                    <input type="number" id="arduino-data-pin" value="6" min="0" max="53">
+                </div>
+            </div>
+
+            <div class="grid grid-3">
+                <div class="input-group">
+                    <label>Matrix Width</label>
+                    <input type="number" id="arduino-width" value="16" min="1" max="64">
+                </div>
+                <div class="input-group">
+                    <label>Matrix Height</label>
+                    <input type="number" id="arduino-height" value="16" min="1" max="64">
+                </div>
+                <div class="input-group">
+                    <label>Brightness</label>
+                    <input type="range" id="arduino-brightness" min="1" max="255" value="64">
+                    <span id="arduino-brightness-display">64</span>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="include-patterns" checked>
+                    Include drawn patterns
+                </label>
+                <label>
+                    <input type="checkbox" id="include-wiring" checked>
+                    Include wiring diagram
+                </label>
+                <label>
+                    <input type="checkbox" id="include-libraries" checked>
+                    Include library files
+                </label>
+                <label>
+                    <input type="checkbox" id="include-readme" checked>
+                    Include README and documentation
+                </label>
+            </div>
+        </div>
+
+        <div class="arduino-actions">
+            <button class="btn btn-primary" id="generate-arduino">🚀 Generate Arduino Package</button>
+            <button class="btn" id="preview-code">👁️ Preview Code</button>
+            <button class="btn btn-secondary" id="download-package">📦 Download Package</button>
+        </div>
+    </div>
+
+    <div class="card" id="arduino-preview" style="display: none;">
+        <h3>👁️ Arduino Code Preview</h3>
+        <div class="code-preview">
+            <pre><code id="arduino-code-display"></code></pre>
+        </div>
+        <div class="code-actions">
+            <button class="btn btn-secondary" id="copy-code">📋 Copy Code</button>
+            <button class="btn btn-secondary" id="download-ino">💾 Download .ino</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📋 Package Contents</h3>
+        <div id="package-contents" class="package-contents">
+            <p>Generate a package to see contents...</p>
+        </div>
+    </div>
+</div>

@@ -29,13 +29,6 @@ python matrix.py start
 
 ### 🎯 Individual Services
 ```bash
-# Unified web server (recommended - serves both interfaces)
-python matrix.py web
-
-# Legacy single interface mode
-python matrix.py web --type control    # Control only
-python matrix.py web --type docs       # Documentation only
-
 # Python controller only
 python matrix.py controller
 ```
@@ -371,6 +364,9 @@ hardware.send_frame(matrix_data)
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
+- **Timeline-based animation editor** - Create more complex animations by arranging frames on a timeline.
+- **Scripting interface** - Write your own custom animations and patterns in Python.
+- **Philips Hue integration** - Sync your LED matrix with your Philips Hue lights.
 - **Mobile app** - iOS/Android control
 - **MQTT integration** - Smart home compatibility
 - **Audio visualization** - Music-reactive effects

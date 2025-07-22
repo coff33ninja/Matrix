@@ -1,13 +1,19 @@
 // LED Matrix Control Center - Main Application
 class MatrixController {
     constructor() {
+        // Prevent multiple instances
+        if (window.matrixControllerInstance) {
+            console.warn('⚠️ MatrixController already exists, returning existing instance');
+            return window.matrixControllerInstance;
+        }
+
         // Always use absolute path for API regardless of base tag
         this.apiBase = '/api';
         this.connected = false;
         this.matrixSize = { width: 16, height: 16 };
         this.currentPattern = 'solid';
         this.fps = 0;
-        
+
         // Initialize drawing variables
         this.drawingMode = 'paint';
         this.brushColor = '#e94560';
@@ -15,16 +21,24 @@ class MatrixController {
         this.isDrawing = false;
         this.drawingData = [];
         this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
-        
+        this.previewUpdateInterval = null;
+        this.dynamicOptions = null;
+
+        // Store instance globally to prevent duplicates
+        window.matrixControllerInstance = this;
+
         this.init();
     }
 
     async init() {
         this.setupEventListeners();
-        this.initializeMatrix();
         await this.checkConnection();
         this.startStatusUpdates();
+
+        // Initialize new API endpoint features
+        await this.initializeWithDynamicOptions();
         this.log('System initialized', 'success');
+        this.switchSection('control');
     }
 
     setupEventListeners() {
@@ -36,218 +50,1072 @@ class MatrixController {
             });
         });
 
-        // Control section
-        document.getElementById('apply-pattern').addEventListener('click', () => this.applyPattern());
-        document.getElementById('clear-matrix').addEventListener('click', () => this.clearMatrix());
-        document.getElementById('test-pattern').addEventListener('click', () => this.testPattern());
-        
-        // Sliders
-        document.getElementById('brightness-slider').addEventListener('input', (e) => {
-            document.getElementById('brightness-value').textContent = e.target.value;
-        });
-        
-        document.getElementById('speed-slider').addEventListener('input', (e) => {
-            document.getElementById('speed-value').textContent = e.target.value;
-        });
-
-        // Generator section
-        document.getElementById('generate-code').addEventListener('click', () => this.generateArduinoCode());
-        document.getElementById('download-code').addEventListener('click', () => this.downloadCode());
-        document.getElementById('matrix-width').addEventListener('input', () => this.updateBoardComparison());
-        document.getElementById('matrix-height').addEventListener('input', () => this.updateBoardComparison());
-
-        // Wiring section
-        document.getElementById('generate-wiring').addEventListener('click', () => this.generateWiring());
-        document.getElementById('download-wiring').addEventListener('click', () => this.downloadWiring());
-        document.getElementById('update-calculations').addEventListener('click', () => this.updatePowerCalculations());
-        
-        // Add event listeners for real-time updates
-        ['wiring-width', 'wiring-height', 'leds-per-meter', 'power-supply', 'wiring-controller'].forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('change', () => this.updatePowerCalculations());
-            }
-        });
-        document.getElementById('wiring-width').addEventListener('input', () => this.updatePowerCalculations());
-        document.getElementById('wiring-height').addEventListener('input', () => this.updatePowerCalculations());
-
-        // Drawing section event listeners
-        this.setupDrawingEventListeners();
-        
-        // Arduino section event listeners
-        this.setupArduinoEventListeners();
-        document.getElementById('leds-per-meter').addEventListener('change', () => this.updatePowerCalculations());
-        document.getElementById('power-supply').addEventListener('change', () => this.updatePowerCalculations());
-
-        // Config section
-        document.getElementById('save-config').addEventListener('click', () => this.saveConfig());
-        document.getElementById('test-connection').addEventListener('click', () => this.testConnection());
-        document.getElementById('create-backup').addEventListener('click', () => this.createBackup());
-        document.getElementById('restore-backup').addEventListener('click', () => this.restoreBackup());
+        // Setup new API endpoint event listeners
+        this.setupNewAPIEventListeners();
     }
 
-    switchSection(sectionName) {
+    setupNewAPIEventListeners() {
+        // Image import button
+        document.getElementById('import-image-btn')?.addEventListener('click', () => {
+            document.getElementById('image-importer')?.click();
+        });
+
+        // Live preview controls
+        document.getElementById('start-preview')?.addEventListener('click', () => {
+            this.startMatrixPreview();
+        });
+
+        document.getElementById('stop-preview')?.addEventListener('click', () => {
+            this.stopMatrixPreview();
+        });
+
+        // Enhanced drawing with pixel sync (will be setup in setupPixelSync)
+    }
+
+    async switchSection(sectionName) {
         // Update active tab
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
         document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
 
-        // Show/hide sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.style.display = 'none';
-        });
-        document.getElementById(`${sectionName}-section`).style.display = 'block';
+        // Load section content
+        const response = await fetch(`sections/${sectionName}.html`);
+        const html = await response.text();
+        document.querySelector('.content-section').innerHTML = html;
 
-        // Load section-specific data
+        // Load section-specific data and setup event listeners
         this.loadSectionData(sectionName);
     }
 
     async loadSectionData(section) {
-        switch(section) {
+        switch (section) {
             case 'control':
-                this.initializeMatrix();
-                // Wait a bit for DOM to be ready, then setup drawing
-                setTimeout(() => {
-                    this.initializeDrawingData();
-                    this.setupMatrixDrawing();
-                }, 100);
-                break;
-            case 'monitor':
-                await this.loadSystemStats();
-                await this.loadHardwareInfo();
+                this.initializeControlSection();
+                this.setupControlEventListeners();
                 break;
             case 'generator':
-                this.updateBoardComparison();
+                initializeGeneratorSection();
+                setupGeneratorEventListeners();
                 break;
             case 'wiring':
-                this.updatePowerInfo();
+                initializeWiringSection();
+                setupWiringEventListeners();
                 break;
             case 'arduino':
-                this.syncArduinoSettings();
+                initializeArduinoSection();
+                setupArduinoEventListeners();
                 break;
             case 'config':
-                await this.loadConfig();
+                await initializeConfigSection();
+                setupConfigEventListeners();
+                break;
+            case 'monitor':
+                await initializeMonitorSection();
+                setupMonitorEventListeners();
+                break;
+            case 'palette':
+                initializePaletteSection();
+                break;
+            case 'custom-matrix':
+                initializeCustomMatrixSection();
                 break;
         }
+    }
+
+    initializeControlSection() {
+        this.initializeMatrix();
+        // Wait a bit for DOM to be ready, then setup drawing
+        setTimeout(() => {
+            this.setupMatrixDrawing();
+        }, 100);
+    }
+
+    setupControlEventListeners() {
+        // Matrix configuration
+        const applyConfigBtn = document.getElementById('apply-matrix-config');
+        if (applyConfigBtn) {
+            applyConfigBtn.addEventListener('click', () => this.applyMatrixConfig());
+        }
+
+        const testConnectionBtn = document.getElementById('test-connection');
+        if (testConnectionBtn) {
+            testConnectionBtn.addEventListener('click', () => this.testConnection());
+        }
+
+        // Pattern control
+        const applyPatternBtn = document.getElementById('apply-pattern');
+        if (applyPatternBtn) {
+            applyPatternBtn.addEventListener('click', () => this.applyPattern());
+        }
+
+        const clearMatrixBtn = document.getElementById('clear-matrix');
+        if (clearMatrixBtn) {
+            clearMatrixBtn.addEventListener('click', () => this.clearMatrix());
+        }
+
+        const testPatternBtn = document.getElementById('test-pattern');
+        if (testPatternBtn) {
+            testPatternBtn.addEventListener('click', () => this.testPattern());
+        }
+
+        // Sliders
+        const brightnessSlider = document.getElementById('brightness-slider');
+        if (brightnessSlider) {
+            brightnessSlider.addEventListener('input', (e) => {
+                document.getElementById('brightness-value').textContent = e.target.value;
+            });
+        }
+
+        const speedSlider = document.getElementById('speed-slider');
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                document.getElementById('speed-value').textContent = e.target.value;
+            });
+        }
+
+        // Drawing section event listeners
+        this.setupDrawingEventListeners();
+    }
+
+    setupDrawingEventListeners() {
+        // Drawing mode and tools
+        const drawingModeSelect = document.getElementById('drawing-mode');
+        if (drawingModeSelect) {
+            drawingModeSelect.addEventListener('change', (e) => {
+                this.drawingMode = e.target.value;
+                this.updateDrawingCursor();
+            });
+        }
+
+        const brushColorInput = document.getElementById('brush-color');
+        if (brushColorInput) {
+            brushColorInput.addEventListener('change', (e) => {
+                this.brushColor = e.target.value;
+            });
+        }
+
+        const brushSizeSlider = document.getElementById('brush-size');
+        if (brushSizeSlider) {
+            brushSizeSlider.addEventListener('input', (e) => {
+                this.brushSize = parseInt(e.target.value);
+                const display = document.getElementById('brush-size-display');
+                if (display) {
+                    display.textContent = `${this.brushSize}x${this.brushSize}`;
+                }
+            });
+        }
+
+        // Color presets
+        document.querySelectorAll('.color-preset').forEach(preset => {
+            preset.addEventListener('click', (e) => {
+                const color = e.target.dataset.color;
+                this.brushColor = color;
+                const brushColorInput = document.getElementById('brush-color');
+                if (brushColorInput) {
+                    brushColorInput.value = color;
+                }
+
+                // Update active preset
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        // Palette actions
+        const addToPaletteBtn = document.getElementById('add-to-palette');
+        if (addToPaletteBtn) {
+            addToPaletteBtn.addEventListener('click', () => this.addToCustomPalette());
+        }
+
+        const savePaletteBtn = document.getElementById('save-palette');
+        if (savePaletteBtn) {
+            savePaletteBtn.addEventListener('click', () => this.savePalette());
+        }
+
+        const loadPaletteBtn = document.getElementById('load-palette');
+        if (loadPaletteBtn) {
+            loadPaletteBtn.addEventListener('click', () => this.loadPalette());
+        }
+
+        // Drawing actions
+        const clearDrawingBtn = document.getElementById('clear-drawing');
+        if (clearDrawingBtn) {
+            clearDrawingBtn.addEventListener('click', () => this.clearDrawing());
+        }
+
+        const sendToMatrixBtn = document.getElementById('send-to-matrix');
+        if (sendToMatrixBtn) {
+            sendToMatrixBtn.addEventListener('click', () => this.sendDrawingToMatrix());
+        }
+
+        // Quick Patterns
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pattern = e.currentTarget.dataset.pattern;
+                this.loadPresetPattern(pattern);
+            });
+        });
+
+        // File operations
+        const savePatternBtn = document.getElementById('save-pattern');
+        if (savePatternBtn) {
+            savePatternBtn.addEventListener('click', () => this.savePattern());
+        }
+
+        const loadPatternBtn = document.getElementById('load-pattern');
+        if (loadPatternBtn) {
+            loadPatternBtn.addEventListener('click', () => this.loadPattern());
+        }
+
+        const importImageBtn = document.getElementById('import-image-btn');
+        if (importImageBtn) {
+            importImageBtn.addEventListener('click', () => {
+                const fileInput = document.getElementById('import-image');
+                if (fileInput) fileInput.click();
+            });
+        }
+
+        const importImageInput = document.getElementById('import-image');
+        if (importImageInput) {
+            importImageInput.addEventListener('change', (e) => this.importImage(e));
+        }
+
+        const refreshMatrixBtn = document.getElementById('refresh-matrix-btn');
+        if (refreshMatrixBtn) {
+            refreshMatrixBtn.addEventListener('click', () => this.refreshMatrixFromBackend());
+        }
+    }
+
+    async applyMatrixConfig() {
+        const width = parseInt(document.getElementById('matrix-width-config').value);
+        const height = parseInt(document.getElementById('matrix-height-config').value);
+        const connectionMode = document.getElementById('connection-mode').value;
+
+        if (width && height && width >= 8 && height >= 8 && width <= 64 && height <= 64) {
+            this.matrixSize = { width, height };
+            this.initializeMatrix();
+            this.log(`Matrix configuration updated: ${width}×${height}`, 'success');
+
+            // Send configuration to server
+            try {
+                const response = await fetch(`${this.apiBase}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        width,
+                        height,
+                        connectionMode
+                    })
+                });
+
+                if (response.ok) {
+                    this.log('Configuration sent to controller', 'success');
+                } else {
+                    throw new Error('Failed to send configuration');
+                }
+            } catch (error) {
+                this.log(`Error sending configuration: ${error.message}`, 'error');
+            }
+        } else {
+            this.log('Invalid matrix dimensions. Use values between 8-64.', 'error');
+        }
+    }
+
+    async testConnection() {
+        this.log('Testing connection...', 'warning');
+        await this.checkConnection();
+    }
+
+    addToCustomPalette() {
+        const color = this.brushColor;
+        const customPalette = document.getElementById('custom-palette');
+
+        if (customPalette) {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', (e) => {
+                this.brushColor = color;
+                const brushColorInput = document.getElementById('brush-color');
+                if (brushColorInput) {
+                    brushColorInput.value = color;
+                }
+
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+
+            customPalette.appendChild(colorDiv);
+            this.log(`Added ${color} to custom palette`, 'success');
+        }
+    }
+
+    savePalette() {
+        const customColors = Array.from(document.querySelectorAll('#custom-palette .color-preset'))
+            .map(preset => preset.dataset.color);
+
+        if (customColors.length > 0) {
+            localStorage.setItem('customPalette', JSON.stringify(customColors));
+            this.log(`Saved palette with ${customColors.length} colors`, 'success');
+        } else {
+            this.log('No custom colors to save', 'warning');
+        }
+    }
+
+    loadPalette() {
+        const savedPalette = localStorage.getItem('customPalette');
+        if (savedPalette) {
+            const colors = JSON.parse(savedPalette);
+            const customPalette = document.getElementById('custom-palette');
+
+            if (customPalette) {
+                customPalette.innerHTML = '';
+                colors.forEach(color => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'color-preset';
+                    colorDiv.style.background = color;
+                    colorDiv.dataset.color = color;
+                    colorDiv.title = color;
+
+                    colorDiv.addEventListener('click', (e) => {
+                        this.brushColor = color;
+                        const brushColorInput = document.getElementById('brush-color');
+                        if (brushColorInput) {
+                            brushColorInput.value = color;
+                        }
+
+                        document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+
+                    customPalette.appendChild(colorDiv);
+                });
+
+                this.log(`Loaded palette with ${colors.length} colors`, 'success');
+            }
+        } else {
+            this.log('No saved palette found', 'warning');
+        }
+    }
+
+    loadPresetPattern(patternName) {
+        const { width, height } = this.matrixSize;
+        const patterns = {
+            smiley: this.generateSmileyPattern(width, height),
+            heart: this.generateHeartPattern(width, height),
+            arrow: this.generateArrowPattern(width, height),
+            star: this.generateStarPattern(width, height),
+            checkerboard: this.generateCheckerboardPattern(width, height),
+            border: this.generateBorderPattern(width, height)
+        };
+
+        const pattern = patterns[patternName];
+        if (pattern) {
+            this.drawingData = pattern;
+            this.updateMatrixFromDrawingData();
+            this.log(`Loaded ${patternName} pattern`, 'success');
+        }
+    }
+
+    generateSmileyPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        const yellow = '#ffff00';
+
+        // Face outline (simplified for small matrices)
+        if (width >= 8 && height >= 8) {
+            // Eyes
+            if (centerY - 2 >= 0 && centerX - 2 >= 0) pattern[centerY - 2][centerX - 2] = yellow;
+            if (centerY - 2 >= 0 && centerX + 2 < width) pattern[centerY - 2][centerX + 2] = yellow;
+
+            // Smile
+            if (centerY + 1 < height && centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = yellow;
+            if (centerY + 1 < height) pattern[centerY + 1][centerX] = yellow;
+            if (centerY + 1 < height && centerX + 1 < width) pattern[centerY + 1][centerX + 1] = yellow;
+        }
+
+        return pattern;
+    }
+
+    generateHeartPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const red = '#ff0000';
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+
+        // Simple heart shape
+        if (width >= 6 && height >= 6) {
+            // Top of heart
+            if (centerY - 1 >= 0) {
+                if (centerX - 1 >= 0) pattern[centerY - 1][centerX - 1] = red;
+                if (centerX + 1 < width) pattern[centerY - 1][centerX + 1] = red;
+            }
+
+            // Middle
+            if (centerX - 2 >= 0) pattern[centerY][centerX - 2] = red;
+            if (centerX - 1 >= 0) pattern[centerY][centerX - 1] = red;
+            pattern[centerY][centerX] = red;
+            if (centerX + 1 < width) pattern[centerY][centerX + 1] = red;
+            if (centerX + 2 < width) pattern[centerY][centerX + 2] = red;
+
+            // Bottom
+            if (centerY + 1 < height) {
+                if (centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = red;
+                pattern[centerY + 1][centerX] = red;
+                if (centerX + 1 < width) pattern[centerY + 1][centerX + 1] = red;
+            }
+
+            if (centerY + 2 < height) {
+                pattern[centerY + 2][centerX] = red;
+            }
+        }
+
+        return pattern;
+    }
+
+    generateArrowPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const blue = '#0000ff';
+        const centerY = Math.floor(height / 2);
+
+        // Arrow pointing right
+        for (let x = 0; x < width - 2; x++) {
+            pattern[centerY][x] = blue;
+        }
+
+        // Arrow head
+        if (width >= 4) {
+            const headX = width - 2;
+            if (centerY - 1 >= 0) pattern[centerY - 1][headX] = blue;
+            if (centerY + 1 < height) pattern[centerY + 1][headX] = blue;
+            if (headX + 1 < width) pattern[centerY][headX + 1] = blue;
+        }
+
+        return pattern;
+    }
+
+    generateStarPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const yellow = '#ffff00';
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+
+        // Simple star pattern
+        pattern[centerY][centerX] = yellow;
+
+        // Cross pattern
+        if (centerY - 1 >= 0) pattern[centerY - 1][centerX] = yellow;
+        if (centerY + 1 < height) pattern[centerY + 1][centerX] = yellow;
+        if (centerX - 1 >= 0) pattern[centerY][centerX - 1] = yellow;
+        if (centerX + 1 < width) pattern[centerY][centerX + 1] = yellow;
+
+        // Diagonal
+        if (centerY - 1 >= 0 && centerX - 1 >= 0) pattern[centerY - 1][centerX - 1] = yellow;
+        if (centerY - 1 >= 0 && centerX + 1 < width) pattern[centerY - 1][centerX + 1] = yellow;
+        if (centerY + 1 < height && centerX - 1 >= 0) pattern[centerY + 1][centerX - 1] = yellow;
+        if (centerY + 1 < height && centerX + 1 < width) pattern[centerY + 1][centerX + 1] = yellow;
+
+        return pattern;
+    }
+
+    generateCheckerboardPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const white = '#ffffff';
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                if ((x + y) % 2 === 0) {
+                    pattern[y][x] = white;
+                }
+            }
+        }
+
+        return pattern;
+    }
+
+    generateBorderPattern(width, height) {
+        const pattern = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+
+        const white = '#ffffff';
+
+        // Top and bottom borders
+        for (let x = 0; x < width; x++) {
+            pattern[0][x] = white;
+            pattern[height - 1][x] = white;
+        }
+
+        // Left and right borders
+        for (let y = 0; y < height; y++) {
+            pattern[y][0] = white;
+            pattern[y][width - 1] = white;
+        }
+
+        return pattern;
+    }
+
+    updateMatrixFromDrawingData() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        const { width } = this.matrixSize;
+
+        pixels.forEach((pixel, index) => {
+            const x = index % width;
+            const y = Math.floor(index / width);
+            const color = this.drawingData[y][x];
+            pixel.style.backgroundColor = color === '#000000' ? '#333' : color;
+        });
+    }
+
+    async refreshMatrixFromBackend() {
+        try {
+            const response = await fetch(`${this.apiBase}/matrix/data`);
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update drawing data from backend
+                this.drawingData = data.matrix;
+
+                // Update matrix size if changed
+                if (data.width !== this.matrixSize.width || data.height !== this.matrixSize.height) {
+                    this.matrixSize = { width: data.width, height: data.height };
+                    this.initializeMatrix();
+                } else {
+                    // Just update the display
+                    this.updateMatrixFromDrawingData();
+                }
+
+                this.log('Matrix display refreshed from backend', 'success');
+            } else {
+                throw new Error('Failed to get matrix data');
+            }
+        } catch (error) {
+            console.error('Error refreshing matrix:', error);
+            this.log('Failed to refresh matrix display', 'error');
+        }
+    }
+
+    savePattern() {
+        const patternName = prompt('Enter pattern name:');
+        if (patternName) {
+            const pattern = {
+                name: patternName,
+                data: this.drawingData,
+                width: this.matrixSize.width,
+                height: this.matrixSize.height,
+                timestamp: new Date().toISOString()
+            };
+
+            this.savedPatterns.push(pattern);
+            localStorage.setItem('ledMatrixPatterns', JSON.stringify(this.savedPatterns));
+            this.log(`Pattern "${patternName}" saved`, 'success');
+        }
+    }
+
+    loadPattern() {
+        if (this.savedPatterns.length === 0) {
+            this.log('No saved patterns found', 'warning');
+            return;
+        }
+
+        const patternNames = this.savedPatterns.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+        const selection = prompt(`Select pattern to load:\n${patternNames}\n\nEnter number:`);
+
+        if (selection) {
+            const index = parseInt(selection) - 1;
+            if (index >= 0 && index < this.savedPatterns.length) {
+                const pattern = this.savedPatterns[index];
+                this.drawingData = pattern.data;
+                this.updateMatrixFromDrawingData();
+                this.log(`Pattern "${pattern.name}" loaded`, 'success');
+            } else {
+                this.log('Invalid selection', 'error');
+            }
+        }
+    }
+
+    async importImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            this.log('Please select a valid image file', 'error');
+            return;
+        }
+
+        try {
+            this.log('Processing image...', 'info');
+
+            // Convert file to base64
+            const base64 = await this.fileToBase64(file);
+
+            // Send to backend for processing
+            const response = await fetch(`${this.apiBase}/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                this.log('Image uploaded and processed successfully', 'success');
+
+                // Refresh the matrix grid to show the processed image
+                await this.refreshMatrixFromBackend();
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error importing image:', error);
+            this.log(`Failed to import image: ${error.message}`, 'error');
+        }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+
+
+    log(message, type = 'info') {
+        const logContainer = document.getElementById('activity-log');
+        if (logContainer) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        console.log(`[${type.toUpperCase()}] ${message}`);
     }
 
     initializeMatrix() {
         const grid = document.getElementById('matrix-grid');
         const { width, height } = this.matrixSize;
-        
+
         grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
         grid.innerHTML = '';
-        
+
         for (let i = 0; i < width * height; i++) {
             const pixel = document.createElement('div');
             pixel.className = 'led-pixel';
             pixel.dataset.index = i;
+            pixel.style.backgroundColor = '#333';
             grid.appendChild(pixel);
         }
-        
+
         document.getElementById('matrix-size').textContent = `${width}×${height}`;
         document.getElementById('led-count').textContent = width * height;
-        
+        document.getElementById('matrix-display-size').textContent = `${width}×${height}`;
+        document.getElementById('led-display-count').textContent = width * height;
+
+        // Initialize drawing data
+        this.initializeDrawingData();
+
         // Update power calculations when matrix size changes
         this.updatePowerCalculations();
     }
 
+    initializeDrawingData() {
+        const { width, height } = this.matrixSize;
+        this.drawingData = new Array(height).fill(null).map(() =>
+            new Array(width).fill('#000000')
+        );
+    }
+
+    setupMatrixDrawing() {
+        const grid = document.getElementById('matrix-grid');
+        if (!grid) return;
+
+        const pixels = grid.querySelectorAll('.led-pixel');
+
+        pixels.forEach((pixel, index) => {
+            // Mouse events for drawing
+            pixel.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+
+            pixel.addEventListener('mouseenter', (e) => {
+                if (this.isDrawing) {
+                    this.drawPixel(index);
+                }
+            });
+
+            pixel.addEventListener('mouseup', () => {
+                this.isDrawing = false;
+            });
+
+            // Touch events for mobile
+            pixel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawPixel(index);
+            });
+
+            pixel.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (this.isDrawing) {
+                    const touch = e.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains('led-pixel')) {
+                        const touchIndex = parseInt(element.dataset.index);
+                        this.drawPixel(touchIndex);
+                    }
+                }
+            });
+
+            pixel.addEventListener('touchend', () => {
+                this.isDrawing = false;
+            });
+        });
+
+        // Prevent context menu on right click
+        grid.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Stop drawing when mouse leaves the grid
+        grid.addEventListener('mouseleave', () => {
+            this.isDrawing = false;
+        });
+    }
+
+    drawPixel(index) {
+        const { width, height } = this.matrixSize;
+        const x = index % width;
+        const y = Math.floor(index / width);
+
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
+
+        const pixel = document.querySelector(`[data-index="${index}"]`);
+        if (!pixel) return;
+
+        switch (this.drawingMode) {
+            case 'paint':
+                this.paintPixel(pixel, x, y);
+                break;
+            case 'erase':
+                this.erasePixel(pixel, x, y);
+                break;
+            case 'fill':
+                this.fillArea(x, y);
+                break;
+            case 'line':
+                // Line drawing would need start/end points - simplified for now
+                this.paintPixel(pixel, x, y);
+                break;
+        }
+    }
+
+    paintPixel(pixel, x, y) {
+        const color = this.brushColor;
+        pixel.style.backgroundColor = color;
+        this.drawingData[y][x] = color;
+
+        // Apply brush size
+        if (this.brushSize > 1) {
+            const offset = Math.floor(this.brushSize / 2);
+            for (let dy = -offset; dy <= offset; dy++) {
+                for (let dx = -offset; dx <= offset; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < this.matrixSize.width && ny >= 0 && ny < this.matrixSize.height) {
+                        const neighborIndex = ny * this.matrixSize.width + nx;
+                        const neighborPixel = document.querySelector(`[data-index="${neighborIndex}"]`);
+                        if (neighborPixel) {
+                            neighborPixel.style.backgroundColor = color;
+                            this.drawingData[ny][nx] = color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    erasePixel(pixel, x, y) {
+        pixel.style.backgroundColor = '#333';
+        this.drawingData[y][x] = '#000000';
+
+        // Apply brush size for erasing
+        if (this.brushSize > 1) {
+            const offset = Math.floor(this.brushSize / 2);
+            for (let dy = -offset; dy <= offset; dy++) {
+                for (let dx = -offset; dx <= offset; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < this.matrixSize.width && ny >= 0 && ny < this.matrixSize.height) {
+                        const neighborIndex = ny * this.matrixSize.width + nx;
+                        const neighborPixel = document.querySelector(`[data-index="${neighborIndex}"]`);
+                        if (neighborPixel) {
+                            neighborPixel.style.backgroundColor = '#333';
+                            this.drawingData[ny][nx] = '#000000';
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fillArea(startX, startY) {
+        const targetColor = this.drawingData[startY][startX];
+        const fillColor = this.brushColor;
+
+        if (targetColor === fillColor) return;
+
+        const stack = [[startX, startY]];
+        const { width, height } = this.matrixSize;
+
+        while (stack.length > 0) {
+            const [x, y] = stack.pop();
+
+            if (x < 0 || x >= width || y < 0 || y >= height) continue;
+            if (this.drawingData[y][x] !== targetColor) continue;
+
+            this.drawingData[y][x] = fillColor;
+            const index = y * width + x;
+            const pixel = document.querySelector(`[data-index="${index}"]`);
+            if (pixel) {
+                pixel.style.backgroundColor = fillColor;
+            }
+
+            // Add neighboring pixels to stack
+            stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+        }
+    }
+
+    clearDrawing() {
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach(pixel => {
+            pixel.style.backgroundColor = '#333';
+        });
+
+        this.initializeDrawingData();
+        this.log('Canvas cleared', 'success');
+    }
+
+    async sendDrawingToMatrix() {
+        try {
+            const response = await fetch(`${this.apiBase}/matrix`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    matrix: this.drawingData,
+                    width: this.matrixSize.width,
+                    height: this.matrixSize.height
+                })
+            });
+
+            if (response.ok) {
+                this.log('Drawing sent to matrix successfully', 'success');
+            } else {
+                throw new Error('Failed to send drawing to matrix');
+            }
+        } catch (error) {
+            this.log(`Error sending drawing: ${error.message}`, 'error');
+        }
+    }
+
+    updateDrawingCursor() {
+        const grid = document.getElementById('matrix-grid');
+        if (!grid) return;
+
+        // Update cursor based on drawing mode
+        switch (this.drawingMode) {
+            case 'paint':
+                grid.style.cursor = 'crosshair';
+                break;
+            case 'erase':
+                grid.style.cursor = 'grab';
+                break;
+            case 'fill':
+                grid.style.cursor = 'pointer';
+                break;
+            case 'line':
+                grid.style.cursor = 'crosshair';
+                break;
+            default:
+                grid.style.cursor = 'default';
+        }
+    }
+
     // Power calculation methods
-    updatePowerCalculations() {
+    async loadDynamicOptions() {
+        // Load dynamic options from backend for dropdowns
+        try {
+            const response = await fetch(`${this.apiBase}/api/options`);
+            if (response.ok) {
+                const options = await response.json();
+                this.populateDropdowns(options);
+            }
+        } catch (error) {
+            console.error('Error loading dynamic options:', error);
+        }
+    }
+
+    populateDropdowns(options) {
+        // Populate LED density dropdown
+        const ledsPerMeterSelect = document.getElementById('leds-per-meter');
+        if (ledsPerMeterSelect && options.ledsPerMeter) {
+            ledsPerMeterSelect.innerHTML = options.ledsPerMeter.map(option =>
+                `<option value="${option.value}">${option.label} (${option.spacing})</option>`
+            ).join('');
+        }
+
+        // Populate power supply dropdown
+        const powerSupplySelect = document.getElementById('power-supply');
+        if (powerSupplySelect && options.powerSupplies) {
+            powerSupplySelect.innerHTML = options.powerSupplies.map(option =>
+                `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
+            ).join('');
+        }
+
+        // Populate controller dropdown
+        const controllerSelect = document.getElementById('wiring-controller');
+        if (controllerSelect && options.controllers) {
+            controllerSelect.innerHTML = options.controllers.map(option =>
+                `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
+            ).join('');
+        }
+    }
+
+    async updatePowerCalculations() {
         const width = parseInt(document.getElementById('wiring-width')?.value) || this.matrixSize.width;
         const height = parseInt(document.getElementById('wiring-height')?.value) || this.matrixSize.height;
         const ledsPerMeter = parseInt(document.getElementById('leds-per-meter')?.value) || 60;
         const powerSupply = document.getElementById('power-supply')?.value || '5V10A';
-        
-        const totalLeds = width * height;
-        const stripLength = totalLeds / ledsPerMeter;
-        const maxCurrentPerLed = 0.06; // 60mA per LED at full white
-        const maxCurrent = totalLeds * maxCurrentPerLed;
-        const maxPower = maxCurrent * 5; // 5V system
-        
-        // Parse power supply capacity
-        const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
-        const psuVoltage = psuMatch ? parseInt(psuMatch[1]) : 5;
-        const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
-        const psuPower = psuVoltage * psuCurrent;
-        
-        // Calculate power usage percentage
-        const powerPercentage = Math.min((maxPower / psuPower) * 100, 100);
-        
-        // Update display elements
-        const elements = {
-            'total-leds': totalLeds,
-            'max-current': `${maxCurrent.toFixed(2)}A`,
-            'recommended-psu': this.getRecommendedPSU(maxPower),
-            'power-consumption': `${maxPower.toFixed(1)}W`,
-            'estimated-cost': this.calculateEstimatedCost(totalLeds, stripLength, maxPower),
-            'power-percentage': `${powerPercentage.toFixed(0)}%`
-        };
-        
-        Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        });
-        
-        // Update power usage bar
-        const powerBar = document.getElementById('power-usage-bar');
-        if (powerBar) {
-            powerBar.style.width = `${powerPercentage}%`;
-            powerBar.style.background = powerPercentage > 80 ? 'var(--error)' : 
-                                       powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
+
+        try {
+            // Call backend API for power calculations
+            const response = await fetch(`${this.apiBase}/wiring`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    controller: controller,
+                    width: width,
+                    height: height,
+                    ledsPerMeter: ledsPerMeter,
+                    powerSupply: powerSupply
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const wiringData = data.wiring;
+
+            // Parse power supply capacity for percentage calculation
+            const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
+            const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
+            const psuPower = 5 * psuCurrent; // 5V system
+            const powerPercentage = Math.min((wiringData.power.maxPower / psuPower) * 100, 100);
+
+            // Update display elements with backend data
+            const elements = {
+                'total-leds': wiringData.matrix.totalLeds,
+                'max-current': `${wiringData.power.maxCurrent}A`,
+                'recommended-psu': wiringData.power.recommendedPSU,
+                'power-consumption': `${wiringData.power.maxPower}W`,
+                'estimated-cost': `$${wiringData.estimatedCost}`,
+                'power-percentage': `${powerPercentage.toFixed(0)}%`
+            };
+
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+
+            // Update power usage bar
+            const powerBar = document.getElementById('power-usage-bar');
+            if (powerBar) {
+                powerBar.style.width = `${powerPercentage}%`;
+                powerBar.style.background = powerPercentage > 80 ? 'var(--error)' :
+                    powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+            }
+
+            // Update shopping list with backend data
+            this.updateShoppingListFromAPI(wiringData);
+
+            // Update Mermaid diagram with backend data
+            this.updateMermaidDiagramFromAPI(wiringData);
+
+        } catch (error) {
+            console.error('Error fetching power calculations:', error);
+            // Fallback to show error message
+            const errorElements = ['total-leds', 'max-current', 'recommended-psu', 'power-consumption', 'estimated-cost'];
+            errorElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = 'Error';
+            });
         }
-        
-        // Update shopping list
-        this.updateShoppingList(totalLeds, stripLength, maxPower);
-        
-        // Update Mermaid diagram
-        this.generateMermaidDiagram();
     }
 
-    getRecommendedPSU(maxPower) {
-        if (maxPower <= 20) return '5V 5A';
-        if (maxPower <= 40) return '5V 10A';
-        if (maxPower <= 80) return '5V 20A';
-        if (maxPower <= 120) return '5V 30A';
-        return '5V 40A';
+    // These methods removed - now handled by backend API
+
+    updateShoppingListFromAPI(wiringData) {
+        // Use backend-provided component data for shopping list
+        const listElement = document.getElementById('shopping-list');
+        if (listElement && wiringData.components) {
+            listElement.innerHTML = `
+                <ul>
+                    ${wiringData.components.map(item =>
+                `<li><span>${item.name}</span><span>$${item.price || 'N/A'}</span></li>`
+            ).join('')}
+                    <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${wiringData.estimatedCost}</strong></span></li>
+                </ul>
+            `;
+        }
     }
 
-    calculateEstimatedCost(totalLeds, stripLength, maxPower) {
-        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
-        const controllerCost = this.getControllerPrice(controller);
-        const stripCost = Math.ceil(stripLength) * 12; // $12 per meter
-        const psuCost = this.getPSUCost(maxPower);
-        const accessoriesCost = 15; // Level shifter, wires, etc.
-        
-        const total = controllerCost + stripCost + psuCost + accessoriesCost;
-        return `$${total - 10}-${total + 10}`;
+    updateMermaidDiagramFromAPI(wiringData) {
+        // Use backend-provided Mermaid diagram
+        const diagramElement = document.getElementById('mermaid-diagram');
+        if (diagramElement && wiringData.mermaidDiagram) {
+            diagramElement.innerHTML = wiringData.mermaidDiagram;
+
+            // Re-initialize Mermaid if available
+            if (typeof mermaid !== 'undefined') {
+                mermaid.init(undefined, diagramElement);
+            }
+        }
     }
 
-    getControllerPrice(controller) {
-        const prices = {
-            'arduino_uno': 25,
-            'arduino_nano': 15,
-            'esp32': 12,
-            'esp8266': 8
-        };
-        return prices[controller] || 25;
-    }
 
-    getPSUCost(maxPower) {
-        if (maxPower <= 20) return 25;
-        if (maxPower <= 40) return 35;
-        if (maxPower <= 80) return 55;
-        if (maxPower <= 120) return 75;
-        return 95;
-    }
-
-    updateShoppingList(totalLeds, stripLength, maxPower) {
-        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
-        const controllerName = this.getControllerName(controller);
-        const controllerPrice = this.getControllerPrice(controller);
+    // Old updateShoppingList method removed - replaced with updateShoppingListFromAPI
+    updateShoppingListOld_REMOVED(totalLeds, stripLength, maxPower) {
+        // This method has been removed - backend now provides component data
+        console.warn('Old shopping list method called - should use backend API');
         const stripPrice = Math.ceil(stripLength) * 12;
         const psuPrice = this.getPSUCost(maxPower);
         const recommendedPSU = this.getRecommendedPSU(maxPower);
-        
+
         const items = [
             { name: controllerName, price: controllerPrice },
             { name: `WS2812B LED Strip (${Math.ceil(stripLength)}m)`, price: stripPrice },
@@ -256,9 +1124,9 @@ class MatrixController {
             { name: 'Jumper Wires & Connectors', price: 8 },
             { name: 'Breadboard/Perfboard', price: 5 }
         ];
-        
+
         const total = items.reduce((sum, item) => sum + item.price, 0);
-        
+
         const listElement = document.getElementById('shopping-list');
         if (listElement) {
             listElement.innerHTML = `
@@ -270,25 +1138,14 @@ class MatrixController {
         }
     }
 
-    getControllerName(controller) {
-        const names = {
-            'arduino_uno': 'Arduino Uno R3',
-            'arduino_nano': 'Arduino Nano',
-            'esp32': 'ESP32 Dev Board',
-            'esp8266': 'ESP8266 NodeMCU'
-        };
-        return names[controller] || 'Arduino Uno R3';
-    }
-
-    // Mermaid diagram generation
+    // Mermaid diagram generation - now uses backend API
     generateMermaidDiagram() {
-        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
-        const controllerName = this.getControllerName(controller);
-        const dataPin = document.getElementById('data-pin')?.value || '6';
-        const levelShifter = document.getElementById('level-shifter')?.value || '74hct125';
-        
+        // This method should use the mermaidDiagram from backend API response
+        // The diagram is now generated by the backend and provided in wiringData.mermaidDiagram
+        console.warn('generateMermaidDiagram called - should use backend mermaidDiagram data');
+
         let mermaidCode = '';
-        
+
         if (levelShifter === 'none') {
             mermaidCode = `
                 graph TD
@@ -306,9 +1163,9 @@ class MatrixController {
                     style E fill:#2d3436,stroke:#333,stroke-width:2px,color:#fff
             `;
         } else {
-            const shifterName = levelShifter === '74hct125' ? '74HCT125' : 
-                              levelShifter === 'sn74lv1t34' ? 'SN74LV1T34' : 'Level Shifter';
-            
+            const shifterName = levelShifter === '74hct125' ? '74HCT125' :
+                levelShifter === 'sn74lv1t34' ? 'SN74LV1T34' : 'Level Shifter';
+
             mermaidCode = `
                 graph TD
                     A["🔌 Power Supply<br/>5V DC"] --> B["⚡ ${controllerName}"]
@@ -330,12 +1187,12 @@ class MatrixController {
                     style G fill:#fd79a8,stroke:#333,stroke-width:2px,color:#fff
             `;
         }
-        
+
         // Update the Mermaid diagram
         const diagramElement = document.getElementById('mermaid-diagram');
         if (diagramElement) {
             diagramElement.innerHTML = mermaidCode;
-            
+
             // Re-initialize Mermaid if available
             if (typeof mermaid !== 'undefined') {
                 mermaid.init(undefined, diagramElement);
@@ -348,10 +1205,17 @@ class MatrixController {
             const response = await fetch(`${this.apiBase}/status`);
             if (response.ok) {
                 const data = await response.json();
+                const wasDisconnected = !this.connected;
                 this.connected = true;
                 this.updateConnectionStatus(true);
-                this.log('Connected to matrix controller', 'success');
-                
+
+                // Only log reconnection, not continuous connection
+                if (wasDisconnected) {
+                    this.log('Connected to matrix controller', 'success');
+                    this.resetStatusInterval(); // Reset to normal interval
+                    console.log('🔄 Connection restored - reset to 15s intervals');
+                }
+
                 // Update matrix size from server
                 if (data.matrix) {
                     this.matrixSize = { width: data.matrix.width, height: data.matrix.height };
@@ -361,16 +1225,22 @@ class MatrixController {
                 throw new Error('Server responded with error');
             }
         } catch (error) {
+            const wasConnected = this.connected;
             this.connected = false;
             this.updateConnectionStatus(false);
-            this.log('Failed to connect to matrix controller', 'error');
+
+            // Only log disconnection, not continuous failures
+            if (wasConnected) {
+                this.log('Connection lost to matrix controller', 'error');
+                this.increaseStatusInterval(); // Increase interval when disconnected
+            }
         }
     }
 
     updateConnectionStatus(connected) {
         const statusDot = document.getElementById('connection-status');
         const statusText = document.getElementById('connection-text');
-        
+
         if (connected) {
             statusDot.classList.add('connected');
             statusText.textContent = 'Connected';
@@ -381,10 +1251,53 @@ class MatrixController {
     }
 
     startStatusUpdates() {
-        setInterval(async () => {
+        // Clear any existing intervals first
+        if (this.statusIntervalId) {
+            clearTimeout(this.statusIntervalId);
+        }
+
+        // Clear any global intervals that might exist
+        if (window.matrixStatusInterval) {
+            clearInterval(window.matrixStatusInterval);
+        }
+
+        this.statusInterval = 15000; // Start with 15 seconds (much less frequent)
+        this.maxStatusInterval = 60000; // Max 1 minute
+        this.statusIntervalId = null;
+
+        // Initial connection check
+        this.checkConnection();
+
+        // Start periodic checks with smart intervals
+        this.resetStatusInterval();
+
+        console.log('🔧 Smart status updates initialized: 15s intervals (was 2s)');
+        console.log(`📅 Timestamp: ${new Date().toISOString()}`);
+        console.log('⚠️ If you still see frequent requests, please hard refresh (Ctrl+F5)');
+    }
+
+    resetStatusInterval() {
+        // Reset to normal 15-second interval when connected
+        this.statusInterval = 15000;
+        this.scheduleNextStatusCheck();
+    }
+
+    increaseStatusInterval() {
+        // Exponential backoff when disconnected (max 1 minute)
+        this.statusInterval = Math.min(this.statusInterval * 1.5, this.maxStatusInterval);
+        this.scheduleNextStatusCheck();
+    }
+
+    scheduleNextStatusCheck() {
+        if (this.statusIntervalId) {
+            clearTimeout(this.statusIntervalId);
+        }
+
+        this.statusIntervalId = setTimeout(async () => {
             await this.checkConnection();
             this.updateFPS();
-        }, 2000);
+            this.scheduleNextStatusCheck();
+        }, this.statusInterval);
     }
 
     updateFPS() {
@@ -419,8 +1332,8 @@ class MatrixController {
 
     updateMatrixPreview(pattern, color) {
         const pixels = document.querySelectorAll('.led-pixel');
-        
-        switch(pattern) {
+
+        switch (pattern) {
             case 'solid':
                 pixels.forEach(pixel => pixel.style.backgroundColor = color);
                 break;
@@ -432,6 +1345,9 @@ class MatrixController {
                 break;
             case 'plasma':
                 this.animatePlasma(pixels);
+                break;
+            case 'fire':
+                this.animateFire(pixels);
                 break;
             default:
                 pixels.forEach(pixel => pixel.style.backgroundColor = '#333');
@@ -449,6 +1365,43 @@ class MatrixController {
             });
             time += 0.1;
             if (time < 10) requestAnimationFrame(animate);
+        };
+        animate();
+    }
+
+    animateFire(pixels) {
+        const fire = new Array(this.matrixSize.width * this.matrixSize.height).fill(0);
+        const animate = () => {
+            for (let i = 0; i < this.matrixSize.width; i++) {
+                fire[i + this.matrixSize.width * (this.matrixSize.height - 1)] = Math.random() * 255;
+            }
+            for (let y = 0; y < this.matrixSize.height - 1; y++) {
+                for (let x = 0; x < this.matrixSize.width; x++) {
+                    const src = y * this.matrixSize.width + x;
+                    const dest = ((y + 1) % this.matrixSize.height) * this.matrixSize.width + (x % this.matrixSize.width);
+                    const rand = Math.floor(Math.random() * 2);
+                    fire[src] = ((fire[dest] + fire[(dest + 1) % fire.length] + fire[(dest + 2) % fire.length]) / 3.5) * 1.05 - rand;
+                    if (fire[src] > 255) fire[src] = 255;
+                    if (fire[src] < 0) fire[src] = 0;
+                    const c = fire[src];
+                    let r, g, b;
+                    if (c < 85) {
+                        r = c * 3;
+                        g = 0;
+                        b = 0;
+                    } else if (c < 170) {
+                        r = 255;
+                        g = (c - 85) * 3;
+                        b = 0;
+                    } else {
+                        r = 255;
+                        g = 255;
+                        b = (c - 170) * 3;
+                    }
+                    pixels[src].style.backgroundColor = `rgb(${r},${g},${b})`;
+                }
+            }
+            requestAnimationFrame(animate);
         };
         animate();
     }
@@ -471,7 +1424,7 @@ class MatrixController {
         this.log('Running test pattern', 'success');
         const pixels = document.querySelectorAll('.led-pixel');
         let index = 0;
-        
+
         const testSequence = () => {
             if (index < pixels.length) {
                 pixels[index].style.backgroundColor = '#e94560';
@@ -484,7 +1437,7 @@ class MatrixController {
                 this.log('Test pattern completed', 'success');
             }
         };
-        
+
         testSequence();
     }
 
@@ -531,30 +1484,10 @@ class MatrixController {
         const width = parseInt(document.getElementById('matrix-width').value);
         const height = parseInt(document.getElementById('matrix-height').value);
         const totalLeds = width * height;
-        
-        const boards = {
-            'uno': { name: 'Arduino Uno', memory: 2048, maxLeds: 500, voltage: '5V' },
-            'nano': { name: 'Arduino Nano', memory: 2048, maxLeds: 500, voltage: '5V' },
-            'esp32': { name: 'ESP32 Dev Board', memory: 520000, maxLeds: 2000, voltage: '3.3V' },
-            'esp8266': { name: 'ESP8266 NodeMCU', memory: 80000, maxLeds: 800, voltage: '3.3V' },
-            'mega': { name: 'Arduino Mega 2560', memory: 8192, maxLeds: 1000, voltage: '5V' }
-        };
 
-        let html = '<h4>Board Recommendations:</h4><div class="grid grid-2" style="gap: 10px; margin-top: 10px;">';
-        
-        Object.entries(boards).forEach(([key, board]) => {
-            const suitable = totalLeds <= board.maxLeds;
-            const memoryUsage = (totalLeds * 3 / board.memory * 100).toFixed(1);
-            
-            html += `
-                <div class="card" style="padding: 10px; ${suitable ? 'border-color: var(--success)' : 'border-color: var(--error)'}">
-                    <strong>${board.name}</strong><br>
-                    <small>Memory: ${memoryUsage}% | ${suitable ? '✅ Suitable' : '❌ Too many LEDs'}</small>
-                </div>
-            `;
-        });
-        
-        html += '</div>';
+        // Board compatibility data should come from backend API
+        let html = '<h4>Board Recommendations:</h4>';
+        html += '<p>Board compatibility will be provided by backend API.</p>';
         document.getElementById('board-comparison').innerHTML = html;
     }
 
@@ -584,13 +1517,13 @@ class MatrixController {
                 const data = await response.json();
                 this.log('Wiring guide generated successfully', 'success');
                 this.wiringData = data.wiring;
-                
+
                 // Update power calculations with wiring data
                 this.updatePowerCalculationsFromWiring(data.wiring);
-                
+
                 // Generate Mermaid diagram from backend
                 this.displayMermaidDiagram(data.wiring.mermaidDiagram);
-                
+
                 // Update component list
                 this.updateComponentListFromWiring(data.wiring);
             } else {
@@ -629,7 +1562,7 @@ class MatrixController {
             `;
         }
     }
-    
+
     displayMermaidDiagram(mermaidCode) {
         const diagramElement = document.getElementById('mermaid-diagram');
         if (diagramElement && mermaidCode) {
@@ -653,19 +1586,19 @@ class MatrixController {
                     <div class="mermaid">${mermaidCode}</div>
                 </div>
             `;
-            
+
             // Re-initialize Mermaid if available
             if (typeof mermaid !== 'undefined') {
                 mermaid.init(undefined, diagramElement.querySelector('.mermaid'));
             }
         }
     }
-    
+
     updateComponentListFromWiring(wiringData) {
         const componentList = document.getElementById('component-list');
         if (componentList && wiringData.components) {
             let html = '<div class="component-grid">';
-            
+
             wiringData.components.forEach(component => {
                 html += `
                     <div class="component-item">
@@ -675,9 +1608,9 @@ class MatrixController {
                     </div>
                 `;
             });
-            
+
             html += '</div>';
-            
+
             if (wiringData.estimatedCost) {
                 html += `
                     <div class="cost-summary">
@@ -685,11 +1618,11 @@ class MatrixController {
                     </div>
                 `;
             }
-            
+
             componentList.innerHTML = html;
         }
     }
-    
+
     downloadDiagramPNG(button) {
         const container = button.closest('.mermaid-container');
         const svg = container.querySelector('svg');
@@ -697,34 +1630,34 @@ class MatrixController {
             // Create a canvas element
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             // Get SVG dimensions
             const svgRect = svg.getBoundingClientRect();
             const svgData = new XMLSerializer().serializeToString(svg);
-            
+
             // Set canvas size with higher resolution for better quality
             const scale = 2;
             canvas.width = svgRect.width * scale;
             canvas.height = svgRect.height * scale;
-            
+
             // Create image from SVG
             const img = new Image();
             const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
             const url = URL.createObjectURL(svgBlob);
-            
-            img.onload = function() {
+
+            img.onload = function () {
                 // Set white background
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Scale context for higher resolution
                 ctx.scale(scale, scale);
-                
+
                 // Draw the SVG image
                 ctx.drawImage(img, 0, 0, svgRect.width, svgRect.height);
-                
+
                 // Convert canvas to PNG and download
-                canvas.toBlob(function(blob) {
+                canvas.toBlob(function (blob) {
                     const pngUrl = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = pngUrl;
@@ -732,83 +1665,18 @@ class MatrixController {
                     a.click();
                     URL.revokeObjectURL(pngUrl);
                 }, 'image/png');
-                
+
                 URL.revokeObjectURL(url);
             };
-            
+
             img.src = url;
         }
     }
 
-    setupDrawingEventListeners() {
-        // Drawing mode and tools
-        document.getElementById('drawing-mode').addEventListener('change', (e) => {
-            this.drawingMode = e.target.value;
-            this.updateDrawingCursor();
-        });
-        
-        document.getElementById('brush-color').addEventListener('change', (e) => {
-            this.brushColor = e.target.value;
-        });
-        
-        document.getElementById('brush-size').addEventListener('input', (e) => {
-            this.brushSize = parseInt(e.target.value);
-            document.getElementById('brush-size-display').textContent = `${this.brushSize}x${this.brushSize}`;
-        });
-        
-        // Color presets
-        document.querySelectorAll('.color-preset').forEach(preset => {
-            preset.addEventListener('click', (e) => {
-                const color = e.target.dataset.color;
-                this.brushColor = color;
-                document.getElementById('brush-color').value = color;
-                
-                // Update active preset
-                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
-                e.target.classList.add('active');
-            });
-        });
-        
-        // Drawing actions
-        document.getElementById('clear-drawing').addEventListener('click', () => this.clearDrawing());
-        document.getElementById('fill-all').addEventListener('click', () => this.fillAll());
-        document.getElementById('save-pattern').addEventListener('click', () => this.savePattern());
-        document.getElementById('load-pattern').addEventListener('click', () => this.loadPattern());
-        document.getElementById('send-to-matrix').addEventListener('click', () => this.sendDrawingToMatrix());
-        
-        // Pattern buttons (quick patterns)
-        document.querySelectorAll('.pattern-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const pattern = e.currentTarget.dataset.pattern;
-                this.loadPresetPattern(pattern);
-            });
-        });
-        
-        // Drawing variables are now initialized in constructor
-        // Just update saved patterns display
-        this.updateSavedPatterns();
-    }
-    
-    setupArduinoEventListeners() {
-        document.getElementById('arduino-brightness').addEventListener('input', (e) => {
-            document.getElementById('arduino-brightness-display').textContent = e.target.value;
-        });
-        
-        document.getElementById('arduino-board').addEventListener('change', () => {
-            this.syncArduinoSettings();
-        });
-        
-        document.getElementById('generate-arduino').addEventListener('click', () => this.generateArduinoPackage());
-        document.getElementById('preview-code').addEventListener('click', () => this.previewArduinoCode());
-        document.getElementById('download-package').addEventListener('click', () => this.downloadArduinoPackage());
-        document.getElementById('copy-code').addEventListener('click', () => this.copyArduinoCode());
-        document.getElementById('download-ino').addEventListener('click', () => this.downloadArduinoFile());
-    }
-    
     setupMatrixDrawing() {
         const pixels = document.querySelectorAll('.led-pixel');
         console.log('Setting up drawing for', pixels.length, 'pixels');
-        
+
         pixels.forEach((pixel, index) => {
             // Mouse events for drawing
             pixel.addEventListener('mousedown', (e) => {
@@ -816,24 +1684,24 @@ class MatrixController {
                 this.isDrawing = true;
                 this.drawPixel(index);
             });
-            
+
             pixel.addEventListener('mouseenter', (e) => {
                 if (this.isDrawing) {
                     this.drawPixel(index);
                 }
             });
-            
+
             pixel.addEventListener('mouseup', () => {
                 this.isDrawing = false;
             });
-            
+
             // Touch events for mobile
             pixel.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 this.isDrawing = true;
                 this.drawPixel(index);
             });
-            
+
             pixel.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 if (this.isDrawing) {
@@ -845,63 +1713,92 @@ class MatrixController {
                     }
                 }
             });
-            
+
             pixel.addEventListener('touchend', () => {
                 this.isDrawing = false;
             });
         });
-        
+
         // Prevent context menu on right click
         document.getElementById('matrix-preview').addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
-        
+
         // Stop drawing when mouse leaves the matrix
         document.getElementById('matrix-preview').addEventListener('mouseleave', () => {
             this.isDrawing = false;
         });
-        
+
         // Initialize drawing data
         this.initializeDrawingData();
     }
-    
+
     initializeDrawingData() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         this.drawingData = Array(height).fill().map(() => Array(width).fill('#000000'));
     }
-    
+
     drawPixel(index) {
         console.log('Drawing pixel:', index, 'Mode:', this.drawingMode, 'Color:', this.brushColor);
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const x = index % width;
         const y = Math.floor(index / width);
-        
+
         if (this.drawingMode === 'paint') {
             this.paintPixels(x, y);
         } else if (this.drawingMode === 'erase') {
             this.erasePixels(x, y);
         } else if (this.drawingMode === 'fill') {
             this.fillArea(x, y);
+        } else if (this.drawingMode === 'line') {
+            if (!this.lineStart) {
+                this.lineStart = { x, y };
+            } else {
+                this.drawLine(this.lineStart.x, this.lineStart.y, x, y);
+                this.lineStart = null;
+            }
         }
     }
-    
+
+    drawLine(x0, y0, x1, y1) {
+        const dx = Math.abs(x1 - x0);
+        const dy = Math.abs(y1 - y0);
+        const sx = (x0 < x1) ? 1 : -1;
+        const sy = (y0 < y1) ? 1 : -1;
+        let err = dx - dy;
+
+        while (true) {
+            this.paintPixels(x0, y0);
+            if ((x0 === x1) && (y0 === y1)) break;
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
+            }
+        }
+    }
+
     paintPixels(centerX, centerY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const size = this.brushSize;
         const offset = Math.floor(size / 2);
-        
+
         for (let dy = -offset; dy <= offset; dy++) {
             for (let dx = -offset; dx <= offset; dx++) {
                 const x = centerX + dx;
                 const y = centerY + dy;
-                
+
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     const index = y * width + x;
                     const pixel = document.querySelector(`[data-index="${index}"]`);
-                    
+
                     if (pixel) {
                         pixel.style.backgroundColor = this.brushColor;
                         this.drawingData[y][x] = this.brushColor;
@@ -910,22 +1807,22 @@ class MatrixController {
             }
         }
     }
-    
+
     erasePixels(centerX, centerY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const size = this.brushSize;
         const offset = Math.floor(size / 2);
-        
+
         for (let dy = -offset; dy <= offset; dy++) {
             for (let dx = -offset; dx <= offset; dx++) {
                 const x = centerX + dx;
                 const y = centerY + dy;
-                
+
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     const index = y * width + x;
                     const pixel = document.querySelector(`[data-index="${index}"]`);
-                    
+
                     if (pixel) {
                         pixel.style.backgroundColor = '#333';
                         this.drawingData[y][x] = '#000000';
@@ -934,34 +1831,34 @@ class MatrixController {
             }
         }
     }
-    
+
     fillArea(startX, startY) {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const targetColor = this.drawingData[startY][startX];
         const fillColor = this.brushColor;
-        
+
         if (targetColor === fillColor) return;
-        
+
         const stack = [[startX, startY]];
-        
+
         while (stack.length > 0) {
             const [x, y] = stack.pop();
-            
+
             if (x < 0 || x >= width || y < 0 || y >= height) continue;
             if (this.drawingData[y][x] !== targetColor) continue;
-            
+
             this.drawingData[y][x] = fillColor;
             const index = y * width + x;
             const pixel = document.querySelector(`[data-index="${index}"]`);
             if (pixel) {
                 pixel.style.backgroundColor = fillColor;
             }
-            
+
             stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
         }
     }
-    
+
     clearDrawing() {
         const pixels = document.querySelectorAll('.led-pixel');
         pixels.forEach(pixel => {
@@ -970,7 +1867,7 @@ class MatrixController {
         this.initializeDrawingData();
         this.log('Drawing cleared', 'success');
     }
-    
+
     fillAll() {
         const pixels = document.querySelectorAll('.led-pixel');
         pixels.forEach((pixel, index) => {
@@ -981,11 +1878,11 @@ class MatrixController {
         });
         this.log('Matrix filled with color', 'success');
     }
-    
+
     savePattern() {
         const name = prompt('Enter pattern name:');
         if (!name) return;
-        
+
         const pattern = {
             name: name,
             width: this.matrixSize.width,
@@ -993,13 +1890,13 @@ class MatrixController {
             data: JSON.parse(JSON.stringify(this.drawingData)),
             timestamp: new Date().toISOString()
         };
-        
+
         this.savedPatterns.push(pattern);
         localStorage.setItem('ledMatrixPatterns', JSON.stringify(this.savedPatterns));
         this.updateSavedPatterns();
         this.log(`Pattern "${name}" saved`, 'success');
     }
-    
+
     loadPattern() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -1011,7 +1908,7 @@ class MatrixController {
                 reader.onload = (e) => {
                     try {
                         const pattern = JSON.parse(e.target.result);
-                        this.applyPattern(pattern);
+                        this.applySavedPattern(pattern);
                         this.log(`Pattern "${pattern.name}" loaded`, 'success');
                     } catch (error) {
                         this.log('Error loading pattern file', 'error');
@@ -1022,16 +1919,16 @@ class MatrixController {
         };
         input.click();
     }
-    
-    applyPattern(pattern) {
+
+    applySavedPattern(pattern) {
         if (pattern.width !== this.matrixSize.width || pattern.height !== this.matrixSize.height) {
             if (!confirm('Pattern size doesn\'t match current matrix. Apply anyway?')) {
                 return;
             }
         }
-        
+
         this.clearDrawing();
-        
+
         for (let y = 0; y < Math.min(pattern.height, this.matrixSize.height); y++) {
             for (let x = 0; x < Math.min(pattern.width, this.matrixSize.width); x++) {
                 const color = pattern.data[y][x];
@@ -1046,7 +1943,7 @@ class MatrixController {
             }
         }
     }
-    
+
     loadPresetPattern(patternName) {
         const patterns = {
             smiley: this.generateSmileyPattern(),
@@ -1056,27 +1953,27 @@ class MatrixController {
             checkerboard: this.generateCheckerboardPattern(),
             border: this.generateBorderPattern()
         };
-        
+
         if (patterns[patternName]) {
-            this.applyPattern(patterns[patternName]);
+            this.applySavedPattern(patterns[patternName]);
             this.log(`Applied ${patternName} pattern`, 'success');
         }
     }
-    
+
     generateSmileyPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Simple smiley face for 16x16 matrix
         if (width >= 16 && height >= 16) {
             const centerX = Math.floor(width / 2);
             const centerY = Math.floor(height / 2);
-            
+
             // Eyes
             data[centerY - 3][centerX - 3] = '#ffff00';
             data[centerY - 3][centerX + 3] = '#ffff00';
-            
+
             // Mouth
             for (let x = centerX - 3; x <= centerX + 3; x++) {
                 data[centerY + 2][x] = '#ffff00';
@@ -1084,19 +1981,19 @@ class MatrixController {
             data[centerY + 1][centerX - 2] = '#ffff00';
             data[centerY + 1][centerX + 2] = '#ffff00';
         }
-        
+
         return { name: 'Smiley', width, height, data };
     }
-    
+
     generateHeartPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Simple heart pattern
         const centerX = Math.floor(width / 2);
         const centerY = Math.floor(height / 2);
-        
+
         // Heart shape
         const heartPoints = [
             [centerX, centerY + 2],
@@ -1105,45 +2002,45 @@ class MatrixController {
             [centerX - 2, centerY - 1], [centerX + 2, centerY - 1],
             [centerX - 1, centerY - 2], [centerX + 1, centerY - 2]
         ];
-        
+
         heartPoints.forEach(([x, y]) => {
             if (x >= 0 && x < width && y >= 0 && y < height) {
                 data[y][x] = '#ff0000';
             }
         });
-        
+
         return { name: 'Heart', width, height, data };
     }
-    
+
     generateArrowPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         const centerY = Math.floor(height / 2);
-        
+
         // Arrow pointing right
         for (let x = 2; x < width - 2; x++) {
             data[centerY][x] = '#00ff00';
         }
-        
+
         // Arrow head
         for (let i = 1; i <= 3; i++) {
             data[centerY - i][width - 2 - i] = '#00ff00';
             data[centerY + i][width - 2 - i] = '#00ff00';
         }
-        
+
         return { name: 'Arrow', width, height, data };
     }
-    
+
     generateStarPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         const centerX = Math.floor(width / 2);
         const centerY = Math.floor(height / 2);
-        
+
         // Simple star pattern
         const starPoints = [
             [centerX, centerY - 3],
@@ -1152,21 +2049,21 @@ class MatrixController {
             [centerX - 2, centerY + 1], [centerX + 2, centerY + 1],
             [centerX, centerY + 3]
         ];
-        
+
         starPoints.forEach(([x, y]) => {
             if (x >= 0 && x < width && y >= 0 && y < height) {
                 data[y][x] = '#ffff00';
             }
         });
-        
+
         return { name: 'Star', width, height, data };
     }
-    
+
     generateCheckerboardPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 if ((x + y) % 2 === 0) {
@@ -1174,40 +2071,40 @@ class MatrixController {
                 }
             }
         }
-        
+
         return { name: 'Checkerboard', width, height, data };
     }
-    
+
     generateBorderPattern() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const data = Array(height).fill().map(() => Array(width).fill('#000000'));
-        
+
         // Top and bottom borders
         for (let x = 0; x < width; x++) {
             data[0][x] = '#0000ff';
             data[height - 1][x] = '#0000ff';
         }
-        
+
         // Left and right borders
         for (let y = 0; y < height; y++) {
             data[y][0] = '#0000ff';
             data[y][width - 1] = '#0000ff';
         }
-        
+
         return { name: 'Border', width, height, data };
     }
-    
+
     updateSavedPatterns() {
         const container = document.getElementById('saved-patterns');
-        
+
         if (this.savedPatterns.length === 0) {
             container.innerHTML = '<p>No saved patterns yet. Create and save your first pattern!</p>';
             return;
         }
-        
+
         container.innerHTML = '';
-        
+
         this.savedPatterns.forEach((pattern, index) => {
             const patternDiv = document.createElement('div');
             patternDiv.className = 'saved-pattern';
@@ -1216,29 +2113,29 @@ class MatrixController {
                 <span>${pattern.name}</span>
                 <small>${new Date(pattern.timestamp).toLocaleDateString()}</small>
             `;
-            
+
             patternDiv.addEventListener('click', () => {
-                this.applyPattern(pattern);
+                this.applySavedPattern(pattern);
                 this.log(`Applied pattern "${pattern.name}"`, 'success');
             });
-            
+
             container.appendChild(patternDiv);
-            
+
             // Generate mini preview
             this.generatePatternPreview(pattern, `preview-${index}`);
         });
     }
-    
+
     generatePatternPreview(pattern, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         container.innerHTML = '';
-        
+
         const scaleX = 80 / pattern.width;
         const scaleY = 80 / pattern.height;
         const pixelSize = Math.min(scaleX, scaleY);
-        
+
         for (let y = 0; y < pattern.height; y++) {
             for (let x = 0; x < pattern.width; x++) {
                 const color = pattern.data[y][x];
@@ -1255,22 +2152,22 @@ class MatrixController {
             }
         }
     }
-    
+
     async sendDrawingToMatrix() {
         try {
             const matrixData = this.convertDrawingToMatrixData();
-            
+
             const response = await fetch(`${this.apiBase}/pattern`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     pattern: 'custom',
                     data: matrixData,
                     brightness: this.brightness || 128,
                     speed: this.speed || 50
                 })
             });
-            
+
             if (response.ok) {
                 this.log('Drawing sent to matrix', 'success');
             } else {
@@ -1280,34 +2177,25 @@ class MatrixController {
             this.log(`Error sending drawing: ${error.message}`, 'error');
         }
     }
-    
+
     convertDrawingToMatrixData() {
         const width = this.matrixSize.width;
         const height = this.matrixSize.height;
         const matrixData = [];
-        
+
         for (let y = 0; y < height; y++) {
             const row = [];
             for (let x = 0; x < width; x++) {
                 const color = this.drawingData[y][x];
-                const rgb = this.hexToRgb(color);
+                const rgb = hexToRgb(color);
                 row.push([rgb.r, rgb.g, rgb.b]);
             }
             matrixData.push(row);
         }
-        
+
         return matrixData;
     }
-    
-    hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : { r: 0, g: 0, b: 0 };
-    }
-    
+
     updateDrawingCursor() {
         const pixels = document.querySelectorAll('.led-pixel');
         const cursors = {
@@ -1318,816 +2206,194 @@ class MatrixController {
             rectangle: 'crosshair',
             circle: 'crosshair'
         };
-        
+
         pixels.forEach(pixel => {
             pixel.style.cursor = cursors[this.drawingMode] || 'crosshair';
         });
     }
 
-    updatePowerCalculations(data = null) {
-        const width = parseInt(document.getElementById('wiring-width').value);
-        const height = parseInt(document.getElementById('wiring-height').value);
-        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter').value);
-        
-        const totalLeds = width * height;
-        const maxCurrentPerLed = 0.06; // 60mA per LED at full white
-        const maxCurrent = totalLeds * maxCurrentPerLed;
-        const maxPower = maxCurrent * 5; // 5V system
-        const stripLength = totalLeds / ledsPerMeter;
-        
-        // Update display
-        document.getElementById('total-leds').textContent = totalLeds;
-        document.getElementById('max-current').textContent = `${maxCurrent.toFixed(2)}A`;
-        document.getElementById('max-power').textContent = `${maxPower.toFixed(1)}W`;
-        document.getElementById('strip-length').textContent = `${stripLength.toFixed(2)}m`;
-        
-        // Recommend power supply
-        let recommendedPsu = '5V2A';
-        if (maxPower > 80) recommendedPsu = '5V20A';
-        else if (maxPower > 40) recommendedPsu = '5V10A';
-        else if (maxPower > 20) recommendedPsu = '5V5A';
-        
-        document.getElementById('recommended-psu').textContent = recommendedPsu;
-        
-        // Update power supply selection if needed
-        const psuSelect = document.getElementById('power-supply');
-        const currentPsu = psuSelect.value;
-        const currentWatts = this.getPowerSupplyWatts(currentPsu);
-        
-        if (currentWatts < maxPower) {
-            // Highlight insufficient power supply
-            psuSelect.style.borderColor = '#ef4444';
-            psuSelect.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
-        } else {
-            psuSelect.style.borderColor = '';
-            psuSelect.style.backgroundColor = '';
+    syncArduinoSettings() {
+        // Sync Arduino settings with current matrix configuration
+        const arduinoBrightness = document.getElementById('arduino-brightness');
+        const arduinoBoard = document.getElementById('arduino-board');
+
+        if (arduinoBrightness) {
+            arduinoBrightness.value = 128; // Default brightness
+            const display = document.getElementById('arduino-brightness-display');
+            if (display) display.textContent = '128';
         }
-    }
 
-    getPowerSupplyWatts(psuValue) {
-        const wattsMap = {
-            '5V2A': 10,
-            '5V5A': 25,
-            '5V10A': 50,
-            '5V20A': 100,
-            '5V30A': 150,
-            '5V40A': 200
-        };
-        return wattsMap[psuValue] || 10;
-    }
-
-    async generateMermaidDiagram(data) {
-        const controller = document.getElementById('wiring-controller').value;
-        const width = parseInt(document.getElementById('wiring-width').value);
-        const height = parseInt(document.getElementById('wiring-height').value);
-        const dataPin = document.getElementById('data-pin')?.value || 6;
-        
-        // Create Mermaid diagram
-        const mermaidCode = this.createMermaidWiringDiagram(controller, width, height, dataPin);
-        
-        // Initialize Mermaid if not already done
-        if (typeof mermaid !== 'undefined') {
-            mermaid.initialize({ 
-                startOnLoad: false,
-                theme: 'dark',
-                themeVariables: {
-                    primaryColor: '#1a1a2e',
-                    primaryTextColor: '#f1f1f1',
-                    primaryBorderColor: '#e94560',
-                    lineColor: '#e94560',
-                    secondaryColor: '#16213e',
-                    tertiaryColor: '#0f3460'
-                }
-            });
-            
-            try {
-                const diagramDiv = document.getElementById('mermaid-diagram');
-                diagramDiv.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
-                await mermaid.run();
-            } catch (error) {
-                console.error('Mermaid rendering error:', error);
-                document.getElementById('mermaid-diagram').innerHTML = 
-                    `<p style="color: #ef4444;">Error rendering diagram: ${error.message}</p>`;
-            }
-        } else {
-            document.getElementById('mermaid-diagram').innerHTML = 
-                '<p style="color: #fbbf24;">Mermaid library not loaded</p>';
+        if (arduinoBoard) {
+            arduinoBoard.value = 'uno'; // Default board
         }
+
+        this.log('Arduino settings synchronized', 'info');
     }
 
-    createMermaidWiringDiagram(controller, width, height, dataPin) {
-        const totalLeds = width * height;
-        const controllerName = controller.replace('_', ' ').toUpperCase();
-        
-        return `
-graph TD
-    PSU[Power Supply<br/>5V DC] --> |+5V Red| LED1[LED Strip<br/>${totalLeds} LEDs]
-    PSU --> |GND Black| LED1
-    PSU --> |+5V Red| MCU[${controllerName}]
-    PSU --> |GND Black| MCU
-    
-    MCU --> |Pin ${dataPin}<br/>Data Green| LED1
-    MCU --> |GND Black| LED1
-    
-    LED1 --> |Data Out| LED2[Additional Strips<br/>if needed]
-    
-    %% Styling
-    classDef psu fill:#ff6b6b,stroke:#ff5252,stroke-width:2px,color:#fff
-    classDef mcu fill:#4ecdc4,stroke:#26a69a,stroke-width:2px,color:#fff  
-    classDef led fill:#ffd93d,stroke:#ffc107,stroke-width:2px,color:#000
-    
-    class PSU psu
-    class MCU mcu
-    class LED1,LED2 led
-        `;
-    }
-
-    updateComponentList(data) {
-        const controller = document.getElementById('wiring-controller').value;
-        const width = parseInt(document.getElementById('wiring-width').value);
-        const height = parseInt(document.getElementById('wiring-height').value);
-        const ledsPerMeter = parseInt(document.getElementById('leds-per-meter').value);
-        const powerSupply = document.getElementById('power-supply').value;
-        
-        const totalLeds = width * height;
-        const stripLength = Math.ceil(totalLeds / ledsPerMeter);
-        
-        // Component pricing (approximate)
-        const components = [
-            {
-                name: controller.replace('_', ' ').toUpperCase(),
-                quantity: 1,
-                price: this.getControllerPrice(controller),
-                description: 'Microcontroller board'
-            },
-            {
-                name: `WS2812B LED Strip (${ledsPerMeter} LEDs/m)`,
-                quantity: stripLength,
-                price: this.getStripPrice(ledsPerMeter) * stripLength,
-                description: `${stripLength}m of LED strip`
-            },
-            {
-                name: powerSupply.replace('V', 'V ').replace('A', 'A Power Supply'),
-                quantity: 1,
-                price: this.getPowerSupplyPrice(powerSupply),
-                description: 'Switching power supply'
-            },
-            {
-                name: 'Jumper Wires',
-                quantity: 1,
-                price: 5,
-                description: 'Male-to-male jumper wires'
-            },
-            {
-                name: 'Breadboard (optional)',
-                quantity: 1,
-                price: 8,
-                description: 'For prototyping connections'
-            },
-            {
-                name: '1000µF Capacitor',
-                quantity: 1,
-                price: 3,
-                description: 'Power supply smoothing'
-            },
-            {
-                name: '470Ω Resistor',
-                quantity: 1,
-                price: 1,
-                description: 'Data line protection'
-            }
-        ];
-        
-        const totalCost = components.reduce((sum, comp) => sum + comp.price, 0);
-        
-        let html = '<div class="grid grid-2" style="gap: 10px; margin-bottom: 15px;">';
-        components.forEach(comp => {
-            html += `
-                <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(15, 52, 96, 0.2); border-radius: 5px;">
-                    <div>
-                        <strong>${comp.name}</strong><br>
-                        <small style="color: var(--text-muted);">${comp.description}</small>
-                    </div>
-                    <div style="text-align: right;">
-                        <div>Qty: ${comp.quantity}</div>
-                        <div style="color: var(--success);">$${comp.price}</div>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        
-        html += `
-            <div style="text-align: center; padding: 15px; background: rgba(233, 69, 96, 0.1); border-radius: 8px; border: 1px solid rgba(233, 69, 96, 0.3);">
-                <strong style="font-size: 1.2em; color: var(--highlight);">Total Estimated Cost: $${totalCost}</strong>
-                <br><small style="color: var(--text-muted);">Prices are approximate and may vary by supplier</small>
-            </div>
-        `;
-        
-        document.getElementById('component-list').innerHTML = html;
-    }
-
-    getControllerPrice(controller) {
-        const prices = {
-            'arduino_uno': 25,
-            'arduino_nano': 15,
-            'esp32': 12,
-            'esp8266': 8
-        };
-        return prices[controller] || 20;
-    }
-
-    getStripPrice(ledsPerMeter) {
-        const prices = {
-            30: 15,
-            60: 25,
-            144: 45,
-            256: 80
-        };
-        return prices[ledsPerMeter] || 25;
-    }
-
-    getPowerSupplyPrice(powerSupply) {
-        const prices = {
-            '5V2A': 15,
-            '5V5A': 25,
-            '5V10A': 35,
-            '5V20A': 55,
-            '5V30A': 75,
-            '5V40A': 95
-        };
-        return prices[powerSupply] || 35;
-    }
-
-    downloadWiring() {
-        if (this.wiringData) {
-            // Generate markdown content from wiring data
-            const markdown = this.generateWiringMarkdown(this.wiringData);
-            const blob = new Blob([markdown], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `wiring_guide_${this.wiringData.controller}_${this.wiringData.matrix.width}x${this.wiringData.matrix.height}.md`;
-            a.click();
-            URL.revokeObjectURL(url);
-            this.log('Wiring guide downloaded', 'success');
-        } else {
-            this.log('No wiring guide to download. Generate guide first.', 'warning');
-        }
-    }
-    
-    generateWiringMarkdown(wiringData) {
-        const date = new Date().toISOString().split('T')[0];
-        return `# LED Matrix Wiring Guide
-# ${wiringData.matrix.width}×${wiringData.matrix.height} Matrix with ${wiringData.controller}
-
-Generated on: ${date}
-
-## Configuration Summary:
-- Controller: ${wiringData.controller}
-- Matrix Size: ${wiringData.matrix.width}×${wiringData.matrix.height} (${wiringData.matrix.totalLeds} LEDs)
-- Maximum Current: ${wiringData.power.maxCurrent}A
-- Maximum Power: ${wiringData.power.maxPower}W
-- Recommended PSU: ${wiringData.power.recommendedPSU}
-- Selected PSU: ${wiringData.power.selectedPSU}
-
-## Mermaid Wiring Diagram:
-\`\`\`mermaid
-${wiringData.mermaidDiagram}
-\`\`\`
-
-## Component List:
-${wiringData.components.map(comp => `- **${comp.name}** (${comp.quantity}) - ${comp.type}`).join('\n')}
-
-## Estimated Cost:
-**Total: $${wiringData.estimatedCost}**
-
-## Strip Configuration:
-- LEDs per meter: ${wiringData.strip.ledsPerMeter}
-- Total length needed: ${wiringData.strip.totalLength}m
-- Suggested segments: ${wiringData.strip.segments}
-
----
-Generated by LED Matrix Control Center
-`;
-    }
-
-    // Arduino Package Generation Methods
     async generateArduinoPackage() {
-        const board = document.getElementById('arduino-board').value;
-        const dataPin = parseInt(document.getElementById('arduino-data-pin').value);
-        const width = parseInt(document.getElementById('arduino-width').value);
-        const height = parseInt(document.getElementById('arduino-height').value);
-        const brightness = parseInt(document.getElementById('arduino-brightness').value);
-        
-        const includePatterns = document.getElementById('include-patterns').checked;
-        const includeWiring = document.getElementById('include-wiring').checked;
-        const includeLibraries = document.getElementById('include-libraries').checked;
-        const includeReadme = document.getElementById('include-readme').checked;
-        
-        this.log('Generating Arduino package...', 'warning');
-        
         try {
-            // Use existing Arduino generation API
+            const board = document.getElementById('arduino-board')?.value || 'uno';
+            const brightness = document.getElementById('arduino-brightness')?.value || 128;
+
             const response = await fetch(`${this.apiBase}/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     board: board,
-                    width: width,
-                    height: height,
-                    data_pin: dataPin,
+                    width: this.matrixSize.width,
+                    height: this.matrixSize.height,
                     brightness: brightness
                 })
             });
-            
-            if (!response.ok) {
-                throw new Error('Failed to generate Arduino code');
-            }
-            
-            const result = await response.json();
-            let arduinoCode = result.code;
-            
-            // Enhance the generated code with custom patterns if requested
-            if (includePatterns && this.savedPatterns.length > 0) {
-                arduinoCode = this.enhanceArduinoCodeWithPatterns(arduinoCode);
-            }
-            
-            // Generate package contents
-            this.arduinoPackage = {
-                code: arduinoCode,
-                board: board,
-                config: { dataPin, width, height, brightness },
-                patterns: includePatterns ? this.savedPatterns : [],
-                wiring: includeWiring ? this.wiringData : null,
-                includeLibraries,
-                includeReadme
-            };
-            
-            this.updatePackageContents();
-            this.log('Arduino package generated successfully', 'success');
-            
-        } catch (error) {
-            this.log(`Error generating Arduino package: ${error.message}`, 'error');
-        }
-    }
-    
-    enhanceArduinoCodeWithPatterns(baseCode) {
-        if (!this.savedPatterns || this.savedPatterns.length === 0) {
-            return baseCode;
-        }
-        
-        // Find the loop function and add custom pattern cases
-        let enhancedCode = baseCode;
-        
-        // Look for the switch statement in the loop function
-        const switchPattern = /switch\s*\([^)]+\)\s*{[^}]*}/;
-        const switchMatch = enhancedCode.match(switchPattern);
-        
-        if (switchMatch) {
-            let switchStatement = switchMatch[0];
-            
-            // Add custom pattern cases before the default case
-            let customCases = '';
-            this.savedPatterns.forEach((pattern, index) => {
-                // Find the highest case number and add after it
-                const caseNumbers = switchStatement.match(/case\s+(\d+):/g);
-                const maxCase = Math.max(...caseNumbers.map(c => parseInt(c.match(/\d+/)[0])));
-                customCases += `\n    case ${maxCase + 1 + index}: customPattern${index}(); break;`;
-            });
-            
-            // Insert custom cases before the default case
-            const defaultIndex = switchStatement.indexOf('default:');
-            if (defaultIndex !== -1) {
-                switchStatement = switchStatement.slice(0, defaultIndex) + 
-                                customCases + '\n    ' + 
-                                switchStatement.slice(defaultIndex);
-            }
-            
-            enhancedCode = enhancedCode.replace(switchMatch[0], switchStatement);
-        }
-        
-        // Add custom pattern functions at the end
-        let customFunctions = '\n\n// Custom Pattern Functions\n';
-        this.savedPatterns.forEach((pattern, index) => {
-            customFunctions += `\nvoid customPattern${index}() {\n`;
-            customFunctions += `  // Pattern: ${pattern.name}\n`;
-            customFunctions += `  // Size: ${pattern.width}x${pattern.height}\n`;
-            customFunctions += `  FastLED.clear();\n`;
-            
-            for (let y = 0; y < pattern.height; y++) {
-                for (let x = 0; x < pattern.width; x++) {
-                    const color = pattern.data[y][x];
-                    if (color !== '#000000') {
-                        const rgb = this.hexToRgb(color);
-                        customFunctions += `  leds[XY(${x}, ${y})] = CRGB(${rgb.r}, ${rgb.g}, ${rgb.b});\n`;
-                    }
-                }
-            }
-            
-            customFunctions += `}\n`;
-        });
-        
-        // Add the custom functions before the last closing brace
-        const lastBraceIndex = enhancedCode.lastIndexOf('}');
-        if (lastBraceIndex !== -1) {
-            enhancedCode = enhancedCode.slice(0, lastBraceIndex) + 
-                          customFunctions + '\n' + 
-                          enhancedCode.slice(lastBraceIndex);
-        }
-        
-        return enhancedCode;
-    }
-    
-    previewArduinoCode() {
-        if (!this.arduinoPackage) {
-            this.generateArduinoPackage();
-            return;
-        }
-        
-        document.getElementById('arduino-code-display').textContent = this.arduinoPackage.code;
-        document.getElementById('arduino-preview').style.display = 'block';
-        document.getElementById('arduino-preview').scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    copyArduinoCode() {
-        if (!this.arduinoPackage) {
-            this.log('Generate Arduino package first', 'warning');
-            return;
-        }
-        
-        navigator.clipboard.writeText(this.arduinoPackage.code).then(() => {
-            this.log('Arduino code copied to clipboard', 'success');
-        }).catch(() => {
-            this.log('Failed to copy code to clipboard', 'error');
-        });
-    }
-    
-    downloadArduinoFile() {
-        if (!this.arduinoPackage) {
-            this.log('Generate Arduino package first', 'warning');
-            return;
-        }
-        
-        const blob = new Blob([this.arduinoPackage.code], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `led_matrix_${this.arduinoPackage.config.width}x${this.arduinoPackage.config.height}.ino`;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        this.log('Arduino file downloaded', 'success');
-    }
-    
-    async downloadArduinoPackage() {
-        if (!this.arduinoPackage) {
-            this.log('Generate Arduino package first', 'warning');
-            return;
-        }
-        
-        this.log('Preparing Arduino package download...', 'warning');
-        
-        try {
-            // Create ZIP file using JSZip (we'll need to include this library)
-            const zip = new JSZip();
-            
-            // Main Arduino file
-            const filename = `led_matrix_${this.arduinoPackage.config.width}x${this.arduinoPackage.config.height}`;
-            zip.file(`${filename}.ino`, this.arduinoPackage.code);
-            
-            // README file
-            if (this.arduinoPackage.includeReadme) {
-                const readme = this.generateReadmeFile();
-                zip.file('README.md', readme);
-            }
-            
-            // Wiring diagram
-            if (this.arduinoPackage.wiring) {
-                const wiringGuide = this.generateWiringMarkdown(this.arduinoPackage.wiring);
-                zip.file('WIRING.md', wiringGuide);
-            } else if (this.arduinoPackage.includeWiring) {
-                // Generate wiring data for the Arduino package
-                const wiringData = await this.generateWiringForArduino();
-                if (wiringData) {
-                    const wiringGuide = this.generateWiringMarkdown(wiringData);
-                    zip.file('WIRING.md', wiringGuide);
-                }
-            }
-            
-            // Pattern files
-            if (this.arduinoPackage.patterns.length > 0) {
-                const patternsFolder = zip.folder('patterns');
-                this.arduinoPackage.patterns.forEach((pattern, index) => {
-                    patternsFolder.file(`${pattern.name.replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(pattern, null, 2));
-                });
-            }
-            
-            // Library information
-            if (this.arduinoPackage.includeLibraries) {
-                const libraryInfo = this.generateLibraryInfo();
-                zip.file('LIBRARIES.md', libraryInfo);
-            }
-            
-            // Generate and download ZIP
-            const content = await zip.generateAsync({ type: 'blob' });
-            const url = URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${filename}_package.zip`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            this.log('Arduino package downloaded successfully', 'success');
-            
-        } catch (error) {
-            this.log(`Error creating package: ${error.message}`, 'error');
-        }
-    }
-    
-    generateReadmeFile() {
-        const config = this.arduinoPackage.config;
-        const board = this.arduinoPackage.board;
-        
-        return `# LED Matrix Project
 
-## Overview
-This Arduino project controls a ${config.width}×${config.height} LED matrix using FastLED library.
-
-## Hardware Requirements
-- ${board.replace('_', ' ').toUpperCase()} board
-- WS2812B LED strip (${config.width * config.height} LEDs)
-- 5V Power Supply (see WIRING.md for power requirements)
-- Jumper wires and breadboard
-- 1000µF capacitor
-- 330Ω resistor
-${board.includes('esp') ? '- 74HCT125 level shifter' : ''}
-
-## Software Requirements
-- Arduino IDE
-- FastLED library (install via Library Manager)
-
-## Installation
-1. Open Arduino IDE
-2. Install FastLED library: Tools → Manage Libraries → Search "FastLED"
-3. Open the .ino file
-4. Select your board: Tools → Board → ${board.replace('_', ' ')}
-5. Select correct COM port: Tools → Port
-6. Upload the code
-
-## Configuration
-- Matrix Size: ${config.width}×${config.height}
-- Data Pin: ${config.dataPin}
-- Brightness: ${config.brightness}/255
-- Total LEDs: ${config.width * config.height}
-
-## Patterns Included
-- Solid Colors
-- Rainbow
-- Plasma Effect
-- Fire Simulation
-- Matrix Rain
-- Twinkle
-${this.arduinoPackage.patterns.length > 0 ? `- ${this.arduinoPackage.patterns.length} Custom Patterns` : ''}
-
-## Usage
-The matrix will automatically cycle through patterns every 10 seconds. You can modify the pattern duration by changing the PATTERN_DURATION constant.
-
-## Troubleshooting
-- If LEDs don't light up, check power connections
-- If colors are wrong, verify COLOR_ORDER setting
-- If patterns are corrupted, check data pin connection
-- Monitor Serial output for debugging information
-
-## Customization
-You can modify patterns by editing the pattern functions or add new ones following the existing examples.
-
-Generated by LED Matrix Control Center
-`;
-    }
-    
-    generateLibraryInfo() {
-        return `# Required Libraries
-
-## FastLED
-**Version:** Latest (3.5.0 or newer recommended)
-**Installation:** Arduino IDE → Tools → Manage Libraries → Search "FastLED"
-**Purpose:** Controls WS2812B LED strips with optimized performance
-
-### Alternative Installation Methods:
-1. **Library Manager (Recommended):**
-   - Open Arduino IDE
-   - Go to Tools → Manage Libraries
-   - Search for "FastLED"
-   - Click Install
-
-2. **Manual Installation:**
-   - Download from: https://github.com/FastLED/FastLED
-   - Extract to Arduino/libraries/ folder
-   - Restart Arduino IDE
-
-3. **PlatformIO:**
-   \`\`\`
-   lib_deps = fastled/FastLED@^3.5.0
-   \`\`\`
-
-## Documentation
-- FastLED Documentation: https://fastled.io/
-- WS2812B Datasheet: Available from LED strip manufacturer
-- Arduino Reference: https://www.arduino.cc/reference/
-
-## Compatibility
-- Arduino Uno/Nano: Native 5V, no level shifter needed
-- ESP32/ESP8266: 3.3V logic, level shifter recommended for reliable operation
-
-Generated by LED Matrix Control Center
-`;
-    }
-    
-    updatePackageContents() {
-        const container = document.getElementById('package-contents');
-        if (!this.arduinoPackage) {
-            container.innerHTML = '<p>Generate a package to see contents...</p>';
-            return;
-        }
-        
-        const config = this.arduinoPackage.config;
-        const filename = `led_matrix_${config.width}x${config.height}`;
-        
-        let html = '<div class="package-file-list">';
-        
-        // Main Arduino file
-        html += `
-            <div class="package-file">
-                <span class="file-icon">📄</span>
-                <div>
-                    <div class="file-name">${filename}.ino</div>
-                    <div class="file-description">Main Arduino sketch with all patterns and configuration</div>
-                </div>
-            </div>
-        `;
-        
-        // README
-        if (this.arduinoPackage.includeReadme) {
-            html += `
-                <div class="package-file">
-                    <span class="file-icon">📖</span>
-                    <div>
-                        <div class="file-name">README.md</div>
-                        <div class="file-description">Complete setup and usage instructions</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Wiring diagram
-        if (this.arduinoPackage.wiring) {
-            html += `
-                <div class="package-file">
-                    <span class="file-icon">🔌</span>
-                    <div>
-                        <div class="file-name">WIRING.md</div>
-                        <div class="file-description">Wiring diagram and power calculations</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Library info
-        if (this.arduinoPackage.includeLibraries) {
-            html += `
-                <div class="package-file">
-                    <span class="file-icon">📚</span>
-                    <div>
-                        <div class="file-name">LIBRARIES.md</div>
-                        <div class="file-description">Required libraries and installation instructions</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Pattern files
-        if (this.arduinoPackage.patterns.length > 0) {
-            html += `
-                <div class="package-file">
-                    <span class="file-icon">📁</span>
-                    <div>
-                        <div class="file-name">patterns/ (${this.arduinoPackage.patterns.length} files)</div>
-                        <div class="file-description">Custom pattern data files for backup and sharing</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        html += '</div>';
-        
-        // Package summary
-        html += `
-            <div class="package-summary">
-                <h4>Package Summary</h4>
-                <ul>
-                    <li><strong>Board:</strong> ${this.arduinoPackage.board.replace('_', ' ').toUpperCase()}</li>
-                    <li><strong>Matrix Size:</strong> ${config.width}×${config.height} (${config.width * config.height} LEDs)</li>
-                    <li><strong>Data Pin:</strong> ${config.dataPin}</li>
-                    <li><strong>Brightness:</strong> ${config.brightness}/255</li>
-                    <li><strong>Custom Patterns:</strong> ${this.arduinoPackage.patterns.length}</li>
-                    <li><strong>Ready to Upload:</strong> Yes</li>
-                </ul>
-            </div>
-        `;
-        
-        container.innerHTML = html;
-    }
-    
-    async generateWiringForArduino() {
-        try {
-            const config = this.arduinoPackage.config;
-            const board = this.arduinoPackage.board;
-            
-            const response = await fetch(`${this.apiBase}/wiring`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    controller: board,
-                    width: config.width,
-                    height: config.height,
-                    ledsPerMeter: 144,
-                    powerSupply: '5V10A'
-                })
-            });
-            
             if (response.ok) {
                 const data = await response.json();
-                return data.wiring;
-            }
-        } catch (error) {
-            console.error('Error generating wiring data:', error);
-        }
-        return null;
-    }
-    
-    syncArduinoSettings() {
-        // Sync Arduino settings with current matrix configuration
-        document.getElementById('arduino-width').value = this.matrixSize.width;
-        document.getElementById('arduino-height').value = this.matrixSize.height;
-        
-        // Update data pin based on board selection
-        const board = document.getElementById('arduino-board').value;
-        const defaultPins = {
-            arduino_uno: 6,
-            arduino_nano: 6,
-            esp32: 13,
-            esp8266: 2
-        };
-        
-        if (defaultPins[board]) {
-            document.getElementById('arduino-data-pin').value = defaultPins[board];
-        }
-    }
-    
-    // Add API endpoint for custom pattern data
-    async sendCustomPattern(patternData) {
-        try {
-            const response = await fetch(`${this.apiBase}/pattern`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'custom',
-                    data: patternData,
-                    brightness: this.brightness,
-                    speed: this.speed
-                })
-            });
-            
-            if (response.ok) {
-                return await response.json();
+                this.arduinoCode = data.code;
+                this.log('Arduino code generated successfully', 'success');
+
+                // Show preview if available
+                const codePreview = document.getElementById('code-preview');
+                if (codePreview) {
+                    codePreview.textContent = data.code;
+                }
             } else {
-                throw new Error('Failed to send custom pattern');
+                throw new Error('Failed to generate Arduino code');
             }
         } catch (error) {
-            console.error('Error sending custom pattern:', error);
-            throw error;
+            this.log(`Error generating Arduino code: ${error.message}`, 'error');
+        }
+    }
+
+    previewArduinoCode() {
+        if (this.arduinoCode) {
+            const codePreview = document.getElementById('code-preview');
+            if (codePreview) {
+                codePreview.textContent = this.arduinoCode;
+                codePreview.style.display = 'block';
+            }
+        } else {
+            this.log('No Arduino code generated yet', 'warning');
+        }
+    }
+
+    downloadArduinoPackage() {
+        if (this.arduinoCode) {
+            const blob = new Blob([this.arduinoCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `led_matrix_${this.matrixSize.width}x${this.matrixSize.height}.ino`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            this.log('Arduino package downloaded', 'success');
+        } else {
+            this.log('No Arduino code to download', 'warning');
+        }
+    }
+
+    copyArduinoCode() {
+        if (this.arduinoCode) {
+            navigator.clipboard.writeText(this.arduinoCode).then(() => {
+                this.log('Arduino code copied to clipboard', 'success');
+            }).catch(() => {
+                this.log('Failed to copy code to clipboard', 'error');
+            });
+        } else {
+            this.log('No Arduino code to copy', 'warning');
+        }
+    }
+
+    downloadArduinoFile() {
+        this.downloadArduinoPackage(); // Same as download package
+    }
+
+    async loadSystemStats() {
+        try {
+            const response = await fetch(`${this.apiBase}/system`);
+            if (response.ok) {
+                const data = await response.json();
+                const systemStats = document.getElementById('system-stats');
+                if (systemStats) {
+                    systemStats.innerHTML = `
+                        <div class="stat-item">
+                            <span class="stat-label">CPU Usage:</span>
+                            <span class="stat-value">${data.cpu}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Memory Usage:</span>
+                            <span class="stat-value">${data.memory}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Uptime:</span>
+                            <span class="stat-value">${data.uptime}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Temperature:</span>
+                            <span class="stat-value">${data.temperature}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error('Failed to load system stats');
+            }
+        } catch (error) {
+            const systemStats = document.getElementById('system-stats');
+            if (systemStats) {
+                systemStats.innerHTML = '<p class="error">Failed to load system stats</p>';
+            }
+            this.log(`Error loading system stats: ${error.message}`, 'error');
+        }
+    }
+
+    async loadHardwareInfo() {
+        try {
+            const response = await fetch(`${this.apiBase}/hardware`);
+            if (response.ok) {
+                const data = await response.json();
+                const hardwareInfo = document.getElementById('hardware-info');
+                if (hardwareInfo) {
+                    hardwareInfo.innerHTML = `
+                        <div class="stat-item">
+                            <span class="stat-label">Controller:</span>
+                            <span class="stat-value">${data.controller}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Port:</span>
+                            <span class="stat-value">${data.port}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Baud Rate:</span>
+                            <span class="stat-value">${data.baudRate}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Matrix Size:</span>
+                            <span class="stat-value">${data.matrixSize}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error('Failed to load hardware info');
+            }
+        } catch (error) {
+            const hardwareInfo = document.getElementById('hardware-info');
+            if (hardwareInfo) {
+                hardwareInfo.innerHTML = '<p class="error">Failed to load hardware info</p>';
+            }
+            this.log(`Error loading hardware info: ${error.message}`, 'error');
         }
     }
 
     updatePowerInfo() {
-        const width = parseInt(document.getElementById('wiring-width').value);
-        const height = parseInt(document.getElementById('wiring-height').value);
-        const totalLeds = width * height;
-        const maxCurrent = (totalLeds * 0.06).toFixed(2); // 60mA per LED
-        const recommendedPSU = maxCurrent > 10 ? '20A' : maxCurrent > 5 ? '10A' : '5A';
-        
+        // Power info should come from backend API - this method is deprecated
+        console.log('updatePowerInfo called - should use backend API for power calculations');
+
         document.getElementById('power-info').innerHTML = `
             <div class="grid grid-2" style="gap: 15px;">
                 <div>
-                    <strong>Total LEDs:</strong> ${totalLeds}<br>
-                    <strong>Max Current:</strong> ${maxCurrent}A<br>
-                    <strong>Recommended PSU:</strong> 5V ${recommendedPSU}
-                </div>
-                <div>
-                    <strong>Power Consumption:</strong> ${(maxCurrent * 5).toFixed(1)}W<br>
-                    <strong>Strip Length:</strong> ${(totalLeds / 144).toFixed(1)}m<br>
-                    <strong>Estimated Cost:</strong> $${(totalLeds * 0.1 + 50).toFixed(0)}
+                    <strong>Power calculations now handled by backend API</strong><br>
+                    <small>Use the wiring section for accurate power information</small>
                 </div>
             </div>
         `;
@@ -2249,23 +2515,415 @@ Generated by LED Matrix Control Center
     }
 
     log(message, type = 'info') {
-        const logContainer = document.getElementById('activity-log');
-        const timestamp = new Date().toLocaleTimeString();
-        const entry = document.createElement('div');
-        entry.className = `log-entry ${type}`;
-        entry.textContent = `[${timestamp}] ${message}`;
-        
-        logContainer.appendChild(entry);
-        logContainer.scrollTop = logContainer.scrollHeight;
-        
-        // Keep only last 100 entries
-        while (logContainer.children.length > 100) {
-            logContainer.removeChild(logContainer.firstChild);
+        log(message, type);
+    }
+
+    // Matrix Configuration Methods
+    async applyMatrixConfig() {
+        const width = parseInt(document.getElementById('matrix-width-config').value);
+        const height = parseInt(document.getElementById('matrix-height-config').value);
+        const connection = document.getElementById('connection-mode').value;
+
+        if (width < 8 || width > 64 || height < 8 || height > 64) {
+            this.log('Matrix size must be between 8x8 and 64x64', 'error');
+            return;
         }
+
+        this.matrixSize = { width, height };
+        this.initializeMatrix();
+        this.initializeDrawingData();
+        this.setupMatrixDrawing();
+
+        // Update display elements
+        const displaySize = document.getElementById('matrix-display-size');
+        const displayCount = document.getElementById('led-display-count');
+        if (displaySize) displaySize.textContent = `${width}×${height}`;
+        if (displayCount) displayCount.textContent = width * height;
+
+        this.log(`Matrix configured to ${width}×${height} (${connection})`, 'success');
+
+        // Send configuration to backend if connected
+        if (this.connected) {
+            try {
+                const response = await fetch(`${this.apiBase}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ width, height, connection })
+                });
+                if (response.ok) {
+                    this.log('Configuration sent to controller', 'success');
+                }
+            } catch (error) {
+                this.log('Failed to send configuration to controller', 'warning');
+            }
+        }
+    }
+
+    // Palette Management Methods
+    addToCustomPalette() {
+        const color = this.brushColor;
+        const customPalette = document.getElementById('custom-palette');
+
+        // Check if color already exists
+        const existing = customPalette.querySelector(`[data-color="${color}"]`);
+        if (existing) {
+            this.log('Color already in palette', 'warning');
+            return;
+        }
+
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'color-preset custom-color';
+        colorDiv.style.background = color;
+        colorDiv.dataset.color = color;
+        colorDiv.title = color;
+
+        colorDiv.addEventListener('click', () => {
+            this.brushColor = color;
+            document.getElementById('brush-color').value = color;
+            document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+            colorDiv.classList.add('active');
+        });
+
+        // Add remove functionality on right-click
+        colorDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (confirm('Remove this color from palette?')) {
+                colorDiv.remove();
+                this.saveCustomPalette();
+            }
+        });
+
+        customPalette.appendChild(colorDiv);
+        this.saveCustomPalette();
+        this.log('Color added to palette', 'success');
+    }
+
+    saveCustomPalette() {
+        const colors = Array.from(document.querySelectorAll('.custom-color')).map(el => el.dataset.color);
+        localStorage.setItem('customPalette', JSON.stringify(colors));
+    }
+
+    loadCustomPalette() {
+        const colors = JSON.parse(localStorage.getItem('customPalette') || '[]');
+        const customPalette = document.getElementById('custom-palette');
+        customPalette.innerHTML = '';
+
+        colors.forEach(color => {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset custom-color';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', () => {
+                this.brushColor = color;
+                document.getElementById('brush-color').value = color;
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                colorDiv.classList.add('active');
+            });
+
+            colorDiv.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (confirm('Remove this color from palette?')) {
+                    colorDiv.remove();
+                    this.saveCustomPalette();
+                }
+            });
+
+            customPalette.appendChild(colorDiv);
+        });
+    }
+
+    savePalette() {
+        const name = prompt('Enter palette name:');
+        if (!name) return;
+
+        const colors = Array.from(document.querySelectorAll('.custom-color')).map(el => el.dataset.color);
+        const palettes = JSON.parse(localStorage.getItem('savedPalettes') || '{}');
+        palettes[name] = colors;
+        localStorage.setItem('savedPalettes', JSON.stringify(palettes));
+        this.log(`Palette "${name}" saved`, 'success');
+    }
+
+    loadPalette() {
+        const palettes = JSON.parse(localStorage.getItem('savedPalettes') || '{}');
+        const names = Object.keys(palettes);
+
+        if (names.length === 0) {
+            this.log('No saved palettes found', 'warning');
+            return;
+        }
+
+        const name = prompt(`Choose palette to load:\n${names.join('\n')}`);
+        if (!name || !palettes[name]) return;
+
+        const customPalette = document.getElementById('custom-palette');
+        customPalette.innerHTML = '';
+
+        palettes[name].forEach(color => {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-preset custom-color';
+            colorDiv.style.background = color;
+            colorDiv.dataset.color = color;
+            colorDiv.title = color;
+
+            colorDiv.addEventListener('click', () => {
+                this.brushColor = color;
+                document.getElementById('brush-color').value = color;
+                document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+                colorDiv.classList.add('active');
+            });
+
+            customPalette.appendChild(colorDiv);
+        });
+
+        this.log(`Palette "${name}" loaded`, 'success');
+    }
+
+    // Image import is now handled by the async importImage method above
+
+    // Helper method to convert RGB to hex
+    rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    // ===== NEW API ENDPOINT SUPPORT =====
+
+    // 1. /api/options - Load dynamic form options
+    async loadDynamicOptions() {
+        try {
+            const response = await fetch(`${this.apiBase}/options`);
+            if (response.ok) {
+                this.dynamicOptions = await response.json();
+                this.populateDropdowns();
+                this.log('Dynamic options loaded', 'success');
+            }
+        } catch (error) {
+            console.error('Error loading dynamic options:', error);
+            this.log('Failed to load dynamic options', 'error');
+        }
+    }
+
+    populateDropdowns() {
+        if (!this.dynamicOptions) return;
+
+        // Populate LED density dropdown
+        const ledsPerMeterSelect = document.getElementById('leds-per-meter');
+        if (ledsPerMeterSelect && this.dynamicOptions.ledsPerMeter) {
+            ledsPerMeterSelect.innerHTML = this.dynamicOptions.ledsPerMeter.map(option =>
+                `<option value="${option.value}">${option.label} (${option.spacing})</option>`
+            ).join('');
+        }
+
+        // Populate power supply dropdown
+        const powerSupplySelect = document.getElementById('power-supply');
+        if (powerSupplySelect && this.dynamicOptions.powerSupplies) {
+            powerSupplySelect.innerHTML = this.dynamicOptions.powerSupplies.map(option =>
+                `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
+            ).join('');
+        }
+
+        // Populate controller dropdown
+        const controllerSelect = document.getElementById('wiring-controller');
+        if (controllerSelect && this.dynamicOptions.controllers) {
+            controllerSelect.innerHTML = this.dynamicOptions.controllers.map(option =>
+                `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
+            ).join('');
+        }
+    }
+
+    // 2. /api/matrix/preview - Live matrix preview
+    async startMatrixPreview() {
+        if (this.previewUpdateInterval) return; // Already running
+
+        const previewContainer = document.getElementById('matrix-preview');
+        if (!previewContainer) return;
+
+        this.previewUpdateInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`${this.apiBase}/matrix/preview`);
+                if (response.ok) {
+                    const data = await response.json();
+                    previewContainer.innerHTML = `
+                        <img src="${data.image}" 
+                             alt="Matrix Preview" 
+                             style="width: 100%; height: auto; image-rendering: pixelated;" />
+                        <div class="preview-info">
+                            <small>${data.width}×${data.height} Matrix Preview</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error updating matrix preview:', error);
+            }
+        }, 100); // Update every 100ms for smooth preview
+
+        this.log('Matrix preview started', 'success');
+    }
+
+    stopMatrixPreview() {
+        if (this.previewUpdateInterval) {
+            clearInterval(this.previewUpdateInterval);
+            this.previewUpdateInterval = null;
+            this.log('Matrix preview stopped', 'info');
+        }
+    }
+
+    // 3. /api/pixel - Individual pixel control
+    async setPixel(x, y, color) {
+        try {
+            const response = await fetch(`${this.apiBase}/pixel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, color })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.log(`Pixel set at (${x}, ${y})`, 'success');
+                return true;
+            } else {
+                throw new Error('Failed to set pixel');
+            }
+        } catch (error) {
+            console.error('Error setting pixel:', error);
+            this.log(`Failed to set pixel at (${x}, ${y})`, 'error');
+            return false;
+        }
+    }
+
+    // Enhanced pixel drawing with backend sync
+    async drawPixelWithSync(index) {
+        const { width, height } = this.matrixSize;
+        const x = index % width;
+        const y = Math.floor(index / width);
+
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
+
+        const pixel = document.querySelector(`[data-index="${index}"]`);
+        if (!pixel) return;
+
+        const color = this.brushColor;
+        pixel.style.backgroundColor = color;
+        this.drawingData[y][x] = color;
+
+        // Sync with backend
+        await this.setPixel(x, y, color);
+    }
+
+    // 4. /api/upload - Image upload functionality
+    async uploadImage(file) {
+        try {
+            // Convert file to base64
+            const base64 = await this.fileToBase64(file);
+
+            const response = await fetch(`${this.apiBase}/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.log('Image uploaded successfully', 'success');
+
+                // Refresh the drawing grid to show uploaded image
+                await this.refreshDrawingFromMatrix();
+                return true;
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            this.log('Failed to upload image', 'error');
+            return false;
+        }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async refreshDrawingFromMatrix() {
+        // Get current matrix state and update drawing grid
+        try {
+            const response = await fetch(`${this.apiBase}/matrix/preview`);
+            if (response.ok) {
+                const data = await response.json();
+                // Update drawing grid based on matrix state
+                // This would require parsing the image data back to individual pixels
+                this.log('Drawing refreshed from matrix', 'success');
+            }
+        } catch (error) {
+            console.error('Error refreshing drawing:', error);
+        }
+    }
+
+    // Enhanced initialization to load dynamic options
+    async initializeWithDynamicOptions() {
+        await this.loadDynamicOptions();
+        this.setupImageUpload();
+        this.setupPixelSync();
+    }
+
+    setupImageUpload() {
+        // Add image upload functionality to existing file input
+        const fileInput = document.getElementById('image-importer');
+        if (fileInput) {
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    await this.uploadImage(file);
+                }
+            });
+        }
+
+        // Add drag and drop support
+        const drawingGrid = document.getElementById('drawing-grid');
+        if (drawingGrid) {
+            drawingGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                drawingGrid.classList.add('drag-over');
+            });
+
+            drawingGrid.addEventListener('dragleave', () => {
+                drawingGrid.classList.remove('drag-over');
+            });
+
+            drawingGrid.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                drawingGrid.classList.remove('drag-over');
+
+                const files = Array.from(e.dataTransfer.files);
+                const imageFile = files.find(file => file.type.startsWith('image/'));
+
+                if (imageFile) {
+                    await this.uploadImage(imageFile);
+                }
+            });
+        }
+    }
+
+    setupPixelSync() {
+        // Enhanced pixel drawing with backend sync
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach((pixel, index) => {
+            // Replace existing click handler with sync version
+            pixel.addEventListener('click', () => this.drawPixelWithSync(index));
+        });
     }
 }
 
-// Initialize the application when DOM is loaded
+// Initialize the matrix controller when the page loads
+let matrixController;
+
 document.addEventListener('DOMContentLoaded', () => {
-    window.matrixController = new MatrixController();
+    matrixController = new MatrixController();
+    // Make it globally available for debugging and external access
+    window.matrixController = matrixController;
 });

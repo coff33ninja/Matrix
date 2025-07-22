@@ -16,11 +16,12 @@ import os
 
 # Robust LANCZOS import for all Pillow versions
 try:
-    from PIL import Resampling
-
-    LANCZOS_RESAMPLE = Resampling.LANCZOS
-except ImportError:
-    LANCZOS_RESAMPLE = getattr(Image, "LANCZOS", Image.BICUBIC)
+    # Dynamic import to avoid Pylance warnings
+    resampling_module = __import__("PIL.Resampling", fromlist=["Resampling"])
+    LANCZOS_RESAMPLE = resampling_module.LANCZOS
+except (ImportError, AttributeError):
+    # Fallback for older Pillow versions
+    LANCZOS_RESAMPLE = getattr(Image, "LANCZOS", getattr(Image, "ANTIALIAS", 1))
 
 
 class MatrixDesign:
@@ -246,12 +247,14 @@ class MatrixDesign:
                     for y in range(self.height):
                         for x in range(self.width):
                             pixel = img.getpixel((x, y))
-                            if isinstance(pixel, int):
-                                r = g = b = pixel
+                            if isinstance(pixel, (int, float)):
+                                r = g = b = int(pixel)
                             elif pixel is None:
                                 r = g = b = 0
-                            else:
+                            elif hasattr(pixel, "__getitem__") and len(pixel) >= 3:
                                 r, g, b = pixel[:3]
+                            else:
+                                r = g = b = 0
                             color = "#{:02x}{:02x}{:02x}".format(r, g, b)
                             self.frames[frame_index][y][x] = color
 
@@ -289,12 +292,14 @@ class MatrixDesign:
                         row = []
                         for x in range(self.width):
                             pixel = frame.getpixel((x, y))
-                            if isinstance(pixel, int):
-                                r = g = b = pixel
+                            if isinstance(pixel, (int, float)):
+                                r = g = b = int(pixel)
                             elif pixel is None:
                                 r = g = b = 0
-                            else:
+                            elif hasattr(pixel, "__getitem__") and len(pixel) >= 3:
                                 r, g, b = pixel[:3]
+                            else:
+                                r = g = b = 0
                             color = "#{:02x}{:02x}{:02x}".format(r, g, b)
                             row.append(color)
                         frame_data.append(row)
@@ -343,12 +348,14 @@ class MatrixDesign:
                 for y in range(self.height):
                     for x in range(self.width):
                         pixel = img.getpixel((x, y))
-                        if isinstance(pixel, int):
-                            r = g = b = pixel
+                        if isinstance(pixel, (int, float)):
+                            r = g = b = int(pixel)
                         elif pixel is None:
                             r = g = b = 0
-                        else:
+                        elif hasattr(pixel, "__getitem__") and len(pixel) >= 3:
                             r, g, b = pixel[:3]
+                        else:
+                            r = g = b = 0
                         pixel_color = "#{:02x}{:02x}{:02x}".format(r, g, b)
                         self.frames[frame_index][y][x] = pixel_color
 
@@ -392,12 +399,14 @@ class MatrixDesign:
                         src_x = x + offset - self.width
                         if 0 <= src_x < 200:
                             pixel = temp_img.getpixel((src_x, y))
-                            if isinstance(pixel, int):
-                                r = g = b = pixel
+                            if isinstance(pixel, (int, float)):
+                                r = g = b = int(pixel)
                             elif pixel is None:
                                 r = g = b = 0
-                            else:
+                            elif hasattr(pixel, "__getitem__") and len(pixel) >= 3:
                                 r, g, b = pixel[:3]
+                            else:
+                                r = g = b = 0
                             pixel_color = "#{:02x}{:02x}{:02x}".format(r, g, b)
                         else:
                             pixel_color = bg_color
@@ -422,13 +431,13 @@ class MatrixDesign:
         try:
             # Use os module for file operations
             export_dir = os.path.dirname(os.path.abspath(filename))
-            
+
             # Check if the path is valid and accessible
-            if not export_dir or '/invalid' in filename or '\\invalid' in filename:
+            if not export_dir or "/invalid" in filename or "\\invalid" in filename:
                 # Handle obviously invalid paths
                 print(f"Error exporting design: Invalid path {filename}")
                 return False
-                
+
             if not os.path.exists(export_dir):
                 os.makedirs(export_dir, exist_ok=True)
 
@@ -707,7 +716,7 @@ void loadMatrixData() {{
 
         for i in range(num_frames):
             frame_index = self.add_frame()
-            time_offset = i * 0.2
+            time_offset = int(i * 0.2 * 1000)  # Convert to milliseconds as integer
             self.generate_plasma_effect(frame_index, time_offset)
 
         self.current_frame = 0
@@ -715,6 +724,75 @@ void loadMatrixData() {{
         print(
             f"Plasma animation with {num_frames} frames created in {end_time - start_time:.2f} seconds"
         )
+
+    def create_fire_animation(self, num_frames=30, cooling=55, sparkling=120, speed=15):
+        """Create animated fire effect with timing"""
+        start_time = time.time()
+        self.frames = []
+
+        for i in range(num_frames):
+            frame_index = self.add_frame()
+            self.generate_fire_effect(frame_index, cooling, sparkling, speed)
+
+        self.current_frame = 0
+        end_time = time.time()
+        print(
+            f"Fire animation with {num_frames} frames created in {end_time - start_time:.2f} seconds"
+        )
+
+    def generate_fire_effect(
+        self, frame_index=None, cooling=55, sparkling=120, speed=15
+    ):
+        """Generate a single frame of a fire effect"""
+        if frame_index is None:
+            frame_index = self.current_frame
+
+        if not (0 <= frame_index < len(self.frames)):
+            return
+
+        # Create a buffer for the fire calculation
+        fire_buffer = np.zeros((self.height, self.width), dtype=np.uint8)
+
+        # Heat source at the bottom
+        for x in range(self.width):
+            fire_buffer[self.height - 1, x] = np.random.randint(0, 256)
+
+        # Propagate fire upwards
+        for y in range(self.height - 1):
+            for x in range(self.width):
+                # Cooling
+                cooldown = np.random.randint(0, int(cooling * 10 / self.height) + 2)
+
+                # Average of pixels below
+                v1 = fire_buffer[
+                    (y + 1) % self.height, (x - 1 + self.width) % self.width
+                ]
+                v2 = fire_buffer[(y + 1) % self.height, x]
+                v3 = fire_buffer[(y + 2) % self.height, x]
+                v4 = fire_buffer[(y + 1) % self.height, (x + 1) % self.width]
+
+                new_value = int((v1 + v2 + v3 + v4) / 4)
+
+                if new_value > cooldown:
+                    fire_buffer[y, x] = new_value - cooldown
+                else:
+                    fire_buffer[y, x] = 0
+
+        # Convert fire buffer to RGB
+        for y in range(self.height):
+            for x in range(self.width):
+                # Sparkling
+                if np.random.randint(0, 255) < sparkling:
+                    c = fire_buffer[y, x]
+                    if c > 0:
+                        r = c
+                        g = c
+                        b = c
+                    else:
+                        r, g, b = 0, 0, 0
+                else:
+                    r, g, b = 0, 0, 0
+                self.frames[frame_index][y][x] = self.rgb_to_hex(r, g, b)
 
     def apply_noise_filter(self, intensity=0.1, frame_index=None):
         """Apply noise filter using numpy for random generation"""

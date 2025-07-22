@@ -54,7 +54,6 @@ All functionality accessible through `matrix.py`:
 ```bash
 # GUI and Web Interface
 python matrix.py controller    # GUI controller + API server
-python matrix.py web          # Web interface server only
 python matrix.py start        # Both GUI and web interface
 
 # Code Generation

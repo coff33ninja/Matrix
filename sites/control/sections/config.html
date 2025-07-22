@@ -1,0 +1,41 @@
+<!-- Config Section -->
+<div id="config-section" class="section" style="display: none;">
+    <div class="grid grid-2">
+        <div class="card">
+            <h3>⚙️ Matrix Configuration</h3>
+            <div class="input-group">
+                <label>Connection Mode</label>
+                <select id="connection-mode">
+                    <option value="USB">USB Serial</option>
+                    <option value="WiFi">WiFi (ESP32/ESP8266)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Serial Port</label>
+                <input type="text" id="serial-port" placeholder="COM3 or /dev/ttyUSB0">
+            </div>
+            <div class="input-group">
+                <label>Baud Rate</label>
+                <select id="baud-rate">
+                    <option value="9600">9600</option>
+                    <option value="115200" selected>115200</option>
+                    <option value="500000">500000</option>
+                </select>
+            </div>
+            <button class="btn" id="save-config">Save Configuration</button>
+            <button class="btn btn-secondary" id="test-connection">Test Connection</button>
+        </div>
+
+        <div class="card">
+            <h3>💾 Backup & Restore</h3>
+            <p>Manage your configuration backups</p>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-secondary" id="create-backup">Create Backup</button>
+                <button class="btn btn-secondary" id="restore-backup">Restore Backup</button>
+            </div>
+            <div id="backup-list" style="margin-top: 15px;">
+                <!-- Backup list will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>

@@ -366,7 +366,6 @@ def main():
         print("\n🔧 Arduino Model Selection:")
         models = get_model_display_names()
         for i, (key, name) in enumerate(models.items(), 1):
-            from arduino_models import get_model_info
             model_info = get_model_info(key)
             shifter = (
                 " (Level shifter required)" if model_info and model_info.get("needs_level_shifter") else ""

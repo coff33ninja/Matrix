@@ -57,14 +57,6 @@
         "documentation": {}
     },
     {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
         "label": "ARDUINO_MODELS",
         "importPath": "arduino_models",
         "description": "arduino_models",
@@ -265,22 +257,6 @@
         "documentation": {}
     },
     {
-        "label": "config",
-        "importPath": "matrix_config",
-        "description": "matrix_config",
-        "isExtraImport": true,
-        "detail": "matrix_config",
-        "documentation": {}
-    },
-    {
-        "label": "config",
-        "importPath": "matrix_config",
-        "description": "matrix_config",
-        "isExtraImport": true,
-        "detail": "matrix_config",
-        "documentation": {}
-    },
-    {
         "label": "MatrixConfig",
         "importPath": "matrix_config",
         "description": "matrix_config",
@@ -295,6 +271,33 @@
         "importPath": "math",
         "description": "math",
         "detail": "math",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "threading",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "threading",
+        "description": "threading",
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
         "documentation": {}
     },
     {
@@ -350,15 +353,6 @@
         "documentation": {}
     },
     {
-        "label": "time",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "time",
-        "description": "time",
-        "detail": "time",
-        "documentation": {}
-    },
-    {
         "label": "Image",
         "importPath": "PIL",
         "description": "PIL",
@@ -368,14 +362,6 @@
     },
     {
         "label": "Image",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageTk",
         "importPath": "PIL",
         "description": "PIL",
         "isExtraImport": true,
@@ -392,14 +378,6 @@
     },
     {
         "label": "ImageFont",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageEnhance",
         "importPath": "PIL",
         "description": "PIL",
         "isExtraImport": true,
@@ -447,142 +425,12 @@
         "documentation": {}
     },
     {
-        "label": "ImageTk",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageDraw",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageEnhance",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "Image",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageDraw",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageFont",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "ImageEnhance",
-        "importPath": "PIL",
-        "description": "PIL",
-        "isExtraImport": true,
-        "detail": "PIL",
-        "documentation": {}
-    },
-    {
-        "label": "tkinter",
+        "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "ttk",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "filedialog",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "colorchooser",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "messagebox",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "filedialog",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "colorchooser",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "messagebox",
-        "importPath": "tkinter",
-        "description": "tkinter",
-        "isExtraImport": true,
-        "detail": "tkinter",
-        "documentation": {}
-    },
-    {
-        "label": "threading",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "threading",
-        "description": "threading",
-        "detail": "threading",
-        "documentation": {}
-    },
-    {
-        "label": "cv2",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "cv2",
-        "description": "cv2",
-        "detail": "cv2",
+        "importPath": "asyncio",
+        "description": "asyncio",
+        "detail": "asyncio",
         "documentation": {}
     },
     {
@@ -595,131 +443,12 @@
         "documentation": {}
     },
     {
-        "label": "urllib.parse",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "urllib.parse",
-        "description": "urllib.parse",
-        "detail": "urllib.parse",
-        "documentation": {}
-    },
-    {
-        "label": "sys",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "sys",
-        "description": "sys",
-        "detail": "sys",
-        "documentation": {}
-    },
-    {
         "label": "psutil",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "psutil",
         "description": "psutil",
         "detail": "psutil",
-        "documentation": {}
-    },
-    {
-        "label": "http.server",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "http.server",
-        "description": "http.server",
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "HTTPServer",
-        "importPath": "http.server",
-        "description": "http.server",
-        "isExtraImport": true,
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "BaseHTTPRequestHandler",
-        "importPath": "http.server",
-        "description": "http.server",
-        "isExtraImport": true,
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "HTTPServer",
-        "importPath": "http.server",
-        "description": "http.server",
-        "isExtraImport": true,
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "BaseHTTPRequestHandler",
-        "importPath": "http.server",
-        "description": "http.server",
-        "isExtraImport": true,
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "hardware",
-        "importPath": "matrix_hardware",
-        "description": "matrix_hardware",
-        "isExtraImport": true,
-        "detail": "matrix_hardware",
-        "documentation": {}
-    },
-    {
-        "label": "hardware",
-        "importPath": "matrix_hardware",
-        "description": "matrix_hardware",
-        "isExtraImport": true,
-        "detail": "matrix_hardware",
-        "documentation": {}
-    },
-    {
-        "label": "hardware",
-        "importPath": "matrix_hardware",
-        "description": "matrix_hardware",
-        "isExtraImport": true,
-        "detail": "matrix_hardware",
-        "documentation": {}
-    },
-    {
-        "label": "subprocess",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "subprocess",
-        "description": "subprocess",
-        "detail": "subprocess",
-        "documentation": {}
-    },
-    {
-        "label": "requests",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "requests",
-        "description": "requests",
-        "detail": "requests",
-        "documentation": {}
-    },
-    {
-        "label": "itertools",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "itertools",
-        "description": "itertools",
-        "detail": "itertools",
-        "documentation": {}
-    },
-    {
-        "label": "socketserver",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "socketserver",
-        "description": "socketserver",
-        "detail": "socketserver",
         "documentation": {}
     },
     {
@@ -741,35 +470,28 @@
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
+        "label": "ThreadPoolExecutor",
+        "importPath": "concurrent.futures",
+        "description": "concurrent.futures",
         "isExtraImport": true,
-        "detail": "pathlib",
+        "detail": "concurrent.futures",
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
+        "label": "weakref",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "pathlib",
+        "importPath": "weakref",
+        "description": "weakref",
+        "detail": "weakref",
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
+        "label": "hardware",
+        "importPath": "matrix_hardware",
+        "description": "matrix_hardware",
         "isExtraImport": true,
-        "detail": "pathlib",
-        "documentation": {}
-    },
-    {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
+        "detail": "matrix_hardware",
         "documentation": {}
     },
     {
@@ -786,6 +508,83 @@
         "description": "wiring_diagram_generator",
         "isExtraImport": true,
         "detail": "wiring_diagram_generator",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "itertools",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "itertools",
+        "description": "itertools",
+        "detail": "itertools",
+        "documentation": {}
+    },
+    {
+        "label": "http.server",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "http.server",
+        "description": "http.server",
+        "detail": "http.server",
+        "documentation": {}
+    },
+    {
+        "label": "socketserver",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socketserver",
+        "description": "socketserver",
+        "detail": "socketserver",
+        "documentation": {}
+    },
+    {
+        "label": "urllib.parse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "urllib.parse",
+        "description": "urllib.parse",
+        "detail": "urllib.parse",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
         "documentation": {}
     },
     {
@@ -794,30 +593,6 @@
         "description": "dataclasses",
         "isExtraImport": true,
         "detail": "dataclasses",
-        "documentation": {}
-    },
-    {
-        "label": "List",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Dict",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
         "documentation": {}
     },
     {
@@ -839,84 +614,11 @@
         "documentation": {}
     },
     {
-        "label": "importlib",
-        "kind": 6,
+        "label": "TestCase",
+        "importPath": "unittest",
+        "description": "unittest",
         "isExtraImport": true,
-        "importPath": "importlib",
-        "description": "importlib",
-        "detail": "importlib",
-        "documentation": {}
-    },
-    {
-        "label": "StringIO",
-        "importPath": "io",
-        "description": "io",
-        "isExtraImport": true,
-        "detail": "io",
-        "documentation": {}
-    },
-    {
-        "label": "setup_test_environment",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
-        "documentation": {}
-    },
-    {
-        "label": "get_test_config",
-        "importPath": "tests",
-        "description": "tests",
-        "isExtraImport": true,
-        "detail": "tests",
+        "detail": "unittest",
         "documentation": {}
     },
     {
@@ -945,15 +647,7 @@
         "documentation": {}
     },
     {
-        "label": "patch",
-        "importPath": "unittest.mock",
-        "description": "unittest.mock",
-        "isExtraImport": true,
-        "detail": "unittest.mock",
-        "documentation": {}
-    },
-    {
-        "label": "MagicMock",
+        "label": "Mock",
         "importPath": "unittest.mock",
         "description": "unittest.mock",
         "isExtraImport": true,
@@ -993,6 +687,238 @@
         "documentation": {}
     },
     {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "call",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "mock_open",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "patch",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "MagicMock",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "call",
+        "importPath": "unittest.mock",
+        "description": "unittest.mock",
+        "isExtraImport": true,
+        "detail": "unittest.mock",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "get_test_config",
+        "importPath": "tests",
+        "description": "tests",
+        "isExtraImport": true,
+        "detail": "tests",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_controller",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_start",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_generate",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_design",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_wiring",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_config",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_test",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_info",
+        "importPath": "commands",
+        "description": "commands",
+        "isExtraImport": true,
+        "detail": "commands",
+        "documentation": {}
+    },
+    {
         "label": "shutil",
         "kind": 6,
         "isExtraImport": true,
@@ -1002,11 +928,183 @@
         "documentation": {}
     },
     {
+        "label": "io",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "io",
+        "description": "io",
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "StringIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "BytesIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "StringIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "matrix",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matrix",
+        "description": "matrix",
+        "detail": "matrix",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "contextlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "contextlib",
+        "description": "contextlib",
+        "detail": "contextlib",
+        "documentation": {}
+    },
+    {
+        "label": "base64",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "base64",
+        "description": "base64",
+        "detail": "base64",
+        "documentation": {}
+    },
+    {
         "label": "MatrixDesign",
         "importPath": "matrix_design_library",
         "description": "matrix_design_library",
         "isExtraImport": true,
         "detail": "matrix_design_library",
+        "documentation": {}
+    },
+    {
+        "label": "get_env_config",
+        "importPath": "web_server",
+        "description": "web_server",
+        "isExtraImport": true,
+        "detail": "web_server",
+        "documentation": {}
+    },
+    {
+        "label": "ServerConfig",
+        "importPath": "web_server",
+        "description": "web_server",
+        "isExtraImport": true,
+        "detail": "web_server",
+        "documentation": {}
+    },
+    {
+        "label": "UnifiedMatrixWebServer",
+        "importPath": "web_server",
+        "description": "web_server",
+        "isExtraImport": true,
+        "detail": "web_server",
+        "documentation": {}
+    },
+    {
+        "label": "setup_signal_handlers",
+        "importPath": "web_server",
+        "description": "web_server",
+        "isExtraImport": true,
+        "detail": "web_server",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "importPath": "web_server",
+        "description": "web_server",
+        "isExtraImport": true,
+        "detail": "web_server",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_controller",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_start",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_generate",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_design",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_wiring",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_config",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_test",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_info",
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "isExtraImport": true,
+        "detail": "modules.commands",
         "documentation": {}
     },
     {
@@ -1133,6 +1231,96 @@
         "description": "modules.arduino_models",
         "peekOfCode": "ARDUINO_MODELS = {\n    \"uno\": {\n        \"name\": \"Arduino Uno\",\n        \"display_name\": \"Arduino Uno\",\n        \"voltage\": \"5V\",\n        \"default_pin\": 6,\n        \"memory_sram\": 2048,  # bytes\n        \"memory_flash\": 32768,  # bytes\n        \"needs_level_shifter\": False,\n        \"max_leds_recommended\": 500,",
         "detail": "modules.arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_controller",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")\n    # Check for async support\n    import importlib.util\n    use_async = importlib.util.find_spec(\"aiohttp\") is not None",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_start",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_start(args):\n    \"\"\"\n    Starts the complete LED matrix system, launching both the web-based matrix controller and the unified web server in separate daemon threads.\n    Returns:\n        bool: True if services are stopped via keyboard interrupt, False if an error occurs during startup.\n    \"\"\"\n    print(\"🚀 Starting Complete LED Matrix System...\")\n    print(\"   - Web-based Matrix Controller\")\n    print(\"   - Control Interface Server\")\n    print(\"   - Documentation Server\")",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_generate",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_generate(args):\n    \"\"\"\n    Generates Arduino code for a specified LED matrix model, with options for model comparison, organized output, and upload instructions.\n    Returns:\n        bool: True if code generation succeeds or model comparison is shown; False if an error occurs or the model is invalid.\n    \"\"\"\n    print(\"🔧 Generating Arduino code for {}...\".format(args.model))\n    try:\n        from arduino_generator import ArduinoGenerator\n        from arduino_models import validate_model",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_design",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_design(args):\n    \"\"\"\n    Launches the LED Matrix Design Library to create, export, or generate code for matrix designs.\n    Depending on the arguments, this function can create sample designs, enter an interactive mode for custom pattern creation (including rainbow, gradient, checkerboard, and plasma effects), export designs, or generate Arduino code. Returns True on success, or False if an error occurs.\n    \"\"\"\n    print(\"🎨 LED Matrix Design Library...\")\n    try:\n        from matrix_design_library import MatrixDesign, create_sample_designs\n        if args.samples:\n            print(\"Creating sample designs...\")",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_wiring",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_wiring(args):\n    \"\"\"\n    Generates wiring diagrams, configuration files, and a shopping list for a specified LED matrix controller and matrix size.\n    Creates a markdown wiring guide, exports a JSON configuration, and generates a shopping list JSON file based on the provided controller, matrix dimensions, data pin, and power supply. Prints a summary of the wiring configuration, including power requirements and estimated cost. Returns True on success, or False if an error occurs.\n    \"\"\"\n    print(\"📋 Generating wiring diagrams for {}...\".format(args.controller))\n    try:\n        from wiring_diagram_generator import WiringDiagramGenerator\n        generator = WiringDiagramGenerator()\n        # Generate markdown guide",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_config",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_config(args):\n    \"\"\"\n    Configures LED matrix settings, allowing users to view, interactively update, or set configuration values for the matrix.\n    Depending on the provided arguments, this function can display the current configuration, prompt the user for interactive updates, or set individual configuration parameters such as matrix width, height, brightness, and serial port. Changes are saved persistently. Returns True on success, or False if an error occurs.\n    \"\"\"\n    print(\"⚙️ Matrix Configuration...\")\n    try:\n        from matrix_config import config\n        if args.show:\n            print(\"Current Configuration:\")",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_test",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_test(args):\n    \"\"\"\n    Runs the LED matrix test suite, either for a specific module or the entire project.\n    If `args.module` is specified, runs tests for that module using the unittest framework. Otherwise, executes the full test suite. Prints status messages and returns `True` if tests pass, `False` otherwise.\n    \"\"\"\n    print(\"🧪 Running LED Matrix Test Suite...\")\n    try:\n        if args.module:\n            # Run specific test module\n            import unittest",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "cmd_info",
+        "kind": 2,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "def cmd_info(args):\n    \"\"\"\n    Displays detailed information about the LED Matrix Project, including matrix configuration, available modules, hardware status, and test suite availability.\n    Returns:\n        bool: True if information is displayed successfully, False if an error occurs.\n    \"\"\"\n    print(\"ℹ️ LED Matrix Project Information\")\n    print()\n    try:\n        # Project status",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "current_dir",
+        "kind": 5,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"",
+        "detail": "modules.commands",
+        "documentation": {}
+    },
+    {
+        "label": "modules_dir",
+        "kind": 5,
+        "importPath": "modules.commands",
+        "description": "modules.commands",
+        "peekOfCode": "modules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")",
+        "detail": "modules.commands",
         "documentation": {}
     },
     {
@@ -1307,11 +1495,20 @@
         "documentation": {}
     },
     {
-        "label": "UnifiedMatrixController",
+        "label": "WebMatrixController",
         "kind": 6,
         "importPath": "modules.matrix_controller",
         "description": "modules.matrix_controller",
-        "peekOfCode": "class UnifiedMatrixController:\n    def __init__(self):\n        # Matrix properties from shared config\n        self.config = config\n        self.W = int(config.get(\"matrix_width\", 16))\n        self.H = int(config.get(\"matrix_height\", 16))\n        # GUI and state attributes\n        self.root = tk.Tk()\n        self.start_time = datetime.now()\n        self.current_mode = \"idle\"",
+        "peekOfCode": "class WebMatrixController:\n    def __init__(self, port=8080, use_async=True):\n        \"\"\"\n        Initialize the WebMatrixController with matrix configuration and async web server support.\n        Sets up matrix dimensions, state variables, data buffer, thread pool for CPU-intensive tasks,\n        and WebSocket connections for real-time updates.\n        \"\"\"\n        logger.info(f\"INIT: Initializing WebMatrixController on port {port}\")\n        # Matrix properties from shared config\n        self.config = config",
+        "detail": "modules.matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "modules.matrix_controller",
+        "description": "modules.matrix_controller",
+        "peekOfCode": "logger = logging.getLogger(\"MatrixController\")\n# Robust resampling filter imports for Pillow compatibility\ntry:\n    from PIL import Image as PILImage\n    Resampling = getattr(PILImage, \"Resampling\", None)\n    if Resampling is not None:\n        LANCZOS_RESAMPLE = Resampling.LANCZOS\n        NEAREST_RESAMPLE = Resampling.NEAREST\n    else:\n        LANCZOS_RESAMPLE = getattr(",
         "detail": "modules.matrix_controller",
         "documentation": {}
     },
@@ -1334,141 +1531,6 @@
         "documentation": {}
     },
     {
-        "label": "send_frame",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def send_frame(img):\n    \"\"\"Send frame using shared hardware module\"\"\"\n    try:\n        img = img.convert(\"RGB\").resize((W, H), Image.NEAREST)\n        matrix_data = np.array(img).reshape((H, W, 3))\n        hardware.send_frame(matrix_data)\n    except Exception as e:\n        print(f\"Send error: {e}\")\ndef open_port():\n    \"\"\"Connect using shared hardware module\"\"\"",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "open_port",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def open_port():\n    \"\"\"Connect using shared hardware module\"\"\"\n    try:\n        hardware.connect(mode=mode.get(), port=port_ent.get())\n        messagebox.showinfo(\"Connection\", f\"Connected to {port_ent.get()}\")\n    except Exception as e:\n        messagebox.showerror(\"Connection Error\", f\"Failed to connect: {str(e)}\")\n        print(\"Connection error:\", e)\n# ----------------- GUI -----------------\nroot = tk.Tk()",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "update_canvas",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:\n            draw.rectangle([x, y, x + 1, y + 1], fill=tuple(int(v) for v in c))",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "mouse_paint",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:\n            draw.rectangle([x, y, x + 1, y + 1], fill=tuple(int(v) for v in c))\n            update_canvas()\n            send_frame(draw_img)\ncanvas.bind(\"<Button-1>\", mouse_paint)\n# ----------------- image / video loaders -----------------",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "load_image",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def load_image():\n    path = filedialog.askopenfilename(filetypes=[(\"Images\", \"*.png *.jpg *.bmp\")])\n    if path:\n        try:\n            img = Image.open(path)\n            # Enhance image quality using ImageEnhance\n            enhancer = ImageEnhance.Contrast(img)\n            img = enhancer.enhance(1.2)  # Increase contrast\n            enhancer = ImageEnhance.Sharpness(img)\n            img = enhancer.enhance(1.1)  # Slight sharpening",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "load_gif",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def load_gif():\n    path = filedialog.askopenfilename(filetypes=[(\"GIF/MP4\", \"*.gif *.mp4\")])\n    if not path:\n        return\n    def stream():\n        cap = cv2.VideoCapture(path)\n        while True:\n            ok, frame = cap.read()\n            if not ok:\n                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "clear_matrix",
-        "kind": 2,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "def clear_matrix():\n    \"\"\"Clear the matrix display\"\"\"\n    draw.rectangle([0, 0, W, H], fill=\"black\")\n    update_canvas()\n    send_frame(draw_img)\n    messagebox.showinfo(\"Matrix\", \"Display cleared\")\ntk.Button(root, text=\"Load Image\", command=load_image).pack(side=\"left\")\ntk.Button(root, text=\"Play GIF/MP4\", command=load_gif).pack(side=\"left\")\ntk.Button(root, text=\"Clear\", command=clear_matrix).pack(side=\"left\")\nupdate_canvas()",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "W",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "W = int(config.get(\"matrix_width\", 16))\nH = int(config.get(\"matrix_height\", 16))\nprint(\"=\" * 70)\nprint(\"NOTICE: This basic controller has been superseded!\")\nprint(\"=\" * 70)\nprint(\"The matrix_gui.py has been replaced by a unified matrix_controller.py\")\nprint(\"that combines all features in one optimized application.\")\nprint(\"\")\nprint(\"New unified features in matrix_controller.py:\")\nprint(\"• Tabbed interface with basic and advanced controls\")",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "H",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "H = int(config.get(\"matrix_height\", 16))\nprint(\"=\" * 70)\nprint(\"NOTICE: This basic controller has been superseded!\")\nprint(\"=\" * 70)\nprint(\"The matrix_gui.py has been replaced by a unified matrix_controller.py\")\nprint(\"that combines all features in one optimized application.\")\nprint(\"\")\nprint(\"New unified features in matrix_controller.py:\")\nprint(\"• Tabbed interface with basic and advanced controls\")\nprint(\"• System monitoring display\")",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "root",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "root = tk.Tk()\nroot.title(\"PC-Case Matrix Controller\")\nmode = tk.StringVar(value=\"USB\")  # USB / WIFI\ntk.Radiobutton(root, text=\"USB Serial\", variable=mode, value=\"USB\").pack(side=\"left\")\ntk.Radiobutton(root, text=\"Wi-Fi ESP32\", variable=mode, value=\"WIFI\").pack(side=\"left\")\nport_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "mode",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "mode = tk.StringVar(value=\"USB\")  # USB / WIFI\ntk.Radiobutton(root, text=\"USB Serial\", variable=mode, value=\"USB\").pack(side=\"left\")\ntk.Radiobutton(root, text=\"Wi-Fi ESP32\", variable=mode, value=\"WIFI\").pack(side=\"left\")\nport_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "port_ent",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "port_ent = tk.Entry(root, width=10)\nport_ent.insert(0, config.get(\"serial_port\"))\nport_ent.pack(side=\"left\")\ntk.Button(root, text=\"Connect\", command=open_port).pack(side=\"left\")\ncanvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image\ndraw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "canvas",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "canvas = tk.Canvas(root, width=W * 20, height=H * 20, bg=\"black\")\ncanvas.pack()\n# off-screen drawing image\ndraw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "draw_img",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "draw_img = Image.new(\"RGB\", (W, H), \"black\")\ndraw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
-        "label": "draw",
-        "kind": 5,
-        "importPath": "modules.matrix_gui",
-        "description": "modules.matrix_gui",
-        "peekOfCode": "draw = ImageDraw.Draw(draw_img)\ndef update_canvas():\n    tk_img = ImageTk.PhotoImage(draw_img.resize((W * 20, H * 20), Image.NEAREST))\n    canvas.create_image(0, 0, anchor=\"nw\", image=tk_img)\n    canvas.image = tk_img\ndef mouse_paint(ev):\n    x, y = ev.x // 20, ev.y // 20\n    if 0 <= x < W and 0 <= y < H:\n        c = colorchooser.askcolor()[0]\n        if c:",
-        "detail": "modules.matrix_gui",
-        "documentation": {}
-    },
-    {
         "label": "MatrixHardware",
         "kind": 6,
         "importPath": "modules.matrix_hardware",
@@ -1487,29 +1549,11 @@
         "documentation": {}
     },
     {
-        "label": "WebMatrixController",
-        "kind": 6,
-        "importPath": "modules.web_matrix_controller",
-        "description": "modules.web_matrix_controller",
-        "peekOfCode": "class WebMatrixController:\n    def __init__(self, port=8080):\n        logger.info(f\"INIT: Initializing WebMatrixController on port {port}\")\n        # Matrix properties from shared config\n        self.config = config\n        self.W = int(config.get(\"matrix_width\", 16))\n        self.H = int(config.get(\"matrix_height\", 16))\n        self.port = port\n        logger.info(f\"MATRIX: Matrix size: {self.W}×{self.H}\")\n        # State attributes",
-        "detail": "modules.web_matrix_controller",
-        "documentation": {}
-    },
-    {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "modules.web_matrix_controller",
-        "description": "modules.web_matrix_controller",
-        "peekOfCode": "logger = logging.getLogger('MatrixController')\n# Robust resampling filter imports for Pillow compatibility\ntry:\n    from PIL import Image as PILImage\n    Resampling = getattr(PILImage, \"Resampling\", None)\n    if Resampling is not None:\n        LANCZOS_RESAMPLE = Resampling.LANCZOS\n        NEAREST_RESAMPLE = Resampling.NEAREST\n    else:\n        LANCZOS_RESAMPLE = getattr(Image, \"LANCZOS\", getattr(Image, \"BICUBIC\", getattr(Image, \"BILINEAR\", 0)))",
-        "detail": "modules.web_matrix_controller",
-        "documentation": {}
-    },
-    {
         "label": "ServerConfig",
         "kind": 6,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "class ServerConfig:\n    port: int = int(os.getenv('WEB_SERVER_PORT', 3000))\n    host: str = os.getenv('WEB_SERVER_HOST', \"localhost\")\n    control_path: str = os.getenv('CONTROL_PATH', \"sites/control\")\n    docs_path: str = os.getenv('DOCS_PATH', \"sites/docs\")\n    api_proxy_port: int = int(os.getenv('API_PROXY_PORT', 8080))\n    enable_cors: bool = os.getenv('ENABLE_CORS', 'true').lower() == 'true'\n    enable_caching: bool = os.getenv('ENABLE_CACHING', 'true').lower() == 'true'\nclass UnifiedMatrixWebServer:\n    def __init__(self, port=None):",
+        "peekOfCode": "class ServerConfig:\n    port: int = int(os.getenv(\"WEB_SERVER_PORT\", 3000))\n    host: str = os.getenv(\"WEB_SERVER_HOST\", \"localhost\")\n    control_path: str = os.getenv(\"CONTROL_PATH\", \"sites/control\")\n    docs_path: str = os.getenv(\"DOCS_PATH\", \"sites/docs\")\n    api_proxy_port: int = int(os.getenv(\"API_PROXY_PORT\", 8080))\n    enable_cors: bool = os.getenv(\"ENABLE_CORS\", \"true\").lower() == \"true\"\n    enable_caching: bool = os.getenv(\"ENABLE_CACHING\", \"true\").lower() == \"true\"\nclass UnifiedMatrixWebServer:\n    def __init__(self, port=None):",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1518,16 +1562,7 @@
         "kind": 6,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "class UnifiedMatrixWebServer:\n    def __init__(self, port=None):\n        # Use environment variable or passed port\n        if port is None:\n            port = int(os.getenv('WEB_SERVER_PORT', 3000))\n        self.config = ServerConfig(port=port)\n        # Use environment variable for sites directory if available\n        sites_base = os.getenv('SITES_DIR', str(Path(__file__).parent.parent / \"sites\"))\n        self.sites_dir = Path(sites_base)\n        self.control_dir = self.sites_dir / \"control\"",
-        "detail": "modules.web_server",
-        "documentation": {}
-    },
-    {
-        "label": "MatrixWebServer",
-        "kind": 6,
-        "importPath": "modules.web_server",
-        "description": "modules.web_server",
-        "peekOfCode": "class MatrixWebServer(UnifiedMatrixWebServer):\n    def __init__(self, port=3000, site_type=\"control\"):\n        super().__init__(port)\n        self.site_type = site_type\n        print(f\"⚠️  Legacy MatrixWebServer used. Consider using UnifiedMatrixWebServer for path-based routing.\")\n        print(f\"   Access your {site_type} interface at: http://localhost:{port}/{site_type}\")\n    def start(self):\n        \"\"\"Start server and redirect to appropriate path\"\"\"\n        print(f\"🔄 Starting unified server with legacy compatibility for {self.site_type}\")\n        return super().start()",
+        "peekOfCode": "class UnifiedMatrixWebServer:\n    def __init__(self, port=None):\n        # Use environment variable or passed port\n        if port is None:\n            port = int(os.getenv(\"WEB_SERVER_PORT\", 3000))\n        self.config = ServerConfig(port=port)\n        # Use environment variable for sites directory if available\n        sites_base = os.getenv(\"SITES_DIR\", str(Path(__file__).parent.parent / \"sites\"))\n        self.sites_dir = Path(sites_base)\n        self.control_dir = self.sites_dir / \"control\"",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1536,7 +1571,7 @@
         "kind": 2,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "def get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),\n        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),\n        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),\n        'ENABLE_CORS': os.getenv('ENABLE_CORS'),\n        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),\n        'SITES_DIR': os.getenv('SITES_DIR'),\n        'AUTOCREATE_DIRS': os.getenv('AUTOCREATE_DIRS'),",
+        "peekOfCode": "def get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        \"WEB_SERVER_PORT\": os.getenv(\"WEB_SERVER_PORT\"),\n        \"WEB_SERVER_HOST\": os.getenv(\"WEB_SERVER_HOST\"),\n        \"API_PROXY_PORT\": os.getenv(\"API_PROXY_PORT\"),\n        \"ENABLE_CORS\": os.getenv(\"ENABLE_CORS\"),\n        \"ENABLE_CACHING\": os.getenv(\"ENABLE_CACHING\"),\n        \"SITES_DIR\": os.getenv(\"SITES_DIR\"),\n        \"AUTOCREATE_DIRS\": os.getenv(\"AUTOCREATE_DIRS\"),",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1545,7 +1580,7 @@
         "kind": 2,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "def setup_signal_handlers():\n    \"\"\"Setup signal handlers for graceful shutdown using os\"\"\"\n    import signal\n    def signal_handler(signum, frame):\n        print(f\"\\n🔔 Received signal {signum}\")\n        print(\"🛑 Shutting down gracefully...\")\n        os._exit(0)\n    # Register signal handlers if available\n    if hasattr(signal, 'SIGTERM'):\n        signal.signal(signal.SIGTERM, signal_handler)",
+        "peekOfCode": "def setup_signal_handlers():\n    \"\"\"\n    Register signal handlers to enable graceful shutdown of the server on SIGTERM and SIGINT signals.\n    \"\"\"\n    import signal\n    def signal_handler(signum, frame):\n        print(f\"\\n🔔 Received signal {signum}\")\n        print(\"🛑 Shutting down gracefully...\")\n        os._exit(0)\n    # Register signal handlers if available",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1554,7 +1589,7 @@
         "kind": 2,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "def main():\n    \"\"\"Main entry point for standalone web server\"\"\"\n    # Setup signal handlers\n    setup_signal_handlers()\n    # Print environment info if DEBUG is set\n    if os.getenv('DEBUG', 'false').lower() == 'true':\n        print(\"🐛 Debug mode enabled\")\n        print(\"🌍 Environment configuration:\")\n        for key, value in get_env_config().items():\n            print(f\"   {key}: {value}\")",
+        "peekOfCode": "def main():\n    \"\"\"\n    Starts the unified web server for the LED Matrix Control Center as a standalone application.\n    Initializes signal handlers for graceful shutdown, optionally prints environment configuration if debug mode is enabled, and launches the server.\n    \"\"\"\n    # Setup signal handlers\n    setup_signal_handlers()\n    # Print environment info if DEBUG is set\n    if os.getenv(\"DEBUG\", \"false\").lower() == \"true\":\n        print(\"🐛 Debug mode enabled\")",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1563,7 +1598,7 @@
         "kind": 5,
         "importPath": "modules.web_server",
         "description": "modules.web_server",
-        "peekOfCode": "logger = logging.getLogger('WebServer')\ndef get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),\n        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),\n        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),\n        'ENABLE_CORS': os.getenv('ENABLE_CORS'),\n        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),\n        'SITES_DIR': os.getenv('SITES_DIR'),",
+        "peekOfCode": "logger = logging.getLogger(\"WebServer\")\ndef get_env_config():\n    \"\"\"Get environment configuration for debugging\"\"\"\n    env_vars = {\n        \"WEB_SERVER_PORT\": os.getenv(\"WEB_SERVER_PORT\"),\n        \"WEB_SERVER_HOST\": os.getenv(\"WEB_SERVER_HOST\"),\n        \"API_PROXY_PORT\": os.getenv(\"API_PROXY_PORT\"),\n        \"ENABLE_CORS\": os.getenv(\"ENABLE_CORS\"),\n        \"ENABLE_CACHING\": os.getenv(\"ENABLE_CACHING\"),\n        \"SITES_DIR\": os.getenv(\"SITES_DIR\"),",
         "detail": "modules.web_server",
         "documentation": {}
     },
@@ -1586,57 +1621,21 @@
         "documentation": {}
     },
     {
-        "label": "TestResult",
-        "kind": 6,
-        "importPath": "tests.run_all_tests",
-        "description": "tests.run_all_tests",
-        "peekOfCode": "class TestResult:\n    \"\"\"Custom test result tracking\"\"\"\n    def __init__(self):\n        self.tests_run = 0\n        self.failures = 0\n        self.errors = 0\n        self.skipped = 0\n        self.success = 0\n        self.start_time = None\n        self.end_time = None",
-        "detail": "tests.run_all_tests",
-        "documentation": {}
-    },
-    {
-        "label": "run_test_module",
+        "label": "run_all_tests",
         "kind": 2,
         "importPath": "tests.run_all_tests",
         "description": "tests.run_all_tests",
-        "peekOfCode": "def run_test_module(module_name, result_tracker):\n    \"\"\"Run tests from a specific module\"\"\"\n    print(f\"\\n{'='*60}\")\n    print(f\"🧪 Running {module_name}\")\n    print(f\"{'='*60}\")\n    module_start = time.time()\n    try:\n        # Import the test module\n        test_module = importlib.import_module(f\"tests.{module_name}\")\n        # Create test suite",
+        "peekOfCode": "def run_all_tests() -> bool:\n    \"\"\"Run all test suites\"\"\"\n    loader = unittest.TestLoader()\n    # Discover and load all tests\n    test_dir = os.path.dirname(__file__)\n    suite = loader.discover(test_dir, pattern='test_*.py')\n    # Run the tests\n    runner = unittest.TextTestRunner(verbosity=2)\n    result = runner.run(suite)\n    # Print summary",
         "detail": "tests.run_all_tests",
         "documentation": {}
     },
     {
-        "label": "run_legacy_validation_tests",
-        "kind": 2,
-        "importPath": "tests.run_all_tests",
-        "description": "tests.run_all_tests",
-        "peekOfCode": "def run_legacy_validation_tests(result_tracker):\n    \"\"\"Run legacy validation tests from individual modules\"\"\"\n    print(f\"\\n{'='*60}\")\n    print(\"� Runninng Legacy Validation Tests\")\n    print(f\"{'='*60}\")\n    validation_start = time.time()\n    validation_results = []\n    # Test modules that have validation functions\n    validation_modules = [\n        ('test_arduino_generator', 'run_legacy_tests'),",
-        "detail": "tests.run_all_tests",
-        "documentation": {}
-    },
-    {
-        "label": "print_final_report",
-        "kind": 2,
-        "importPath": "tests.run_all_tests",
-        "description": "tests.run_all_tests",
-        "peekOfCode": "def print_final_report(result_tracker):\n    \"\"\"Print comprehensive final test report\"\"\"\n    print(f\"\\n{'='*80}\")\n    print(f\"🎉 FINAL TEST REPORT\")\n    print(f\"{'='*80}\")\n    # Overall statistics\n    total_duration = result_tracker.get_duration()\n    print(\"\\n📊 Overall Statistics:\")\n    print(f\"   Total Test Suites: {len(result_tracker.test_results)}\")\n    print(f\"   ✅ Passed: {result_tracker.success}\")",
-        "detail": "tests.run_all_tests",
-        "documentation": {}
-    },
-    {
-        "label": "main",
-        "kind": 2,
-        "importPath": "tests.run_all_tests",
-        "description": "tests.run_all_tests",
-        "peekOfCode": "def main():\n    \"\"\"Main test runner function\"\"\"\n    print(\"🧪 LED Matrix Project - Comprehensive Test Suite\")\n    print(\"=\" * 80)\n    # Setup test environment\n    setup_success = setup_test_environment()\n    if not setup_success:\n        print(\"❌ Failed to setup test environment\")\n        return False\n    test_config = get_test_config()",
-        "detail": "tests.run_all_tests",
-        "documentation": {}
-    },
-    {
-        "label": "parent_dir",
+        "label": "sys.argv",
         "kind": 5,
-        "importPath": "tests.run_all_tests",
-        "description": "tests.run_all_tests",
-        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom tests import setup_test_environment, get_test_config\nclass TestResult:\n    \"\"\"Custom test result tracking\"\"\"\n    def __init__(self):\n        self.tests_run = 0\n        self.failures = 0\n        self.errors = 0",
-        "detail": "tests.run_all_tests",
+        "importPath": "tests.run_tests",
+        "description": "tests.run_tests",
+        "peekOfCode": "sys.argv = ['matrix.py', 'test'] + sys.argv[1:]\ntry:\n    from matrix import main\n    success = main()\n    sys.exit(0 if success else 1)\nexcept Exception as e:\n    print(f\"❌ Error running unified entry point: {e}\")\n    print(\"Falling back to direct test execution...\")\n    # Fallback to direct execution\n    try:",
+        "detail": "tests.run_tests",
         "documentation": {}
     },
     {
@@ -1721,6 +1720,159 @@
         "documentation": {}
     },
     {
+        "label": "test_imports",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def test_imports():\n    \"\"\"Test that all required modules can be imported\"\"\"\n    print(\"🧪 Testing imports...\")\n    try:\n        from matrix_controller import WebMatrixController\n        print(\"✅ WebMatrixController imported successfully\")\n    except ImportError as e:\n        print(f\"❌ Failed to import WebMatrixController: {e}\")\n        return False\n    try:",
+        "detail": "tests.test_async",
+        "documentation": {}
+    },
+    {
+        "label": "test_controller_creation",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def test_controller_creation():\n    \"\"\"Test creating the controller instance\"\"\"\n    print(\"\\n🏗️  Testing controller creation...\")\n    try:\n        from matrix_controller import WebMatrixController\n        # Test with async mode\n        controller = WebMatrixController(port=8081, use_async=True)\n        print(\"✅ Async controller created successfully\")\n        # Test with sync mode\n        controller_sync = WebMatrixController(port=8082, use_async=False)",
+        "detail": "tests.test_async",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def main():\n    \"\"\"Run basic tests\"\"\"\n    print(\"🚀 LED Matrix Async Controller Test\")\n    print(\"=\" * 50)\n    # Test imports\n    import_result = test_imports()\n    if not import_result:\n        print(\"\\n❌ Import tests failed\")\n        return False\n    imports_ok, async_available = import_result",
+        "detail": "tests.test_async",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdController",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdController(unittest.TestCase):\n    \"\"\"Test cases for cmd_controller function\"\"\"\n    @patch('builtins.print')\n    @patch('commands.WebMatrixController')\n    def test_cmd_controller_success(self, mock_controller_class, mock_print):\n        \"\"\"Test successful controller startup\"\"\"\n        # Arrange\n        mock_controller = Mock()\n        mock_controller_class.return_value = mock_controller\n        args = Mock()",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdStart",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdStart(unittest.TestCase):\n    \"\"\"Test cases for cmd_start function\"\"\"\n    @patch('builtins.print')\n    @patch('threading.Thread')\n    @patch('time.sleep')\n    @patch('commands.WebMatrixController')\n    @patch('commands.UnifiedMatrixWebServer')\n    @patch('commands.config')\n    def test_cmd_start_success_setup(self, mock_config, mock_server_class, mock_controller_class, mock_sleep, mock_thread, mock_print):\n        \"\"\"Test successful start command setup (before keyboard interrupt)\"\"\"",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdGenerate",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdGenerate(unittest.TestCase):\n    \"\"\"Test cases for cmd_generate function\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.args = Mock()\n        self.args.model = \"uno\"\n        self.args.width = 16\n        self.args.height = 16\n        self.args.compare = False\n        self.args.organized = False",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdDesign",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdDesign(unittest.TestCase):\n    \"\"\"Test cases for cmd_design function\"\"\"\n    def setUp(self):\n        self.args = Mock()\n        self.args.samples = False\n        self.args.interactive = False\n        self.args.width = 16\n        self.args.height = 16\n    @patch('builtins.print')\n    @patch('commands.create_sample_designs')",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdWiring",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdWiring(unittest.TestCase):\n    \"\"\"Test cases for cmd_wiring function\"\"\"\n    def setUp(self):\n        self.args = Mock()\n        self.args.controller = \"uno\"\n        self.args.width = 16\n        self.args.height = 16\n        self.args.data_pin = 6\n        self.args.psu = \"5V\"\n    @patch('builtins.print')",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdConfig",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdConfig(unittest.TestCase):\n    \"\"\"Test cases for cmd_config function\"\"\"\n    def setUp(self):\n        self.args = Mock()\n        self.args.show = False\n        self.args.interactive = False\n        self.args.width = None\n        self.args.height = None\n        self.args.brightness = None\n        self.args.port = None",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdTest",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdTest(unittest.TestCase):\n    \"\"\"Test cases for cmd_test function\"\"\"\n    def setUp(self):\n        self.args = Mock()\n        self.args.module = None\n    @patch('builtins.print')\n    @patch('commands.main')\n    def test_cmd_test_full_suite(self, mock_main, mock_print):\n        \"\"\"Test running full test suite\"\"\"\n        # Arrange",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestCmdInfo",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestCmdInfo(unittest.TestCase):\n    \"\"\"Test cases for cmd_info function\"\"\"\n    def setUp(self):\n        self.args = Mock()\n    @patch('builtins.print')\n    @patch('commands.config')\n    @patch('builtins.__import__')\n    def test_cmd_info_success(self, mock_import, mock_config, mock_print):\n        \"\"\"Test successful info display\"\"\"\n        # Arrange",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestEdgeCasesAndErrorHandling",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestEdgeCasesAndErrorHandling(unittest.TestCase):\n    \"\"\"Test edge cases and error handling scenarios\"\"\"\n    def test_empty_args_handling(self):\n        \"\"\"Test command functions with empty or None args\"\"\"\n        # Test with None args - should not crash\n        from contextlib import suppress\n        with suppress(AttributeError):\n            cmd_controller(None)\n    @patch('builtins.print')\n    def test_missing_dependencies_graceful_handling(self, mock_print):",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestThreadingSafety",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestThreadingSafety(unittest.TestCase):\n    \"\"\"Test threading-related functionality\"\"\"\n    @patch('threading.Thread')\n    @patch('time.sleep')\n    def test_cmd_start_thread_daemon_setting(self, mock_sleep, mock_thread):\n        \"\"\"Test that threads are properly configured as daemon threads\"\"\"\n        # Arrange\n        mock_controller_thread = Mock()\n        mock_web_thread = Mock()\n        mock_thread.side_effect = [mock_controller_thread, mock_web_thread]",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "TestInputValidation",
+        "kind": 6,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "class TestInputValidation(unittest.TestCase):\n    \"\"\"Test input validation and sanitization\"\"\"\n    @patch('builtins.print')\n    @patch('commands.validate_model')\n    def test_cmd_generate_model_validation(self, mock_validate, mock_print):\n        \"\"\"Test model validation in generate command\"\"\"\n        # Test various invalid models\n        invalid_models = [\"invalid\", \"\", \"UNKNOWN\", \"raspberry_pi\"]\n        for model in invalid_models:\n            args = Mock()",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "current_dir",
+        "kind": 5,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nparent_dir = os.path.dirname(current_dir)\nmodules_dir = os.path.join(parent_dir, \"modules\")\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, modules_dir)\n# Import the command functions to test\nfrom commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "parent_dir",
+        "kind": 5,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "parent_dir = os.path.dirname(current_dir)\nmodules_dir = os.path.join(parent_dir, \"modules\")\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, modules_dir)\n# Import the command functions to test\nfrom commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,\n    cmd_design,",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
+        "label": "modules_dir",
+        "kind": 5,
+        "importPath": "tests.test_commands",
+        "description": "tests.test_commands",
+        "peekOfCode": "modules_dir = os.path.join(parent_dir, \"modules\")\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, modules_dir)\n# Import the command functions to test\nfrom commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,\n    cmd_design,\n    cmd_wiring,",
+        "detail": "tests.test_commands",
+        "documentation": {}
+    },
+    {
         "label": "TestModuleIntegration",
         "kind": 6,
         "importPath": "tests.test_integration",
@@ -1766,11 +1918,101 @@
         "documentation": {}
     },
     {
+        "label": "TestPrintBanner",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestPrintBanner(unittest.TestCase):\n    \"\"\"Test the print_banner function\"\"\"\n    @patch('builtins.print')\n    @patch('matrix.datetime')\n    def test_print_banner_format(self, mock_datetime, mock_print):\n        \"\"\"Test that print_banner outputs the correct format\"\"\"\n        # Mock datetime\n        mock_datetime.now.return_value.strftime.return_value = \"2024-01-15 10:30:45\"\n        matrix.print_banner()\n        expected_calls = [",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainArgumentParsing",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainArgumentParsing(unittest.TestCase):\n    \"\"\"Test argument parsing in main function\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock all command handlers to avoid import errors\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainErrorHandling",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainErrorHandling(unittest.TestCase):\n    \"\"\"Test error handling in main function\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainQuietMode",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainQuietMode(unittest.TestCase):\n    \"\"\"Test quiet mode behavior\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock all command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainWithEdgeCases",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainWithEdgeCases(unittest.TestCase):\n    \"\"\"Test edge cases and boundary conditions\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock all command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainSystemIntegration",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainSystemIntegration(unittest.TestCase):\n    \"\"\"Test system integration aspects\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainExceptionPropagation",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainExceptionPropagation(unittest.TestCase):\n    \"\"\"Test exception propagation and handling\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainReturnValues",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainReturnValues(unittest.TestCase):\n    \"\"\"Test return value handling from commands\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock command handlers\n        self.command_mocks = {}\n        for cmd in ['cmd_controller', 'cmd_start', 'cmd_generate', 'cmd_design', \n                   'cmd_wiring', 'cmd_config', 'cmd_test', 'cmd_info']:\n            patcher = patch(f'matrix.{cmd}')\n            self.command_mocks[cmd] = patcher.start()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainIfNameMain",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestMainIfNameMain(unittest.TestCase):\n    \"\"\"Test the __name__ == '__main__' block behavior\"\"\"\n    @patch('matrix.main')\n    @patch('sys.exit')\n    def test_main_success_exit_code_zero(self, mock_exit, mock_main):\n        \"\"\"Test that successful main execution exits with code 0\"\"\"\n        mock_main.return_value = True\n        # Simulate the __main__ execution\n        if True:  # Simulate __name__ == '__main__'\n            success = mock_main()",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "TestArgumentParserConfiguration",
+        "kind": 6,
+        "importPath": "tests.test_matrix",
+        "description": "tests.test_matrix",
+        "peekOfCode": "class TestArgumentParserConfiguration(unittest.TestCase):\n    \"\"\"Test argument parser configuration and choices validation\"\"\"\n    def test_generate_model_choices(self):\n        \"\"\"Test that generate command accepts only valid model choices\"\"\"\n        parser = argparse.ArgumentParser()\n        subparsers = parser.add_subparsers(dest=\"command\")\n        generate_parser = subparsers.add_parser(\"generate\")\n        generate_parser.add_argument(\"model\", choices=[\"uno\", \"nano\", \"esp32\", \"esp8266\", \"mega\"])\n        # Valid choices should not raise error\n        for model in [\"uno\", \"nano\", \"esp32\", \"esp8266\", \"mega\"]:",
+        "detail": "tests.test_matrix",
+        "documentation": {}
+    },
+    {
         "label": "TestMatrixConfig",
         "kind": 6,
         "importPath": "tests.test_matrix_config",
         "description": "tests.test_matrix_config",
-        "peekOfCode": "class TestMatrixConfig(unittest.TestCase):\n    \"\"\"Test cases for matrix configuration management\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"test_config.json\")\n        self.test_config = get_test_config()\n    def tearDown(self):\n        \"\"\"Clean up test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):",
+        "peekOfCode": "class TestMatrixConfig(TestCase):\n    \"\"\"Test suite for MatrixConfig class\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"test_config.json\")\n        self.test_config = get_test_config()\n    def tearDown(self) -> None:\n        \"\"\"Clean up test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):",
         "detail": "tests.test_matrix_config",
         "documentation": {}
     },
@@ -1779,7 +2021,7 @@
         "kind": 6,
         "importPath": "tests.test_matrix_config",
         "description": "tests.test_matrix_config",
-        "peekOfCode": "class TestMatrixConfigIntegration(unittest.TestCase):\n    \"\"\"Integration tests for matrix configuration\"\"\"\n    def setUp(self):\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"integration_config.json\")\n    def tearDown(self):\n        \"\"\"Clean up integration test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
+        "peekOfCode": "class TestMatrixConfigIntegration(unittest.TestCase):\n    \"\"\"Integration tests for matrix configuration\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()\n        self.test_config_file = os.path.join(self.temp_dir, \"integration_config.json\")\n    def tearDown(self) -> None:\n        \"\"\"Clean up integration test fixtures\"\"\"\n        if os.path.exists(self.temp_dir):\n            shutil.rmtree(self.temp_dir)",
         "detail": "tests.test_matrix_config",
         "documentation": {}
     },
@@ -1788,7 +2030,7 @@
         "kind": 2,
         "importPath": "tests.test_matrix_config",
         "description": "tests.test_matrix_config",
-        "peekOfCode": "def run_config_validation_tests():\n    \"\"\"Run validation tests to ensure config works with real scenarios\"\"\"\n    print(\"🔧 Running Matrix Config Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    test_config_file = os.path.join(temp_dir, \"validation_config.json\")\n    try:\n        # Test 1: Basic configuration lifecycle\n        print(\"\\n📝 Test 1: Basic Configuration Lifecycle\")\n        config = MatrixConfig(test_config_file)",
+        "peekOfCode": "def run_config_validation_tests() -> Optional[bool]:\n    \"\"\"Run validation tests to ensure config works with real scenarios\"\"\"\n    print(\"🔧 Running Matrix Config Validation Tests\")\n    print(\"=\" * 50)\n    temp_dir = tempfile.mkdtemp()\n    test_config_file = os.path.join(temp_dir, \"validation_config.json\")\n    try:\n        # Test 1: Basic configuration lifecycle\n        print(\"\\n📝 Test 1: Basic Configuration Lifecycle\")\n        config = MatrixConfig(test_config_file)",
         "detail": "tests.test_matrix_config",
         "documentation": {}
     },
@@ -1797,8 +2039,80 @@
         "kind": 5,
         "importPath": "tests.test_matrix_config",
         "description": "tests.test_matrix_config",
-        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom matrix_config import MatrixConfig\nfrom tests import get_test_config\nclass TestMatrixConfig(unittest.TestCase):\n    \"\"\"Test cases for matrix configuration management\"\"\"\n    def setUp(self):\n        \"\"\"Set up test fixtures\"\"\"\n        self.temp_dir = tempfile.mkdtemp()",
+        "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom unittest.mock import patch\nimport time\nfrom unittest import TestCase\nimport contextlib\n# Import the module under test\nimport sys\nsys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))",
         "detail": "tests.test_matrix_config",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixController",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestWebMatrixController(unittest.TestCase):\n    \"\"\"Test cases for WebMatrixController class\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures before each test method\"\"\"\n        # Mock external dependencies before importing\n        self.mock_config = MagicMock()\n        self.mock_config.get.side_effect = lambda key, default=None: {\n            'matrix_width': 16,\n            'matrix_height': 16,\n            'connection_mode': 'USB',",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixControllerIntegration",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestWebMatrixControllerIntegration(unittest.TestCase):\n    \"\"\"Integration tests for WebMatrixController\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up integration test fixtures\"\"\"\n        self.mock_hardware = MagicMock()\n        # Patch imports\n        self.config_patcher = patch('matrix_config.config', self.mock_config)\n        self.hardware_patcher = patch('matrix_hardware.hardware', self.mock_hardware)\n        self.wiring_patcher = patch('wiring_diagram_generator.WiringDiagramGenerator')\n        self.server_patcher = patch('socketserver.ThreadingTCPServer')",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebHandlerMethods",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestWebHandlerMethods(unittest.TestCase):\n    \"\"\"Test cases for WebHandler methods within WebMatrixController\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock dependencies\n        self.mock_config = MagicMock()\n        self.mock_config.get.side_effect = lambda key, default=None: {\n            'matrix_width': 16,\n            'matrix_height': 16,\n            'connection_mode': 'USB',",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixControllerUtilityFunctions",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestWebMatrixControllerUtilityFunctions(unittest.TestCase):\n    \"\"\"Test utility functions at the end of the file\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures\"\"\"\n        self.patches = [\n            patch.dict('sys.modules', {\n                'matrix_config': MagicMock(),\n                'matrix_hardware': MagicMock(),\n                'wiring_diagram_generator': MagicMock(),\n                'arduino_generator': MagicMock(),",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixControllerWebHandlerHelpers",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestWebMatrixControllerWebHandlerHelpers(unittest.TestCase):\n    \"\"\"Test cases for web server helper functionality\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures\"\"\"\n        self.patches = [\n            patch.dict('sys.modules', {\n                'matrix_config': MagicMock(),\n                'matrix_hardware': MagicMock(),\n                'wiring_diagram_generator': MagicMock(),\n                'arduino_generator': MagicMock(),",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestUtilityMethods",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller",
+        "description": "tests.test_matrix_controller",
+        "peekOfCode": "class TestUtilityMethods(unittest.TestCase):\n    \"\"\"Test cases for utility methods in WebMatrixController\"\"\"\n    def test_mermaid_diagram_generation(self):\n        \"\"\"Test Mermaid diagram generation structure\"\"\"\n        controller_type = \"arduino_uno\"\n        width, height = 16, 16\n        power_supply = \"5V10A\"\n        total_leds = width * height\n        self.assertEqual(total_leds, 256)\n        self.assertIn(\"arduino\", controller_type)",
+        "detail": "tests.test_matrix_controller",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixControllerIntegration",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller_integration",
+        "description": "tests.test_matrix_controller_integration",
+        "peekOfCode": "class TestWebMatrixControllerIntegration(unittest.TestCase):\n    \"\"\"Integration test cases for WebMatrixController\"\"\"\n    def setUp(self) -> None:\n        \"\"\"Set up test fixtures\"\"\"\n        # Mock external dependencies\n        self.mock_config = MagicMock()\n        self.mock_config.get.side_effect = lambda key, default=None: {\n            'matrix_width': 16,\n            'matrix_height': 16,\n            'connection_mode': 'USB',",
+        "detail": "tests.test_matrix_controller_integration",
+        "documentation": {}
+    },
+    {
+        "label": "TestWebMatrixControllerEndToEnd",
+        "kind": 6,
+        "importPath": "tests.test_matrix_controller_integration",
+        "description": "tests.test_matrix_controller_integration",
+        "peekOfCode": "class TestWebMatrixControllerEndToEnd(unittest.TestCase):\n    \"\"\"End-to-end test scenarios\"\"\"\n    @patch('matrix_config.config')\n    @patch('matrix_hardware.hardware')\n    @patch('wiring_diagram_generator.WiringDiagramGenerator')\n    @patch('socketserver.ThreadingTCPServer')\n    @patch('threading.Thread')\n    def test_typical_usage_scenario(\n        self,\n        _mock_thread: MagicMock,",
+        "detail": "tests.test_matrix_controller_integration",
         "documentation": {}
     },
     {
@@ -1880,6 +2194,132 @@
         "description": "tests.test_unified_web_server",
         "peekOfCode": "def run_tests():\n    \"\"\"Run all tests\"\"\"\n    print(\"🧪 Starting Unified Web Server Test Suite\")\n    print(\"=\" * 50)\n    # Create test suite\n    loader = unittest.TestLoader()\n    suite = unittest.TestSuite()\n    # Add test cases\n    suite.addTests(loader.loadTestsFromTestCase(TestUnifiedWebServer))\n    suite.addTests(loader.loadTestsFromTestCase(TestNavigationIntegration))",
         "detail": "tests.test_unified_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestGetEnvConfig",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestGetEnvConfig(unittest.TestCase):\n    \"\"\"Test environment configuration function\"\"\"\n    @patch.dict('os.environ', {\n        'WEB_SERVER_PORT': '3001',\n        'WEB_SERVER_HOST': 'testhost',\n        'API_PROXY_PORT': '8081',\n        'ENABLE_CORS': 'false',\n        'ENABLE_CACHING': 'true',\n        'SITES_DIR': '/test/sites',\n        'AUTOCREATE_DIRS': 'true',",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestServerConfig",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestServerConfig(unittest.TestCase):\n    \"\"\"Test ServerConfig dataclass\"\"\"\n    @patch.dict('os.environ', {}, clear=True)\n    def test_server_config_defaults(self):\n        \"\"\"Test ServerConfig uses correct default values\"\"\"\n        config = ServerConfig()\n        self.assertEqual(config.port, 3000)\n        self.assertEqual(config.host, \"localhost\")\n        self.assertEqual(config.control_path, \"sites/control\")\n        self.assertEqual(config.docs_path, \"sites/docs\")",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestUnifiedMatrixWebServerInit",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestUnifiedMatrixWebServerInit(unittest.TestCase):\n    \"\"\"Test UnifiedMatrixWebServer initialization\"\"\"\n    def setUp(self):\n        self.temp_dir = tempfile.mkdtemp()\n        self.addCleanup(shutil.rmtree, self.temp_dir)\n    @patch.dict('os.environ', {'SITES_DIR': '/custom/sites'}, clear=True)\n    def test_init_custom_sites_dir(self):\n        \"\"\"Test initialization with custom sites directory\"\"\"\n        server = UnifiedMatrixWebServer(port=3001)\n        self.assertEqual(server.config.port, 3001)",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestCreateLandingPage",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestCreateLandingPage(unittest.TestCase):\n    \"\"\"Test landing page creation\"\"\"\n    def setUp(self):\n        self.server = UnifiedMatrixWebServer()\n    def test_create_landing_page_returns_html(self):\n        \"\"\"Test that create_landing_page returns valid HTML\"\"\"\n        html = self.server.create_landing_page()\n        self.assertIsInstance(html, str)\n        self.assertTrue(html.startswith('<!DOCTYPE html>'))\n        self.assertIn('<html lang=\"en\">', html)",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestRequestHandlerRouting",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestRequestHandlerRouting(unittest.TestCase):\n    \"\"\"Test HTTP request handler routing logic\"\"\"\n    def setUp(self):\n        self.server = UnifiedMatrixWebServer()\n        self.handler_class = self.server.create_custom_handler()\n    def create_mock_handler(self, path, method='GET'):\n        \"\"\"Create a mock request handler for testing\"\"\"\n        handler = MagicMock(spec=self.handler_class)\n        handler.path = path\n        handler.command = method",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestStaticFileServing",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestStaticFileServing(unittest.TestCase):\n    \"\"\"Test static file serving functionality\"\"\"\n    def setUp(self):\n        self.temp_dir = tempfile.mkdtemp()\n        self.addCleanup(shutil.rmtree, self.temp_dir)\n        self.server = UnifiedMatrixWebServer()\n        self.handler_class = self.server.create_custom_handler()\n    def create_mock_handler_for_static(self):\n        \"\"\"Create a mock handler for static file testing\"\"\"\n        handler = MagicMock()",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestAPIProxy",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestAPIProxy(unittest.TestCase):\n    \"\"\"Test API proxy functionality\"\"\"\n    def setUp(self):\n        self.server = UnifiedMatrixWebServer()\n        self.handler_class = self.server.create_custom_handler()\n    def create_mock_handler_for_api(self, method='GET'):\n        \"\"\"Create a mock handler for API testing\"\"\"\n        handler = MagicMock()\n        handler.command = method\n        handler.headers = {'Content-Type': 'application/json', 'Content-Length': '0'}",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestErrorPages",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestErrorPages(unittest.TestCase):\n    \"\"\"Test error page serving functionality\"\"\"\n    def setUp(self):\n        self.temp_dir = tempfile.mkdtemp()\n        self.addCleanup(shutil.rmtree, self.temp_dir)\n        self.server = UnifiedMatrixWebServer()\n        self.server.errors_dir = Path(self.temp_dir)\n        self.handler_class = self.server.create_custom_handler()\n    def create_mock_handler_for_errors(self):\n        \"\"\"Create a mock handler for error page testing\"\"\"",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestCORSHeaders",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestCORSHeaders(unittest.TestCase):\n    \"\"\"Test CORS headers functionality\"\"\"\n    def setUp(self):\n        self.server = UnifiedMatrixWebServer()\n        self.handler_class = self.server.create_custom_handler()\n    def create_mock_handler_for_cors(self):\n        \"\"\"Create a mock handler for CORS testing\"\"\"\n        handler = MagicMock()\n        handler.send_header = MagicMock()\n        actual_handler = self.handler_class(MagicMock(), MagicMock(), MagicMock())",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestServerStart",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestServerStart(unittest.TestCase):\n    \"\"\"Test server start functionality\"\"\"\n    def setUp(self):\n        self.server = UnifiedMatrixWebServer(port=0)  # Use port 0 for testing\n    @patch('socketserver.TCPServer')\n    @patch('builtins.print')\n    def test_start_server_success(self, mock_print, mock_tcp_server):\n        \"\"\"Test successful server start\"\"\"\n        mock_httpd = MagicMock()\n        mock_tcp_server.return_value.__enter__.return_value = mock_httpd",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestSignalHandlers",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestSignalHandlers(unittest.TestCase):\n    \"\"\"Test signal handler setup\"\"\"\n    @patch('signal.signal')\n    @patch('os._exit')\n    def test_setup_signal_handlers(self, mock_signal, mock_exit):\n        \"\"\"Test that signal handlers are set up correctly\"\"\"\n        import signal\n        with patch.object(signal, 'SIGTERM', 15), \\\n             patch.object(signal, 'SIGINT', 2):\n            setup_signal_handlers()",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestMainFunction",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestMainFunction(unittest.TestCase):\n    \"\"\"Test main function\"\"\"\n    @patch('web_server.setup_signal_handlers')\n    @patch('web_server.UnifiedMatrixWebServer')\n    def test_main_function_normal_flow(self, mock_server_class, mock_setup_signals):\n        \"\"\"Test main function normal execution flow\"\"\"\n        mock_server = MagicMock()\n        mock_server_class.return_value = mock_server\n        with patch.dict('os.environ', {}, clear=True):\n            main()",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestLoggingConfiguration",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestLoggingConfiguration(unittest.TestCase):\n    \"\"\"Test logging configuration\"\"\"\n    def test_logger_configuration(self):\n        \"\"\"Test that logger is configured correctly\"\"\"\n        import logging\n        test_logger = logging.getLogger('WebServer')\n        assert test_logger.name == 'WebServer'\n        assert len(test_logger.handlers) >= 0  # May have handlers from module import\nclass TestIntegrationScenarios(unittest.TestCase):\n    \"\"\"Integration-style tests for complex scenarios\"\"\"",
+        "detail": "tests.test_web_server",
+        "documentation": {}
+    },
+    {
+        "label": "TestIntegrationScenarios",
+        "kind": 6,
+        "importPath": "tests.test_web_server",
+        "description": "tests.test_web_server",
+        "peekOfCode": "class TestIntegrationScenarios(unittest.TestCase):\n    \"\"\"Integration-style tests for complex scenarios\"\"\"\n    def setUp(self):\n        self.temp_dir = tempfile.mkdtemp()\n        self.addCleanup(shutil.rmtree, self.temp_dir)\n    @patch.dict('os.environ', {\n        'SITES_DIR': None,\n        'AUTOCREATE_DIRS': 'true',\n    }, clear=True)\n    def test_full_server_initialization_with_autocreate(self):",
+        "detail": "tests.test_web_server",
         "documentation": {}
     },
     {
@@ -2040,88 +2480,7 @@
         "kind": 2,
         "importPath": "matrix",
         "description": "matrix",
-        "peekOfCode": "def print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\n    print()\ndef cmd_controller(args):\n    \"\"\"Start the matrix controller (web-based)\"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_controller",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_controller(args):\n    \"\"\"Start the matrix controller (web-based)\"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")\n    try:\n        from web_matrix_controller import WebMatrixController\n        controller = WebMatrixController()\n        controller.run()\n    except ImportError as e:\n        print(f\"❌ Error importing controller: {e}\")\n        print(",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_web",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_web(args):\n    \"\"\"Start the unified web interface server\"\"\"\n    site_type = getattr(args, 'type', 'unified')\n    # Get port from args or use default\n    if hasattr(args, 'port') and args.port is not None:\n        port = args.port\n    else:\n        port = 3000  # Always use port 3000 for unified server\n    print(f\"🌐 Starting Unified Web Server...\")\n    try:",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_start",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_start(args):\n    \"\"\"Start both controller and web interfaces in a unified web-only solution\"\"\"\n    import threading\n    import time\n    print(\"🚀 Starting Complete LED Matrix System...\")\n    print(\"   - Web-based Matrix Controller\")\n    print(\"   - Control Interface Server\")\n    print(\"   - Documentation Server\")\n    print()\n    # Start web controller in a separate thread",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_generate",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_generate(args):\n    \"\"\"Generate Arduino code\"\"\"\n    print(f\"🔧 Generating Arduino code for {args.model}...\")\n    try:\n        from arduino_generator import ArduinoGenerator\n        from arduino_models import validate_model\n        if not validate_model(args.model):\n            print(f\"❌ Invalid Arduino model: {args.model}\")\n            print(\"Available models: uno, nano, esp32, esp8266, mega\")\n            return False",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_design",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_design(args):\n    \"\"\"Start design library or perform design operations\"\"\"\n    print(\"🎨 LED Matrix Design Library...\")\n    try:\n        from matrix_design_library import MatrixDesign, create_sample_designs\n        if args.samples:\n            print(\"Creating sample designs...\")\n            create_sample_designs()\n            return True\n        if args.interactive:",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_wiring",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_wiring(args):\n    \"\"\"Generate wiring diagrams and documentation\"\"\"\n    print(f\"📋 Generating wiring diagrams for {args.controller}...\")\n    try:\n        from wiring_diagram_generator import WiringDiagramGenerator\n        generator = WiringDiagramGenerator()\n        # Generate markdown guide\n        guide_filename = generator.save_guide(\n            args.controller,\n            args.width,",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_config",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_config(args):\n    \"\"\"Configure matrix settings\"\"\"\n    print(\"⚙️ Matrix Configuration...\")\n    try:\n        from matrix_config import config\n        if args.show:\n            print(\"Current Configuration:\")\n            info = config.get_config_info()\n            print(f\"   Config File: {info['config_file']}\")\n            print(",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_test",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_test(args):\n    \"\"\"Run test suite\"\"\"\n    print(\"🧪 Running LED Matrix Test Suite...\")\n    try:\n        if args.module:\n            # Run specific test module\n            import unittest\n            test_module = f\"tests.test_{args.module}\"\n            suite = unittest.TestLoader().loadTestsFromName(test_module)\n            runner = unittest.TextTestRunner(verbosity=2)",
-        "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "cmd_info",
-        "kind": 2,
-        "importPath": "matrix",
-        "description": "matrix",
-        "peekOfCode": "def cmd_info(args):\n    \"\"\"Show project information and status\"\"\"\n    print(\"ℹ️ LED Matrix Project Information\")\n    print()\n    try:\n        # Project status\n        from matrix_config import config\n        print(\"📊 Project Status:\")\n        print(\n            f\"   Matrix Size: {config.get('matrix_width')}×{config.get('matrix_height')}\"",
+        "peekOfCode": "def print_banner():\n    \"\"\"\n    Display a formatted banner with the LED Matrix Project name and the current date and time.\n    \"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\n    print()\ndef main():",
         "detail": "matrix",
         "documentation": {}
     },
@@ -2130,7 +2489,7 @@
         "kind": 2,
         "importPath": "matrix",
         "description": "matrix",
-        "peekOfCode": "def main():\n    \"\"\"Main entry point with argument parsing\"\"\"\n    parser = argparse.ArgumentParser(\n        description=\"LED Matrix Project - Unified Control Interface\",\n        formatter_class=argparse.RawDescriptionHelpFormatter,\n        epilog=\"\"\"\nExamples:\n  python matrix.py controller                    # Start GUI controller\n  python matrix.py web --type control           # Start control interface (port 3000)\n  python matrix.py web --type docs              # Start documentation (port 3001)",
+        "peekOfCode": "def main():\n    \"\"\"\n    Parses command-line arguments and dispatches commands for the LED Matrix Project CLI.\n    Returns:\n        bool: True if the selected command completes successfully, False otherwise.\n    \"\"\"\n    parser = argparse.ArgumentParser(\n        description=\"LED Matrix Project - Unified Control Interface\",\n        formatter_class=argparse.RawDescriptionHelpFormatter,\n        epilog=\"\"\"",
         "detail": "matrix",
         "documentation": {}
     },
@@ -2139,7 +2498,7 @@
         "kind": 5,
         "importPath": "matrix",
         "description": "matrix",
-        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")",
+        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\nfrom modules.commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,\n    cmd_design,\n    cmd_wiring,",
         "detail": "matrix",
         "documentation": {}
     },
@@ -2148,17 +2507,8 @@
         "kind": 5,
         "importPath": "matrix",
         "description": "matrix",
-        "peekOfCode": "modules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef print_banner():\n    \"\"\"Print the LED Matrix Project banner\"\"\"\n    print(\"=\" * 70)\n    print(\"🔥 LED Matrix Project - Unified Control Interface\")\n    print(\"=\" * 70)\n    print(f\"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\n    print()",
+        "peekOfCode": "modules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\nfrom modules.commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,\n    cmd_design,\n    cmd_wiring,\n    cmd_config,",
         "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "sys.argv",
-        "kind": 5,
-        "importPath": "run_tests",
-        "description": "run_tests",
-        "peekOfCode": "sys.argv = ['matrix.py', 'test'] + sys.argv[1:]\ntry:\n    from matrix import main\n    success = main()\n    sys.exit(0 if success else 1)\nexcept Exception as e:\n    print(f\"❌ Error running unified entry point: {e}\")\n    print(\"Falling back to direct test execution...\")\n    # Fallback to direct execution\n    try:",
-        "detail": "run_tests",
         "documentation": {}
     }
 ]

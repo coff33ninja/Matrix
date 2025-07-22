@@ -5,17 +5,14 @@ Serves both control interface and documentation through path-based routing
 """
 
 import os
-import sys
 import http.server
 import socketserver
 import urllib.parse
 import mimetypes
-import json
 import logging
 from pathlib import Path
 from dataclasses import dataclass
-from typing import List, Dict, Any
-from datetime import datetime
+
 try:
     import requests
 except ImportError:
@@ -25,59 +22,64 @@ except ImportError:
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('web_server.log', encoding='utf-8')
-    ]
+        logging.FileHandler("web_server.log", encoding="utf-8"),
+    ],
 )
-logger = logging.getLogger('WebServer')
+logger = logging.getLogger("WebServer")
+
 
 def get_env_config():
     """Get environment configuration for debugging"""
     env_vars = {
-        'WEB_SERVER_PORT': os.getenv('WEB_SERVER_PORT'),
-        'WEB_SERVER_HOST': os.getenv('WEB_SERVER_HOST'),
-        'API_PROXY_PORT': os.getenv('API_PROXY_PORT'),
-        'ENABLE_CORS': os.getenv('ENABLE_CORS'),
-        'ENABLE_CACHING': os.getenv('ENABLE_CACHING'),
-        'SITES_DIR': os.getenv('SITES_DIR'),
-        'AUTOCREATE_DIRS': os.getenv('AUTOCREATE_DIRS'),
-        'PYTHONPATH': os.getenv('PYTHONPATH'),
-        'PATH': os.getenv('PATH')[:100] + '...' if os.getenv('PATH') and len(os.getenv('PATH')) > 100 else os.getenv('PATH')
+        "WEB_SERVER_PORT": os.getenv("WEB_SERVER_PORT"),
+        "WEB_SERVER_HOST": os.getenv("WEB_SERVER_HOST"),
+        "API_PROXY_PORT": os.getenv("API_PROXY_PORT"),
+        "ENABLE_CORS": os.getenv("ENABLE_CORS"),
+        "ENABLE_CACHING": os.getenv("ENABLE_CACHING"),
+        "SITES_DIR": os.getenv("SITES_DIR"),
+        "AUTOCREATE_DIRS": os.getenv("AUTOCREATE_DIRS"),
+        "PYTHONPATH": os.getenv("PYTHONPATH"),
+        "PATH": (lambda path: path[:100] + "..." if path and len(path) > 100 else path)(
+            os.getenv("PATH")
+        ),
     }
     return {k: v for k, v in env_vars.items() if v is not None}
 
+
 @dataclass
 class ServerConfig:
-    port: int = int(os.getenv('WEB_SERVER_PORT', 3000))
-    host: str = os.getenv('WEB_SERVER_HOST', "localhost")
-    control_path: str = os.getenv('CONTROL_PATH', "sites/control")
-    docs_path: str = os.getenv('DOCS_PATH', "sites/docs")
-    api_proxy_port: int = int(os.getenv('API_PROXY_PORT', 8080))
-    enable_cors: bool = os.getenv('ENABLE_CORS', 'true').lower() == 'true'
-    enable_caching: bool = os.getenv('ENABLE_CACHING', 'true').lower() == 'true'
+    port: int = int(os.getenv("WEB_SERVER_PORT", 3000))
+    host: str = os.getenv("WEB_SERVER_HOST", "localhost")
+    control_path: str = os.getenv("CONTROL_PATH", "sites/control")
+    docs_path: str = os.getenv("DOCS_PATH", "sites/docs")
+    api_proxy_port: int = int(os.getenv("API_PROXY_PORT", 8080))
+    enable_cors: bool = os.getenv("ENABLE_CORS", "true").lower() == "true"
+    enable_caching: bool = os.getenv("ENABLE_CACHING", "true").lower() == "true"
+
 
 class UnifiedMatrixWebServer:
     def __init__(self, port=None):
         # Use environment variable or passed port
         if port is None:
-            port = int(os.getenv('WEB_SERVER_PORT', 3000))
+            port = int(os.getenv("WEB_SERVER_PORT", 3000))
         self.config = ServerConfig(port=port)
-        
+
         # Use environment variable for sites directory if available
-        sites_base = os.getenv('SITES_DIR', str(Path(__file__).parent.parent / "sites"))
+        sites_base = os.getenv("SITES_DIR", str(Path(__file__).parent.parent / "sites"))
         self.sites_dir = Path(sites_base)
         self.control_dir = self.sites_dir / "control"
         self.docs_dir = self.sites_dir / "docs"
         self.errors_dir = self.sites_dir / "errors"
-        
+
         # Create directories if they don't exist (when AUTOCREATE_DIRS is set)
-        if os.getenv('AUTOCREATE_DIRS', 'false').lower() == 'true':
+        if os.getenv("AUTOCREATE_DIRS", "false").lower() == "true":
             os.makedirs(self.control_dir, exist_ok=True)
             os.makedirs(self.docs_dir, exist_ok=True)
             os.makedirs(self.errors_dir, exist_ok=True)
-        
+
         # Ensure directories exist
         if not self.control_dir.exists():
             print(f"❌ Control directory not found: {self.control_dir}")
@@ -85,7 +87,7 @@ class UnifiedMatrixWebServer:
             print(f"❌ Documentation directory not found: {self.docs_dir}")
         if not self.errors_dir.exists():
             print(f"❌ Error pages directory not found: {self.errors_dir}")
-    
+
     def create_landing_page(self):
         """Create the navigation landing page HTML"""
         return """<!DOCTYPE html>
@@ -290,9 +292,9 @@ class UnifiedMatrixWebServer:
             }
         }
 
-        // Check status on load and periodically
+        // Check status on load and periodically (reduced frequency)
         checkControllerStatus();
-        setInterval(checkControllerStatus, 5000);
+        setInterval(checkControllerStatus, 30000); // Every 30 seconds instead of 5
     </script>
 </body>
 </html>"""
@@ -300,85 +302,119 @@ class UnifiedMatrixWebServer:
     def create_custom_handler(self):
         """Create custom HTTP request handler with routing"""
         server_instance = self
-        
+
         class UnifiedRequestHandler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 self.handle_request()
-            
+
             def do_POST(self):
                 self.handle_request()
-            
+
             def do_OPTIONS(self):
                 self.send_response(200)
                 self.send_cors_headers()
                 self.end_headers()
-            
+
             def handle_request(self):
                 """Route requests based on path"""
                 parsed_path = urllib.parse.urlparse(self.path)
                 path = parsed_path.path
                 client_ip = self.client_address[0]
-                
-                logger.info(f"📥 {self.command} {path} from {client_ip}")
-                
+
+                # Only log non-status API requests to reduce noise
+                if not (path.startswith("/api/status") or path == "/api/status"):
+                    logger.info(f"📥 {self.command} {path} from {client_ip}")
+
                 try:
                     # Handle API requests first, regardless of prefix
                     if path.startswith("/api") or path.startswith("/control/api"):
-                        logger.info(f"🔌 Proxying API request: {path}")
+                        if not (
+                            path.startswith("/api/status") or path == "/api/status"
+                        ):
+                            logger.info(f"🔌 Proxying API request: {path}")
                         self.proxy_api_request(path, parsed_path.query)
                     elif path == "/" or path == "":
                         logger.info("🏠 Serving landing page")
                         self.serve_landing_page()
                     elif path.startswith("/control"):
-                        logger.info(f"🎮 Serving control interface: {path}")
+                        # Only log initial control interface access, not static assets
+                        if path == "/control" or path == "/control/":
+                            logger.info(f"🎮 Serving control interface: {path}")
                         self.serve_control_interface(path)
                     elif path.startswith("/docs"):
                         logger.info(f"📚 Serving docs interface: {path}")
                         self.serve_docs_interface(path)
+                    # Handle static assets that should be served from control directory
+                    elif (
+                        path.startswith("/css/")
+                        or path.startswith("/js/")
+                        or path.startswith("/sections/")
+                        or path.startswith("/favicon.ico")
+                        or path.startswith("/app.js")
+                    ):
+                        # Check if referrer is from control interface
+                        referrer = self.headers.get("Referer", "")
+                        if "/control" in referrer:
+                            logger.info(f"🎮 Serving control static asset: {path}")
+                            self.serve_control_interface(path)
+                        else:
+                            logger.warning(
+                                f"❓ Static asset requested without control context: {path}"
+                            )
+                            self.serve_404()
                     else:
                         logger.warning(f"❓ Unknown path requested: {path}")
                         self.serve_404()
                 except Exception as e:
-                    logger.error(f"❌ Error handling request {path}: {e}", exc_info=True)
+                    logger.error(
+                        f"❌ Error handling request {path}: {e}", exc_info=True
+                    )
                     self.serve_500(str(e))
-            
+
             def serve_landing_page(self):
                 """Serve the navigation landing page"""
                 content = server_instance.create_landing_page()
                 self.send_response(200)
-                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_cors_headers()
                 self.end_headers()
-                self.wfile.write(content.encode('utf-8'))
-            
+                self.wfile.write(content.encode("utf-8"))
+
             def serve_control_interface(self, path):
                 """Serve files from control interface"""
-                # Remove /control prefix and serve from control directory
-                file_path = path[8:] if len(path) > 8 else "/"
-                if file_path == "/" or file_path == "":
-                    file_path = "/index.html"
-                
+                # Handle different path patterns
+                if path.startswith("/control"):
+                    # Remove /control prefix and serve from control directory
+                    file_path = path[8:] if len(path) > 8 else "/"
+                    if file_path == "/" or file_path == "":
+                        file_path = "/index.html"
+                else:
+                    # Direct static asset request (css, js, etc.)
+                    file_path = path
+
                 self.serve_static_file(server_instance.control_dir, file_path)
-            
+
             def serve_docs_interface(self, path):
                 """Serve files from documentation interface"""
                 # Remove /docs prefix and serve from docs directory
                 file_path = path[5:] if len(path) > 5 else "/"
                 if file_path == "/" or file_path == "":
                     file_path = "/index.html"
-                
+
                 self.serve_static_file(server_instance.docs_dir, file_path)
-            
+
             def serve_static_file(self, base_dir, file_path):
                 """Serve static files with proper MIME types"""
                 try:
                     # Security: prevent directory traversal
-                    file_path = file_path.lstrip('/')
+                    file_path = file_path.lstrip("/")
                     full_path = base_dir / file_path
-                    
+
                     # Ensure the path is within the base directory using os.path.commonpath
                     try:
-                        common_path = os.path.commonpath([str(full_path.resolve()), str(base_dir.resolve())])
+                        common_path = os.path.commonpath(
+                            [str(full_path.resolve()), str(base_dir.resolve())]
+                        )
                         if common_path != str(base_dir.resolve()):
                             self.serve_404()
                             return
@@ -386,38 +422,38 @@ class UnifiedMatrixWebServer:
                         # Paths are on different drives (Windows) or invalid
                         self.serve_404()
                         return
-                    
+
                     if full_path.is_file():
                         # Determine MIME type
                         mime_type, _ = mimetypes.guess_type(str(full_path))
                         if mime_type is None:
-                            mime_type = 'application/octet-stream'
-                        
+                            mime_type = "application/octet-stream"
+
                         # Read and serve file
-                        with open(full_path, 'rb') as f:
+                        with open(full_path, "rb") as f:
                             content = f.read()
-                        
+
                         self.send_response(200)
-                        self.send_header('Content-Type', mime_type)
+                        self.send_header("Content-Type", mime_type)
                         self.send_cors_headers()
                         if server_instance.config.enable_caching:
-                            self.send_header('Cache-Control', 'public, max-age=3600')
+                            self.send_header("Cache-Control", "public, max-age=3600")
                         self.end_headers()
                         self.wfile.write(content)
                     else:
                         self.serve_404()
-                        
+
                 except Exception as e:
                     print(f"❌ Error serving static file {file_path}: {e}")
                     self.serve_500(str(e))
-            
+
             def proxy_api_request(self, path, query):
                 """Proxy API requests to the Python controller"""
                 if not requests:
                     logger.error("❌ Requests library not available for API proxy")
                     self.serve_503("Requests library not available")
                     return
-                    
+
                 try:
                     # Handle both /api and /control/api paths
                     if path.startswith("/control/api"):
@@ -425,37 +461,48 @@ class UnifiedMatrixWebServer:
                         logger.info(f"🔄 Converting {path} to {api_path}")
                     else:
                         api_path = path  # Keep full /api path
-                        
+
                     if query:
                         api_path += f"?{query}"
-                    
+
                     # Proxy to controller
                     controller_url = f"http://localhost:{server_instance.config.api_proxy_port}{api_path}"
                     logger.info(f"🔗 Proxying to: {controller_url}")
-                    
-                    if self.command == 'GET':
+
+                    if self.command == "GET":
                         response = requests.get(controller_url, timeout=5)
-                    elif self.command == 'POST':
-                        content_length = int(self.headers.get('Content-Length', 0))
+                    elif self.command == "POST":
+                        content_length = int(self.headers.get("Content-Length", 0))
                         post_data = self.rfile.read(content_length)
                         logger.info(f"📤 POST data length: {content_length}")
-                        response = requests.post(controller_url, data=post_data, 
-                                               headers={'Content-Type': self.headers.get('Content-Type', 'application/json')},
-                                               timeout=5)
+                        response = requests.post(
+                            controller_url,
+                            data=post_data,
+                            headers={
+                                "Content-Type": self.headers.get(
+                                    "Content-Type", "application/json"
+                                )
+                            },
+                            timeout=5,
+                        )
                     else:
                         logger.warning(f"❓ Unsupported method: {self.command}")
                         self.serve_404()
                         return
-                    
+
                     # Forward response
                     self.send_response(response.status_code)
                     for header, value in response.headers.items():
-                        if header.lower() not in ['content-encoding', 'transfer-encoding', 'connection']:
+                        if header.lower() not in [
+                            "content-encoding",
+                            "transfer-encoding",
+                            "connection",
+                        ]:
                             self.send_header(header, value)
                     self.send_cors_headers()
                     self.end_headers()
                     self.wfile.write(response.content)
-                    
+
                 except requests.exceptions.ConnectionError:
                     self.serve_503("Python controller not running on port 8080")
                 except requests.exceptions.Timeout:
@@ -466,13 +513,13 @@ class UnifiedMatrixWebServer:
                 except Exception as e:
                     print(f"❌ API proxy error: {e}")
                     self.serve_500(str(e))
-            
+
             def serve_404(self):
                 """Serve custom 404 page"""
                 try:
                     error_page_path = server_instance.errors_dir / "404.html"
                     if error_page_path.exists():
-                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                        with open(error_page_path, "r", encoding="utf-8") as f:
                             content = f.read()
                     else:
                         # Fallback content if error page doesn't exist
@@ -480,136 +527,165 @@ class UnifiedMatrixWebServer:
 <html><head><title>404 - Page Not Found</title></head>
 <body><h1>404 - Page Not Found</h1><p>The page you're looking for doesn't exist.</p>
 <a href="/">Return Home</a></body></html>"""
-                    
+
                     self.send_response(404)
-                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
                     self.send_cors_headers()
                     self.end_headers()
-                    self.wfile.write(content.encode('utf-8'))
+                    self.wfile.write(content.encode("utf-8"))
                 except (ConnectionAbortedError, BrokenPipeError):
                     # Client disconnected - this is normal, just log and continue
                     print(f"🔌 Client disconnected during 404 response for {self.path}")
                 except Exception as e:
                     print(f"❌ Error serving 404 page: {e}")
-            
+
             def serve_500(self, error_msg):
                 """Serve custom 500 error page"""
                 try:
                     error_page_path = server_instance.errors_dir / "500.html"
                     if error_page_path.exists():
-                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                        with open(error_page_path, "r", encoding="utf-8") as f:
                             content = f.read()
                         # Replace placeholder with actual error message
-                        content = content.replace('{{ERROR_MESSAGE}}', error_msg)
+                        content = content.replace("{{ERROR_MESSAGE}}", error_msg)
                     else:
                         # Fallback content if error page doesn't exist
                         content = f"""<!DOCTYPE html>
 <html><head><title>500 - Server Error</title></head>
 <body><h1>500 - Server Error</h1><p>Something went wrong: {error_msg}</p>
 <a href="/">Return Home</a></body></html>"""
-                    
+
                     self.send_response(500)
-                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
                     self.send_cors_headers()
                     self.end_headers()
-                    self.wfile.write(content.encode('utf-8'))
+                    self.wfile.write(content.encode("utf-8"))
                 except (ConnectionAbortedError, BrokenPipeError):
                     # Client disconnected - this is normal, just log and continue
                     print(f"🔌 Client disconnected during 500 response for {self.path}")
                 except Exception as e:
                     print(f"❌ Error serving 500 page: {e}")
-            
+
             def serve_503(self, error_msg):
                 """Serve service unavailable page from external file"""
                 try:
                     error_page_path = server_instance.errors_dir / "503.html"
                     if error_page_path.exists():
-                        with open(error_page_path, 'r', encoding='utf-8') as f:
+                        with open(error_page_path, "r", encoding="utf-8") as f:
                             content = f.read()
                         # Replace placeholder with actual error message
-                        content = content.replace('{{ERROR_MESSAGE}}', error_msg)
+                        content = content.replace("{{ERROR_MESSAGE}}", error_msg)
                     else:
                         # Fallback content if error page doesn't exist
                         content = f"""<!DOCTYPE html>
 <html><head><title>503 - Service Unavailable</title></head>
 <body><h1>503 - Service Unavailable</h1><p>{error_msg}</p>
 <a href="/">Return Home</a></body></html>"""
-                    
+
                     self.send_response(503)
-                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
                     self.send_cors_headers()
                     self.end_headers()
-                    self.wfile.write(content.encode('utf-8'))
+                    self.wfile.write(content.encode("utf-8"))
                 except (ConnectionAbortedError, BrokenPipeError):
                     # Client disconnected - this is normal, just log and continue
                     print(f"🔌 Client disconnected during 503 response for {self.path}")
                 except Exception as e:
                     print(f"❌ Error serving 503 page: {e}")
-            
+
             def send_cors_headers(self):
                 """Send CORS headers if enabled"""
                 if server_instance.config.enable_cors:
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-            
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header(
+                        "Access-Control-Allow-Methods", "GET, POST, OPTIONS"
+                    )
+                    self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
             def log_message(self, format, *args):
                 """Override to provide better logging"""
                 print(f"🌐 {self.address_string()} - {format % args}")
-        
+
         return UnifiedRequestHandler
-    
+
     def start(self):
-        """Start the unified web server"""
+        """
+        Starts the unified web server, serving the landing page, control interface, documentation, and API proxy.
+
+        Checks if the configured port is available, prints startup information, and runs the server until interrupted. Handles keyboard interrupts and port conflicts gracefully, providing user guidance for resolving issues.
+
+        Returns:
+            bool: True if stopped by user, False if an error occurred during startup.
+        """
         try:
             handler_class = self.create_custom_handler()
-            
+
             # Check if port is available using os
-            if os.name == 'nt':  # Windows
+            if os.name == "nt":  # Windows
                 # On Windows, we can check if the port is in use
                 import socket
+
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = sock.connect_ex(('localhost', self.config.port))
+                result = sock.connect_ex(("localhost", self.config.port))
                 sock.close()
                 if result == 0:
                     print(f"⚠️  Port {self.config.port} appears to be in use")
-            
+
             with socketserver.TCPServer(("", self.config.port), handler_class) as httpd:
                 print("=" * 70)
                 print("🌐 LED Matrix Unified Web Server")
                 print("=" * 70)
-                print(f"� Srtarted: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                print(
+                    f"📅 Started: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
                 print(f"🌍 Server: http://localhost:{self.config.port}")
                 print(f"📁 Sites Directory: {self.sites_dir}")
-                print(f"🖥️  Platform: {os.name} ({os.uname().sysname if hasattr(os, 'uname') else 'Windows'})")
+                print(
+                    f"🖥️  Platform: {os.name} ({'Windows' if os.name == 'nt' else 'Unix-like'})"
+                )
                 print(f"🔧 Process ID: {os.getpid()}")
                 print("=" * 70)
                 print("🎯 Available Interfaces:")
                 print(f"   🏠 Landing Page:     http://localhost:{self.config.port}/")
-                print(f"   🎮 Control Interface: http://localhost:{self.config.port}/control")
-                print(f"   📚 Documentation:     http://localhost:{self.config.port}/docs")
-                print(f"   🔌 API Proxy:         http://localhost:{self.config.port}/api/*")
+                print(
+                    f"   🎮 Control Interface: http://localhost:{self.config.port}/control"
+                )
+                print(
+                    f"   📚 Documentation:     http://localhost:{self.config.port}/docs"
+                )
+                print(
+                    f"   🔌 API Proxy:         http://localhost:{self.config.port}/api/*"
+                )
                 print("=" * 70)
                 print("💡 For full functionality, ensure Python controller is running:")
                 print("   Command: python matrix.py controller")
                 print("=" * 70)
-                print("🌍 Environment Variables:")
-                print(f"   WEB_SERVER_PORT: {os.getenv('WEB_SERVER_PORT', 'not set')}")
-                print(f"   API_PROXY_PORT: {os.getenv('API_PROXY_PORT', 'not set')}")
-                print(f"   ENABLE_CORS: {os.getenv('ENABLE_CORS', 'not set')}")
+                print("🎯 Quick Commands:")
+                print("   • Open Control Interface: http://localhost:3000/control")
+                print("   • View Documentation: http://localhost:3000/docs")
+                print("   • Check API Status: http://localhost:3000/api/status")
+                print("=" * 70)
+                print("🔧 Reduced Logging: Status requests are now less verbose")
+                print(
+                    "📊 Smart Intervals: Connection checks every 15s (connected) to 60s (disconnected)"
+                )
                 print("=" * 70)
                 print("Press Ctrl+C to stop the server")
                 print()
-                
+
                 httpd.serve_forever()
-                
+
         except KeyboardInterrupt:
             print("\n🛑 Unified server stopped by user")
             return True
         except OSError as e:
             if e.errno == 98 or "Address already in use" in str(e):
-                print(f"❌ Port {self.config.port} is already in use. Try a different port or stop the existing server.")
-                print(f"💡 Set WEB_SERVER_PORT environment variable to use a different port")
+                print(
+                    f"❌ Port {self.config.port} is already in use. Try a different port or stop the existing server."
+                )
+                print(
+                    "💡 Set WEB_SERVER_PORT environment variable to use a different port"
+                )
             else:
                 print(f"❌ OS error starting server: {e}")
             return False
@@ -617,49 +693,45 @@ class UnifiedMatrixWebServer:
             print(f"❌ Unified server error: {e}")
             return False
 
-# Legacy compatibility - keep old class for backward compatibility
-class MatrixWebServer(UnifiedMatrixWebServer):
-    def __init__(self, port=3000, site_type="control"):
-        super().__init__(port)
-        self.site_type = site_type
-        print(f"⚠️  Legacy MatrixWebServer used. Consider using UnifiedMatrixWebServer for path-based routing.")
-        print(f"   Access your {site_type} interface at: http://localhost:{port}/{site_type}")
-    
-    def start(self):
-        """Start server and redirect to appropriate path"""
-        print(f"🔄 Starting unified server with legacy compatibility for {self.site_type}")
-        return super().start()
 
 def setup_signal_handlers():
-    """Setup signal handlers for graceful shutdown using os"""
+    """
+    Register signal handlers to enable graceful shutdown of the server on SIGTERM and SIGINT signals.
+    """
     import signal
-    
+
     def signal_handler(signum, frame):
         print(f"\n🔔 Received signal {signum}")
         print("🛑 Shutting down gracefully...")
         os._exit(0)
-    
+
     # Register signal handlers if available
-    if hasattr(signal, 'SIGTERM'):
+    if hasattr(signal, "SIGTERM"):
         signal.signal(signal.SIGTERM, signal_handler)
-    if hasattr(signal, 'SIGINT'):
+    if hasattr(signal, "SIGINT"):
         signal.signal(signal.SIGINT, signal_handler)
 
+
 def main():
-    """Main entry point for standalone web server"""
+    """
+    Starts the unified web server for the LED Matrix Control Center as a standalone application.
+
+    Initializes signal handlers for graceful shutdown, optionally prints environment configuration if debug mode is enabled, and launches the server.
+    """
     # Setup signal handlers
     setup_signal_handlers()
-    
+
     # Print environment info if DEBUG is set
-    if os.getenv('DEBUG', 'false').lower() == 'true':
+    if os.getenv("DEBUG", "false").lower() == "true":
         print("🐛 Debug mode enabled")
         print("🌍 Environment configuration:")
         for key, value in get_env_config().items():
             print(f"   {key}: {value}")
         print()
-    
-    server = MatrixWebServer()
+
+    server = UnifiedMatrixWebServer()
     server.start()
+
 
 if __name__ == "__main__":
     main()
