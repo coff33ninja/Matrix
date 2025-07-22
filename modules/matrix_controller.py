@@ -1,23 +1,35 @@
 #!/usr/bin/env python3
 """
 Web-Based LED Matrix Controller
-Provides a unified web interface for all LED matrix functionality
+Provides a unified web interface for all LED matrix functionality with async support
 """
 
+import asyncio
 import threading
 import time
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import colorsys
-import urllib.parse
 import json
 import os
 import psutil  # For system monitoring
-from http.server import BaseHTTPRequestHandler
 from datetime import datetime
-import socketserver
 import mimetypes
 import logging
+from concurrent.futures import ThreadPoolExecutor
+import weakref
+
+# Async web server imports
+try:
+    from aiohttp import web, WSMsgType
+    import aiofiles
+    AIOHTTP_AVAILABLE = True
+except ImportError:
+    print("⚠️  aiohttp not available, falling back to basic HTTP server")
+    from http.server import BaseHTTPRequestHandler
+    import socketserver
+    import urllib.parse
+    AIOHTTP_AVAILABLE = False
 
 # Import shared modules
 from matrix_config import config
@@ -56,11 +68,12 @@ except Exception:
 
 
 class WebMatrixController:
-    def __init__(self, port=8080):
+    def __init__(self, port=8080, use_async=True):
         """
-        Initialize the WebMatrixController with matrix configuration and start the web server.
+        Initialize the WebMatrixController with matrix configuration and async web server support.
 
-        Sets up matrix dimensions, state variables, and the data buffer for LED control. Launches the HTTP server on the specified port for web-based matrix management.
+        Sets up matrix dimensions, state variables, data buffer, thread pool for CPU-intensive tasks,
+        and WebSocket connections for real-time updates.
         """
         logger.info(f"INIT: Initializing WebMatrixController on port {port}")
 
@@ -69,25 +82,157 @@ class WebMatrixController:
         self.W = int(config.get("matrix_width") or 16)
         self.H = int(config.get("matrix_height") or 16)
         self.port = port
+        self.use_async = use_async and AIOHTTP_AVAILABLE
 
         logger.info(f"MATRIX: Matrix size: {self.W}×{self.H}")
+        logger.info(f"SERVER: Using {'async aiohttp' if self.use_async else 'basic HTTP'} server")
 
         # State attributes
         self.start_time = datetime.now()
         self.current_mode = "idle"
         self.is_streaming = False
+        self.animation_running = False
 
         # Matrix data with proper bounds
         self.matrix_data = np.zeros((self.H or 16, self.W or 16, 3), dtype=np.uint8)
         logger.info(f"BUFFER: Matrix data buffer initialized: {self.matrix_data.shape}")
-        logger.info(f"BUFFER: Matrix data buffer initialized: {self.matrix_data.shape}")
 
-        # Animation thread
-        self.animation_thread = None
+        # Async components
+        if self.use_async:
+            self.app = None
+            self.websockets = weakref.WeakSet()
+            self.executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="MatrixWorker")
+            self.animation_task = None
+        else:
+            # Animation thread for fallback mode
+            self.animation_thread = None
 
-        # Start web server
-        logger.info("SERVER: Starting web server...")
-        self._start_web_server()
+    def run(self):
+        """Start the web server using the appropriate method (async or sync)"""
+        if self.use_async:
+            asyncio.run(self._run_async_server())
+        else:
+            self._start_web_server()
+
+    async def _run_async_server(self):
+        """Run the async aiohttp server"""
+        logger.info("SERVER: Starting async web server...")
+        
+        # Create aiohttp application
+        self.app = web.Application()
+        
+        # Add routes
+        self._setup_async_routes()
+        
+        # Start server
+        runner = web.AppRunner(self.app)
+        await runner.setup()
+        
+        site = web.TCPSite(runner, 'localhost', self.port)
+        await site.start()
+        
+        logger.info(f"🚀 Async server running on http://localhost:{self.port}")
+        
+        try:
+            # Keep server running
+            while True:
+                await asyncio.sleep(1)
+        except KeyboardInterrupt:
+            logger.info("🛑 Shutting down async server...")
+        finally:
+            await runner.cleanup()
+            self.executor.shutdown(wait=True)
+
+    def _setup_async_routes(self):
+        """Setup aiohttp routes"""
+        # API routes
+        self.app.router.add_get('/api/status', self._async_status)
+        self.app.router.add_get('/api/config', self._async_config)
+        self.app.router.add_get('/api/system', self._async_system)
+        self.app.router.add_get('/api/hardware', self._async_hardware)
+        self.app.router.add_get('/api/backups', self._async_backups)
+        self.app.router.add_get('/api/palettes', self._async_palettes)
+        self.app.router.add_get('/api/options', self._async_options)
+        self.app.router.add_get('/api/matrix/data', self._async_matrix_data)
+        self.app.router.add_get('/api/matrix/preview', self._async_matrix_preview)
+        
+        # POST routes
+        self.app.router.add_post('/api/pattern', self._async_pattern)
+        self.app.router.add_post('/api/clear', self._async_clear)
+        self.app.router.add_post('/api/text', self._async_text)
+        self.app.router.add_post('/api/generate', self._async_generate)
+        self.app.router.add_post('/api/wiring', self._async_wiring)
+        self.app.router.add_post('/api/config', self._async_config_update)
+        self.app.router.add_post('/api/backup', self._async_backup)
+        self.app.router.add_post('/api/upload', self._async_upload)
+        
+        # DELETE routes
+        self.app.router.add_delete('/api/palettes/{name}', self._async_delete_palette)
+        
+        # WebSocket route
+        self.app.router.add_get('/ws', self._websocket_handler)
+        
+        # Static files
+        self.app.router.add_get('/{path:.*}', self._async_static_handler)
+
+    async def _websocket_handler(self, request):
+        """Handle WebSocket connections for real-time updates"""
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+        
+        self.websockets.add(ws)
+        logger.info(f"🔌 WebSocket connected, total: {len(self.websockets)}")
+        
+        try:
+            async for msg in ws:
+                if msg.type == WSMsgType.TEXT:
+                    try:
+                        data = json.loads(msg.data)
+                        await self._handle_websocket_message(ws, data)
+                    except json.JSONDecodeError:
+                        await ws.send_str(json.dumps({"error": "Invalid JSON"}))
+                elif msg.type == WSMsgType.ERROR:
+                    logger.error(f'WebSocket error: {ws.exception()}')
+        except Exception as e:
+            logger.error(f"WebSocket error: {e}")
+        finally:
+            logger.info(f"🔌 WebSocket disconnected, remaining: {len(self.websockets) - 1}")
+        
+        return ws
+
+    async def _handle_websocket_message(self, ws, data):
+        """Handle incoming WebSocket messages"""
+        msg_type = data.get('type')
+        
+        if msg_type == 'subscribe':
+            # Client wants to subscribe to matrix updates
+            await ws.send_str(json.dumps({
+                "type": "subscribed",
+                "message": "Subscribed to matrix updates"
+            }))
+        elif msg_type == 'ping':
+            await ws.send_str(json.dumps({"type": "pong"}))
+
+    async def _broadcast_to_websockets(self, message):
+        """Broadcast message to all connected WebSocket clients"""
+        if not self.websockets:
+            return
+            
+        # Remove closed connections
+        closed_ws = []
+        for ws in self.websockets:
+            if ws.closed:
+                closed_ws.append(ws)
+        
+        for ws in closed_ws:
+            self.websockets.discard(ws)
+        
+        # Broadcast to active connections
+        if self.websockets:
+            await asyncio.gather(
+                *[ws.send_str(json.dumps(message)) for ws in self.websockets],
+                return_exceptions=True
+            )
 
     def _start_web_server(self):
         """
@@ -1325,20 +1470,7 @@ class WebMatrixController:
             logger.error(f"Error setting pixel: {e}")
             return False
 
-    def run(self):
-        """
-        Starts the main loop for the web-based matrix controller, keeping it active until interrupted by the user.
 
-        The controller remains running, handling web requests and matrix updates, until a keyboard interrupt (Ctrl+C) is received, at which point any running animations are stopped before exiting.
-        """
-        try:
-            print("Web Matrix Controller running. Press Ctrl+C to exit.")
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nController stopped by user")
-        finally:
-            self.stop_animation()
 
 
 if __name__ == "__main__":
@@ -1576,3 +1708,489 @@ if __name__ == "__main__":
             "shipping": round(total * 0.1, 2),  # 10% shipping estimate
             "total": round(total * 1.1, 2),
         }
+    # Async API handlers
+    async def _async_status(self, request):
+        """Async status endpoint"""
+        status = {
+            "connected": True,
+            "matrix": {"width": self.W, "height": self.H},
+            "current_mode": self.current_mode,
+            "timestamp": datetime.now().isoformat(),
+            "animation_running": getattr(self, 'animation_running', False)
+        }
+        return web.json_response(status)
+
+    async def _async_config(self, request):
+        """Async config endpoint"""
+        config_data = {
+            "connectionMode": self.config.get("connection_mode", "USB"),
+            "serialPort": self.config.get("serial_port", ""),
+            "baudRate": self.config.get("baud_rate", 115200),
+            "matrixWidth": self.W,
+            "matrixHeight": self.H,
+        }
+        return web.json_response(config_data)
+
+    async def _async_system(self, request):
+        """Async system stats endpoint"""
+        try:
+            # Run CPU-intensive operations in thread pool
+            loop = asyncio.get_event_loop()
+            cpu_percent = await loop.run_in_executor(self.executor, psutil.cpu_percent)
+            memory = await loop.run_in_executor(self.executor, psutil.virtual_memory)
+            
+            system_stats = {
+                "cpu": cpu_percent,
+                "memory": memory.percent,
+                "uptime": str(datetime.now() - self.start_time).split(".")[0],
+                "temperature": "N/A",
+            }
+        except Exception:
+            system_stats = {
+                "cpu": "N/A",
+                "memory": "N/A", 
+                "uptime": "N/A",
+                "temperature": "N/A",
+            }
+        return web.json_response(system_stats)
+
+    async def _async_hardware(self, request):
+        """Async hardware info endpoint"""
+        hardware_info = {
+            "controller": "Async Web Matrix Controller",
+            "port": self.config.get("serial_port", "Not connected"),
+            "baudRate": self.config.get("baud_rate", 115200),
+            "matrixSize": f"{self.W}×{self.H}",
+        }
+        return web.json_response(hardware_info)
+
+    async def _async_backups(self, request):
+        """Async backups list endpoint"""
+        backups = []
+        try:
+            backup_dir = os.path.join(os.path.dirname(__file__), "..", "backups")
+            if os.path.exists(backup_dir):
+                backups = [f for f in os.listdir(backup_dir) if f.endswith(".json")]
+        except Exception:
+            pass
+        return web.json_response(backups)
+
+    async def _async_palettes(self, request):
+        """Async palettes endpoint"""
+        loop = asyncio.get_event_loop()
+        palettes = await loop.run_in_executor(self.executor, self.get_palettes)
+        return web.json_response(palettes)
+
+    async def _async_options(self, request):
+        """Async options endpoint"""
+        options = {
+            "ledsPerMeter": [
+                {"value": 30, "label": "30 LEDs/m (Low Density)", "spacing": "33.3mm"},
+                {"value": 60, "label": "60 LEDs/m (Medium Density)", "spacing": "16.7mm"},
+                {"value": 144, "label": "144 LEDs/m (High Density)", "spacing": "6.9mm"},
+                {"value": 256, "label": "256 LEDs/m (Ultra High Density)", "spacing": "3.9mm"},
+            ],
+            "powerSupplies": [
+                {"value": "5V2A", "label": "5V 2A (10W)", "maxLeds": 33, "price": 15},
+                {"value": "5V5A", "label": "5V 5A (25W)", "maxLeds": 83, "price": 25},
+                {"value": "5V10A", "label": "5V 10A (50W)", "maxLeds": 167, "price": 35},
+                {"value": "5V20A", "label": "5V 20A (100W)", "maxLeds": 333, "price": 55},
+                {"value": "5V30A", "label": "5V 30A (150W)", "maxLeds": 500, "price": 75},
+                {"value": "5V40A", "label": "5V 40A (200W)", "maxLeds": 667, "price": 95},
+            ],
+            "controllers": [
+                {"value": "arduino_uno", "label": "Arduino Uno R3", "voltage": "5V", "price": 25},
+                {"value": "arduino_nano", "label": "Arduino Nano", "voltage": "5V", "price": 15},
+                {"value": "esp32", "label": "ESP32 Dev Board", "voltage": "3.3V", "price": 12},
+                {"value": "esp8266", "label": "ESP8266 NodeMCU", "voltage": "3.3V", "price": 8},
+            ],
+        }
+        return web.json_response(options)
+
+    async def _async_matrix_data(self, request):
+        """Async matrix data endpoint"""
+        try:
+            loop = asyncio.get_event_loop()
+            matrix_list = await loop.run_in_executor(self.executor, self._get_matrix_data)
+            
+            return web.json_response({
+                "status": "success",
+                "matrix": matrix_list,
+                "width": self.W,
+                "height": self.H
+            })
+        except Exception as e:
+            return web.json_response({"error": str(e)}, status=500)
+
+    def _get_matrix_data(self):
+        """Helper to get matrix data (runs in thread pool)"""
+        matrix_list = []
+        for y in range(self.H):
+            row = []
+            for x in range(self.W):
+                r, g, b = self.matrix_data[y, x]
+                color = f"#{r:02x}{g:02x}{b:02x}"
+                row.append(color)
+            matrix_list.append(row)
+        return matrix_list
+
+    async def _async_matrix_preview(self, request):
+        """Async matrix preview endpoint"""
+        try:
+            loop = asyncio.get_event_loop()
+            img_data = await loop.run_in_executor(self.executor, self._generate_preview_image)
+            
+            return web.json_response({
+                "image": img_data,
+                "width": self.W,
+                "height": self.H,
+            })
+        except Exception as e:
+            return web.json_response({"error": str(e)}, status=500)
+
+    def _generate_preview_image(self):
+        """Generate preview image (runs in thread pool)"""
+        import base64
+        from io import BytesIO
+
+        preview_size = 16
+        preview = Image.new("RGB", (self.W * preview_size, self.H * preview_size))
+        draw = ImageDraw.Draw(preview)
+
+        for y in range(self.H):
+            for x in range(self.W):
+                color = tuple(self.matrix_data[y, x])
+                draw.rectangle([
+                    x * preview_size, y * preview_size,
+                    (x + 1) * preview_size - 1, (y + 1) * preview_size - 1
+                ], fill=color)
+
+        buffer = BytesIO()
+        preview.save(buffer, format="PNG")
+        img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        return f"data:image/png;base64,{img_str}"
+
+    async def _async_pattern(self, request):
+        """Async pattern application endpoint"""
+        try:
+            data = await request.json()
+            pattern = data.get("pattern", "solid")
+            color = data.get("color", "#ff0000")
+            brightness = int(data.get("brightness", 128))
+            speed = int(data.get("speed", 50))
+
+            # Run pattern application in thread pool
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                self.executor, self.apply_pattern, pattern, color, brightness, speed
+            )
+            
+            # Broadcast update to WebSocket clients
+            if hasattr(self, 'websockets'):
+                await self._broadcast_to_websockets({
+                    "type": "pattern_applied",
+                    "pattern": pattern,
+                    "color": color
+                })
+            
+            return web.json_response({
+                "status": "success",
+                "message": f"Applied {pattern} pattern",
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    async def _async_clear(self, request):
+        """Async clear matrix endpoint"""
+        try:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(self.executor, self.clear_matrix)
+            
+            if hasattr(self, 'websockets'):
+                await self._broadcast_to_websockets({
+                    "type": "matrix_cleared"
+                })
+            
+            return web.json_response({
+                "status": "success",
+                "message": "Matrix cleared"
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    async def _async_text(self, request):
+        """Async text display endpoint"""
+        try:
+            data = await request.json()
+            text = data.get("text", "")
+            scroll = data.get("scroll", False)
+
+            loop = asyncio.get_event_loop()
+            if scroll:
+                await loop.run_in_executor(self.executor, self.scroll_text, text)
+            else:
+                await loop.run_in_executor(self.executor, self.draw_text, text)
+
+            if hasattr(self, 'websockets'):
+                await self._broadcast_to_websockets({
+                    "type": "text_displayed",
+                    "text": text,
+                    "scroll": scroll
+                })
+
+            return web.json_response({
+                "status": "success",
+                "message": f"Text {'scrolling' if scroll else 'displayed'}",
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    async def _async_generate(self, request):
+        """Async Arduino code generation endpoint"""
+        try:
+            data = await request.json()
+            board = data.get("board", "uno")
+            width = data.get("width", 16)
+            height = data.get("height", 16)
+
+            loop = asyncio.get_event_loop()
+            code = await loop.run_in_executor(
+                self.executor, self._generate_arduino_code, board, width, height
+            )
+            
+            return web.json_response({"status": "success", "code": code})
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    def _generate_arduino_code(self, board, width, height):
+        """Generate Arduino code (runs in thread pool)"""
+        from arduino_generator import ArduinoGenerator
+        generator = ArduinoGenerator()
+        return generator.generate_code(board, matrix_width=width, matrix_height=height)
+
+    async def _async_wiring(self, request):
+        """Async wiring diagram generation endpoint"""
+        try:
+            data = await request.json()
+            controller_type = data.get("controller", "arduino_uno")
+            width = data.get("width", 16)
+            height = data.get("height", 16)
+            leds_per_meter = data.get("ledsPerMeter", 144)
+            power_supply = data.get("powerSupply", "5V10A")
+
+            loop = asyncio.get_event_loop()
+            wiring_data = await loop.run_in_executor(
+                self.executor, self._generate_wiring_data, 
+                controller_type, width, height, leds_per_meter, power_supply
+            )
+
+            return web.json_response({"status": "success", "wiring": wiring_data})
+        except Exception as e:
+            logger.error(f"ERROR: Wiring generation failed: {e}")
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    def _generate_wiring_data(self, controller_type, width, height, leds_per_meter, power_supply):
+        """Generate wiring data (runs in thread pool)"""
+        wiring_gen = WiringDiagramGenerator()
+        power_req = wiring_gen.calculate_power_requirements(width, height)
+        total_leds = power_req["total_leds"]
+        strip_length = total_leds / leds_per_meter
+
+        mermaid_diagram = wiring_gen.generate_mermaid_diagram(
+            controller_type, width, height, psu=power_supply
+        )
+
+        components = wiring_gen._generate_component_list(
+            wiring_gen.controllers[controller_type],
+            wiring_gen.power_supplies.get(power_supply, wiring_gen.power_supplies["5V40A"]),
+        )
+
+        estimated_cost = wiring_gen._estimate_project_cost(
+            wiring_gen.controllers[controller_type],
+            wiring_gen.power_supplies.get(power_supply, wiring_gen.power_supplies["5V40A"]),
+            total_leds,
+        )
+
+        return {
+            "controller": controller_type,
+            "matrix": {"width": width, "height": height, "totalLeds": total_leds},
+            "power": {
+                "maxCurrent": round(power_req["total_current_amps"], 2),
+                "maxPower": round(power_req["total_current_amps"] * 5, 1),
+                "recommendedPSU": power_req["recommended_psu"],
+                "selectedPSU": power_supply,
+            },
+            "strip": {
+                "ledsPerMeter": leds_per_meter,
+                "totalLength": round(strip_length, 2),
+                "segments": max(1, int(strip_length)),
+            },
+            "mermaidDiagram": mermaid_diagram,
+            "components": components,
+            "estimatedCost": estimated_cost,
+        }
+
+    async def _async_config_update(self, request):
+        """Async config update endpoint"""
+        try:
+            data = await request.json()
+            
+            # Save configuration
+            for key, value in data.items():
+                if key == "connectionMode":
+                    self.config.set("connection_mode", value)
+                elif key == "serialPort":
+                    self.config.set("serial_port", value)
+                elif key == "baudRate":
+                    self.config.set("baud_rate", value)
+                elif key == "matrixWidth":
+                    self.config.set("matrix_width", value)
+                    self.W = int(value)
+                elif key == "matrixHeight":
+                    self.config.set("matrix_height", value)
+                    self.H = int(value)
+
+            # Save config in thread pool
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(self.executor, self.config.save)
+
+            return web.json_response({
+                "status": "success",
+                "message": "Configuration saved"
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    async def _async_backup(self, request):
+        """Async backup creation endpoint"""
+        try:
+            loop = asyncio.get_event_loop()
+            backup_file = await loop.run_in_executor(self.executor, self._create_backup)
+            
+            return web.json_response({
+                "status": "success",
+                "message": f"Backup created: {backup_file}"
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    def _create_backup(self):
+        """Create configuration backup (runs in thread pool)"""
+        backup_dir = os.path.join(os.path.dirname(__file__), "..", "backups")
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = f"config_backup_{timestamp}.json"
+        backup_path = os.path.join(backup_dir, backup_file)
+        
+        backup_data = {
+            "timestamp": datetime.now().isoformat(),
+            "config": dict(self.config._config)
+        }
+        
+        with open(backup_path, 'w') as f:
+            json.dump(backup_data, f, indent=2)
+        
+        return backup_file
+
+    async def _async_upload(self, request):
+        """Async image upload endpoint"""
+        try:
+            data = await request.json()
+            image_data = data.get("image", "")
+            
+            if not image_data.startswith("data:image/"):
+                return web.json_response({"status": "error", "message": "Invalid image data"}, status=400)
+
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(self.executor, self._process_uploaded_image, image_data)
+            
+            if hasattr(self, 'websockets'):
+                await self._broadcast_to_websockets({
+                    "type": "image_uploaded"
+                })
+
+            return web.json_response({
+                "status": "success",
+                "message": "Image uploaded and displayed"
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    def _process_uploaded_image(self, image_data):
+        """Process uploaded image (runs in thread pool)"""
+        import base64
+        from io import BytesIO
+        
+        # Extract base64 data
+        header, data = image_data.split(',', 1)
+        image_bytes = base64.b64decode(data)
+        
+        # Load and resize image
+        image = Image.open(BytesIO(image_bytes))
+        image = image.convert('RGB')
+        image = image.resize((self.W, self.H), LANCZOS_RESAMPLE)
+        
+        # Update matrix data
+        for y in range(self.H):
+            for x in range(self.W):
+                r, g, b = image.getpixel((x, y))
+                self.matrix_data[y, x] = [r, g, b]
+
+    async def _async_delete_palette(self, request):
+        """Async palette deletion endpoint"""
+        try:
+            palette_name = request.match_info['name']
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(self.executor, self.delete_palette, palette_name)
+            
+            return web.json_response({
+                "status": "success",
+                "message": "Palette deleted"
+            })
+        except Exception as e:
+            return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    async def _async_static_handler(self, request):
+        """Async static file handler"""
+        path = request.match_info['path']
+        
+        # Default to index.html for root path
+        if not path or path == "":
+            path = "index.html"
+
+        # Security: prevent directory traversal
+        if '..' in path or path.startswith('/'):
+            return web.Response(status=404, text="Not Found")
+
+        # Look in sites directory
+        sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
+        control_dir = os.path.join(sites_dir, "control")
+        full_path = os.path.join(control_dir, path)
+
+        try:
+            if os.path.exists(full_path) and os.path.isfile(full_path):
+                # Determine MIME type
+                mime_type, _ = mimetypes.guess_type(full_path)
+                if mime_type is None:
+                    mime_type = "application/octet-stream"
+
+                # Read file asynchronously if possible
+                if AIOHTTP_AVAILABLE:
+                    try:
+                        async with aiofiles.open(full_path, 'rb') as f:
+                            content = await f.read()
+                    except Exception:
+                        # Fallback to sync read
+                        with open(full_path, 'rb') as f:
+                            content = f.read()
+                else:
+                    with open(full_path, 'rb') as f:
+                        content = f.read()
+
+                return web.Response(body=content, content_type=mime_type)
+            else:
+                return web.Response(status=404, text="File not found")
+        except Exception as e:
+            logger.error(f"Error serving static file {path}: {e}")
+            return web.Response(status=500, text=f"Server Error: {str(e)}")

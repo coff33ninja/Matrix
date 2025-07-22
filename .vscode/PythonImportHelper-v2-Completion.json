@@ -425,6 +425,15 @@
         "documentation": {}
     },
     {
+        "label": "asyncio",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "asyncio",
+        "description": "asyncio",
+        "detail": "asyncio",
+        "documentation": {}
+    },
+    {
         "label": "colorsys",
         "kind": 6,
         "isExtraImport": true,
@@ -434,47 +443,12 @@
         "documentation": {}
     },
     {
-        "label": "urllib.parse",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "urllib.parse",
-        "description": "urllib.parse",
-        "detail": "urllib.parse",
-        "documentation": {}
-    },
-    {
         "label": "psutil",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "psutil",
         "description": "psutil",
         "detail": "psutil",
-        "documentation": {}
-    },
-    {
-        "label": "http.server",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "http.server",
-        "description": "http.server",
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "BaseHTTPRequestHandler",
-        "importPath": "http.server",
-        "description": "http.server",
-        "isExtraImport": true,
-        "detail": "http.server",
-        "documentation": {}
-    },
-    {
-        "label": "socketserver",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "socketserver",
-        "description": "socketserver",
-        "detail": "socketserver",
         "documentation": {}
     },
     {
@@ -493,6 +467,23 @@
         "importPath": "logging",
         "description": "logging",
         "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "ThreadPoolExecutor",
+        "importPath": "concurrent.futures",
+        "description": "concurrent.futures",
+        "isExtraImport": true,
+        "detail": "concurrent.futures",
+        "documentation": {}
+    },
+    {
+        "label": "weakref",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "weakref",
+        "description": "weakref",
+        "detail": "weakref",
         "documentation": {}
     },
     {
@@ -535,6 +526,33 @@
         "importPath": "itertools",
         "description": "itertools",
         "detail": "itertools",
+        "documentation": {}
+    },
+    {
+        "label": "http.server",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "http.server",
+        "description": "http.server",
+        "detail": "http.server",
+        "documentation": {}
+    },
+    {
+        "label": "socketserver",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socketserver",
+        "description": "socketserver",
+        "detail": "socketserver",
+        "documentation": {}
+    },
+    {
+        "label": "urllib.parse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "urllib.parse",
+        "description": "urllib.parse",
+        "detail": "urllib.parse",
         "documentation": {}
     },
     {
@@ -1220,7 +1238,7 @@
         "kind": 2,
         "importPath": "modules.commands",
         "description": "modules.commands",
-        "peekOfCode": "def cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")\n    try:\n        from matrix_controller import WebMatrixController\n        controller = WebMatrixController()",
+        "peekOfCode": "def cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")\n    # Check for async support\n    import importlib.util\n    use_async = importlib.util.find_spec(\"aiohttp\") is not None",
         "detail": "modules.commands",
         "documentation": {}
     },
@@ -1292,7 +1310,7 @@
         "kind": 5,
         "importPath": "modules.commands",
         "description": "modules.commands",
-        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"",
+        "peekOfCode": "current_dir = os.path.dirname(os.path.abspath(__file__))\nmodules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"",
         "detail": "modules.commands",
         "documentation": {}
     },
@@ -1301,7 +1319,7 @@
         "kind": 5,
         "importPath": "modules.commands",
         "description": "modules.commands",
-        "peekOfCode": "modules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")",
+        "peekOfCode": "modules_dir = os.path.join(current_dir, \"..\", \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\ndef cmd_controller(args):\n    \"\"\"\n    Starts the web-based LED Matrix Controller with async support.\n    Returns:\n        bool: True if the controller starts successfully, False if an error occurs.\n    \"\"\"\n    print(\"🎮 Starting LED Matrix Controller...\")",
         "detail": "modules.commands",
         "documentation": {}
     },
@@ -1481,7 +1499,7 @@
         "kind": 6,
         "importPath": "modules.matrix_controller",
         "description": "modules.matrix_controller",
-        "peekOfCode": "class WebMatrixController:\n    def __init__(self, port=8080):\n        \"\"\"\n        Initialize the WebMatrixController with matrix configuration and start the web server.\n        Sets up matrix dimensions, state variables, and the data buffer for LED control. Launches the HTTP server on the specified port for web-based matrix management.\n        \"\"\"\n        logger.info(f\"INIT: Initializing WebMatrixController on port {port}\")\n        # Matrix properties from shared config\n        self.config = config\n        self.W = int(config.get(\"matrix_width\") or 16)",
+        "peekOfCode": "class WebMatrixController:\n    def __init__(self, port=8080, use_async=True):\n        \"\"\"\n        Initialize the WebMatrixController with matrix configuration and async web server support.\n        Sets up matrix dimensions, state variables, data buffer, thread pool for CPU-intensive tasks,\n        and WebSocket connections for real-time updates.\n        \"\"\"\n        logger.info(f\"INIT: Initializing WebMatrixController on port {port}\")\n        # Matrix properties from shared config\n        self.config = config",
         "detail": "modules.matrix_controller",
         "documentation": {}
     },
@@ -1612,6 +1630,15 @@
         "documentation": {}
     },
     {
+        "label": "sys.argv",
+        "kind": 5,
+        "importPath": "tests.run_tests",
+        "description": "tests.run_tests",
+        "peekOfCode": "sys.argv = ['matrix.py', 'test'] + sys.argv[1:]\ntry:\n    from matrix import main\n    success = main()\n    sys.exit(0 if success else 1)\nexcept Exception as e:\n    print(f\"❌ Error running unified entry point: {e}\")\n    print(\"Falling back to direct test execution...\")\n    # Fallback to direct execution\n    try:",
+        "detail": "tests.run_tests",
+        "documentation": {}
+    },
+    {
         "label": "TestArduinoGenerator",
         "kind": 6,
         "importPath": "tests.test_arduino_generator",
@@ -1690,6 +1717,33 @@
         "description": "tests.test_arduino_models",
         "peekOfCode": "parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nsys.path.insert(0, parent_dir)\nsys.path.insert(0, os.path.join(parent_dir, 'modules'))\nfrom arduino_models import (\n    ARDUINO_MODELS,\n    get_model_info,\n    get_available_models,\n    get_model_display_names,\n    validate_model,\n    get_recommended_model_for_leds,",
         "detail": "tests.test_arduino_models",
+        "documentation": {}
+    },
+    {
+        "label": "test_imports",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def test_imports():\n    \"\"\"Test that all required modules can be imported\"\"\"\n    print(\"🧪 Testing imports...\")\n    try:\n        from matrix_controller import WebMatrixController\n        print(\"✅ WebMatrixController imported successfully\")\n    except ImportError as e:\n        print(f\"❌ Failed to import WebMatrixController: {e}\")\n        return False\n    try:",
+        "detail": "tests.test_async",
+        "documentation": {}
+    },
+    {
+        "label": "test_controller_creation",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def test_controller_creation():\n    \"\"\"Test creating the controller instance\"\"\"\n    print(\"\\n🏗️  Testing controller creation...\")\n    try:\n        from matrix_controller import WebMatrixController\n        # Test with async mode\n        controller = WebMatrixController(port=8081, use_async=True)\n        print(\"✅ Async controller created successfully\")\n        # Test with sync mode\n        controller_sync = WebMatrixController(port=8082, use_async=False)",
+        "detail": "tests.test_async",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "tests.test_async",
+        "description": "tests.test_async",
+        "peekOfCode": "def main():\n    \"\"\"Run basic tests\"\"\"\n    print(\"🚀 LED Matrix Async Controller Test\")\n    print(\"=\" * 50)\n    # Test imports\n    import_result = test_imports()\n    if not import_result:\n        print(\"\\n❌ Import tests failed\")\n        return False\n    imports_ok, async_available = import_result",
+        "detail": "tests.test_async",
         "documentation": {}
     },
     {
@@ -2455,15 +2509,6 @@
         "description": "matrix",
         "peekOfCode": "modules_dir = os.path.join(current_dir, \"modules\")\nsys.path.insert(0, current_dir)\nsys.path.insert(0, modules_dir)\nfrom modules.commands import (\n    cmd_controller,\n    cmd_start,\n    cmd_generate,\n    cmd_design,\n    cmd_wiring,\n    cmd_config,",
         "detail": "matrix",
-        "documentation": {}
-    },
-    {
-        "label": "sys.argv",
-        "kind": 5,
-        "importPath": "run_tests",
-        "description": "run_tests",
-        "peekOfCode": "sys.argv = ['matrix.py', 'test'] + sys.argv[1:]\ntry:\n    from matrix import main\n    success = main()\n    sys.exit(0 if success else 1)\nexcept Exception as e:\n    print(f\"❌ Error running unified entry point: {e}\")\n    print(\"Falling back to direct test execution...\")\n    # Fallback to direct execution\n    try:",
-        "detail": "run_tests",
         "documentation": {}
     }
 ]

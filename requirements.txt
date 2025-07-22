@@ -3,4 +3,8 @@ Pillow
 psutil
 pyserial
 requests
+aiohttp
+aiofiles
+websockets
+asyncio-mqtt
 # colorsys is a standard library module, no need to install

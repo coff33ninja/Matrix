@@ -14,18 +14,29 @@ modules_dir = os.path.join(current_dir, "..", "modules")
 sys.path.insert(0, current_dir)
 sys.path.insert(0, modules_dir)
 
+
 def cmd_controller(args):
     """
-    Starts the web-based LED Matrix Controller.
+    Starts the web-based LED Matrix Controller with async support.
 
     Returns:
         bool: True if the controller starts successfully, False if an error occurs.
     """
     print("🎮 Starting LED Matrix Controller...")
+
+    # Check for async support
+    import importlib.util
+
+    use_async = importlib.util.find_spec("aiohttp") is not None
+    if use_async:
+        print("✅ aiohttp available - using async server")
+    else:
+        print("⚠️  aiohttp not available - using basic HTTP server")
+
     try:
         from matrix_controller import WebMatrixController
 
-        controller = WebMatrixController()
+        controller = WebMatrixController(use_async=use_async)
         controller.run()
     except ImportError as e:
         print(f"❌ Error importing controller: {e}")
@@ -47,7 +58,6 @@ def cmd_start(args):
         bool: True if services are stopped via keyboard interrupt, False if an error occurs during startup.
     """
 
-
     print("🚀 Starting Complete LED Matrix System...")
     print("   - Web-based Matrix Controller")
     print("   - Control Interface Server")
@@ -57,11 +67,19 @@ def cmd_start(args):
     # Start web controller in a separate thread
     def start_controller():
         """
-        Starts the web-based LED matrix controller using the configured port.
+        Starts the web-based LED matrix controller using the configured port with async support.
         """
         from modules.matrix_controller import WebMatrixController
         from modules.matrix_config import config
-        controller = WebMatrixController(port=config.get("web_port") or 8080)
+
+        # Check for async support
+        import importlib.util
+
+        use_async = importlib.util.find_spec("aiohttp") is not None
+
+        controller = WebMatrixController(
+            port=config.get("web_port") or 8080, use_async=use_async
+        )
         controller.run()
 
     # Start unified web server
@@ -72,6 +90,7 @@ def cmd_start(args):
         time.sleep(1)  # Give controller time to start
         from modules.web_server import UnifiedMatrixWebServer
         from modules.matrix_config import config
+
         server = UnifiedMatrixWebServer(port=config.get("web_server_port") or 3000)
         server.start()
 
@@ -470,7 +489,7 @@ def cmd_info(args):
         print("🧪 Test Status:")
         try:
             # Try to import to check availability
-            __import__('tests.run_all_tests')
+            __import__("tests.run_all_tests")
             print("   Test Suite: ✅ Available")
             print("   Run 'python matrix.py test' to execute tests")
         except Exception:
