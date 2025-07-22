@@ -315,6 +315,27 @@ class WebMatrixController:
                     }
                     self.send_json_response(options)
 
+                elif path == "/api/matrix/data":
+                    # Return current matrix data as JSON for frontend grid
+                    try:
+                        matrix_list = []
+                        for y in range(controller.H):
+                            row = []
+                            for x in range(controller.W):
+                                r, g, b = controller.matrix_data[y, x]
+                                color = f"#{r:02x}{g:02x}{b:02x}"
+                                row.append(color)
+                            matrix_list.append(row)
+                        
+                        self.send_json_response({
+                            "status": "success",
+                            "matrix": matrix_list,
+                            "width": controller.W,
+                            "height": controller.H
+                        })
+                    except Exception as e:
+                        self.send_json_response({"error": str(e)}, 500)
+
                 elif path == "/api/matrix/preview":
                     # Return current matrix state as base64 image
                     try:
@@ -722,7 +743,16 @@ class WebMatrixController:
                             img = img.convert("RGB").resize(
                                 (controller.W, controller.H), LANCZOS_RESAMPLE
                             )
-                            controller.matrix_data = np.array(img)
+                            
+                            # Convert image to matrix data format
+                            img_array = np.array(img)
+                            if len(img_array.shape) == 3 and img_array.shape[2] == 3:
+                                controller.matrix_data = img_array.astype(np.uint8)
+                            else:
+                                # Handle grayscale or other formats
+                                controller.matrix_data = np.stack([img_array] * 3, axis=-1).astype(np.uint8)
+                            
+                            logger.info(f"IMAGE: Processed image to {controller.matrix_data.shape}")
                             controller.send_frame()
 
                             self.send_json_response(

@@ -278,6 +278,11 @@ class MatrixController {
         if (importImageInput) {
             importImageInput.addEventListener('change', (e) => this.importImage(e));
         }
+
+        const refreshMatrixBtn = document.getElementById('refresh-matrix-btn');
+        if (refreshMatrixBtn) {
+            refreshMatrixBtn.addEventListener('click', () => this.refreshMatrixFromBackend());
+        }
     }
 
     async applyMatrixConfig() {
@@ -580,6 +585,34 @@ class MatrixController {
         });
     }
 
+    async refreshMatrixFromBackend() {
+        try {
+            const response = await fetch(`${this.apiBase}/matrix/data`);
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update drawing data from backend
+                this.drawingData = data.matrix;
+
+                // Update matrix size if changed
+                if (data.width !== this.matrixSize.width || data.height !== this.matrixSize.height) {
+                    this.matrixSize = { width: data.width, height: data.height };
+                    this.initializeMatrix();
+                } else {
+                    // Just update the display
+                    this.updateMatrixFromDrawingData();
+                }
+
+                this.log('Matrix display refreshed from backend', 'success');
+            } else {
+                throw new Error('Failed to get matrix data');
+            }
+        } catch (error) {
+            console.error('Error refreshing matrix:', error);
+            this.log('Failed to refresh matrix display', 'error');
+        }
+    }
+
     savePattern() {
         const patternName = prompt('Enter pattern name:');
         if (patternName) {
@@ -619,53 +652,53 @@ class MatrixController {
         }
     }
 
-    importImage(event) {
+    async importImage(event) {
         const file = event.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                this.processImageForMatrix(img);
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    processImageForMatrix(img) {
-        const { width, height } = this.matrixSize;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and scale image to matrix size
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Get pixel data
-        const imageData = ctx.getImageData(0, 0, width, height);
-        const data = imageData.data;
-
-        // Convert to matrix format
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const index = (y * width + x) * 4;
-                const r = data[index];
-                const g = data[index + 1];
-                const b = data[index + 2];
-
-                // Convert to hex color
-                const color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-                this.drawingData[y][x] = color;
-            }
+        if (!file.type.startsWith('image/')) {
+            this.log('Please select a valid image file', 'error');
+            return;
         }
 
-        this.updateMatrixFromDrawingData();
-        this.log('Image imported successfully', 'success');
+        try {
+            this.log('Processing image...', 'info');
+
+            // Convert file to base64
+            const base64 = await this.fileToBase64(file);
+
+            // Send to backend for processing
+            const response = await fetch(`${this.apiBase}/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                this.log('Image uploaded and processed successfully', 'success');
+
+                // Refresh the matrix grid to show the processed image
+                await this.refreshMatrixFromBackend();
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error importing image:', error);
+            this.log(`Failed to import image: ${error.message}`, 'error');
+        }
     }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+
 
     log(message, type = 'info') {
         const logContainer = document.getElementById('activity-log');
@@ -1222,7 +1255,7 @@ class MatrixController {
         if (this.statusIntervalId) {
             clearTimeout(this.statusIntervalId);
         }
-        
+
         // Clear any global intervals that might exist
         if (window.matrixStatusInterval) {
             clearInterval(window.matrixStatusInterval);
@@ -2647,60 +2680,7 @@ class MatrixController {
         this.log(`Palette "${name}" loaded`, 'success');
     }
 
-    // Image Import Method
-    importImage(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                canvas.width = this.matrixSize.width;
-                canvas.height = this.matrixSize.height;
-
-                // Draw image scaled to matrix size
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                // Get pixel data
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-
-                // Clear current drawing
-                this.clearDrawing();
-
-                // Convert to matrix data
-                for (let y = 0; y < canvas.height; y++) {
-                    for (let x = 0; x < canvas.width; x++) {
-                        const i = (y * canvas.width + x) * 4;
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
-                        const a = data[i + 3];
-
-                        // Skip transparent pixels
-                        if (a < 128) continue;
-
-                        const color = `rgb(${r}, ${g}, ${b})`;
-                        const index = y * this.matrixSize.width + x;
-                        const pixel = document.querySelector(`[data-index="${index}"]`);
-
-                        if (pixel) {
-                            pixel.style.backgroundColor = color;
-                            this.drawingData[y][x] = this.rgbToHex(r, g, b);
-                        }
-                    }
-                }
-
-                this.log('Image imported successfully', 'success');
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
+    // Image import is now handled by the async importImage method above
 
     // Helper method to convert RGB to hex
     rgbToHex(r, g, b) {
