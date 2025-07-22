@@ -894,55 +894,80 @@ class MatrixController {
     }
 
     // Power calculation methods
-    updatePowerCalculations() {
+    async updatePowerCalculations() {
         const width = parseInt(document.getElementById('wiring-width')?.value) || this.matrixSize.width;
         const height = parseInt(document.getElementById('wiring-height')?.value) || this.matrixSize.height;
         const ledsPerMeter = parseInt(document.getElementById('leds-per-meter')?.value) || 60;
         const powerSupply = document.getElementById('power-supply')?.value || '5V10A';
+        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
 
-        const totalLeds = width * height;
-        const stripLength = totalLeds / ledsPerMeter;
-        const maxCurrentPerLed = 0.06; // 60mA per LED at full white
-        const maxCurrent = totalLeds * maxCurrentPerLed;
-        const maxPower = maxCurrent * 5; // 5V system
+        try {
+            // Call backend API for power calculations
+            const response = await fetch(`${this.apiBase}/api/wiring`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    controller: controller,
+                    width: width,
+                    height: height,
+                    ledsPerMeter: ledsPerMeter,
+                    powerSupply: powerSupply
+                })
+            });
 
-        // Parse power supply capacity
-        const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
-        const psuVoltage = psuMatch ? parseInt(psuMatch[1]) : 5;
-        const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
-        const psuPower = psuVoltage * psuCurrent;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        // Calculate power usage percentage
-        const powerPercentage = Math.min((maxPower / psuPower) * 100, 100);
+            const data = await response.json();
+            const wiringData = data.wiring;
 
-        // Update display elements
-        const elements = {
-            'total-leds': totalLeds,
-            'max-current': `${maxCurrent.toFixed(2)}A`,
-            'recommended-psu': this.getRecommendedPSU(maxPower),
-            'power-consumption': `${maxPower.toFixed(1)}W`,
-            'estimated-cost': this.calculateEstimatedCost(totalLeds, stripLength, maxPower),
-            'power-percentage': `${powerPercentage.toFixed(0)}%`
-        };
+            // Parse power supply capacity for percentage calculation
+            const psuMatch = powerSupply.match(/(\d+)V(\d+)A/);
+            const psuCurrent = psuMatch ? parseInt(psuMatch[2]) : 10;
+            const psuPower = 5 * psuCurrent; // 5V system
+            const powerPercentage = Math.min((wiringData.power.maxPower / psuPower) * 100, 100);
 
-        Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        });
+            // Update display elements with backend data
+            const elements = {
+                'total-leds': wiringData.matrix.totalLeds,
+                'max-current': `${wiringData.power.maxCurrent}A`,
+                'recommended-psu': wiringData.power.recommendedPSU,
+                'power-consumption': `${wiringData.power.maxPower}W`,
+                'estimated-cost': `$${wiringData.estimatedCost}`,
+                'power-percentage': `${powerPercentage.toFixed(0)}%`
+            };
 
-        // Update power usage bar
-        const powerBar = document.getElementById('power-usage-bar');
-        if (powerBar) {
-            powerBar.style.width = `${powerPercentage}%`;
-            powerBar.style.background = powerPercentage > 80 ? 'var(--error)' :
-                powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+
+            // Update power usage bar
+            const powerBar = document.getElementById('power-usage-bar');
+            if (powerBar) {
+                powerBar.style.width = `${powerPercentage}%`;
+                powerBar.style.background = powerPercentage > 80 ? 'var(--error)' :
+                    powerPercentage > 60 ? 'var(--warning)' : 'var(--success)';
+            }
+
+            // Update shopping list with backend data
+            this.updateShoppingListFromAPI(wiringData);
+
+            // Update Mermaid diagram
+            this.generateMermaidDiagram();
+
+        } catch (error) {
+            console.error('Error fetching power calculations:', error);
+            // Fallback to show error message
+            const errorElements = ['total-leds', 'max-current', 'recommended-psu', 'power-consumption', 'estimated-cost'];
+            errorElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = 'Error';
+            });
         }
-
-        // Update shopping list
-        this.updateShoppingList(totalLeds, stripLength, maxPower);
-
-        // Update Mermaid diagram
-        this.generateMermaidDiagram();
     }
 
     calculateEstimatedCost(totalLeds, stripLength, maxPower) {
@@ -964,16 +989,36 @@ class MatrixController {
         return 95;
     }
 
-    getRecommendedPSU(maxPower) {
-        // Add 20% safety margin and round up
-        const requiredPower = maxPower * 1.2;
-        
-        if (requiredPower <= 25) return '5V 5A';
-        if (requiredPower <= 50) return '5V 10A';
-        if (requiredPower <= 100) return '5V 20A';
-        if (requiredPower <= 150) return '5V 30A';
-        return '5V 40A';
+    updateShoppingListFromAPI(wiringData) {
+        // Use backend-provided component data for shopping list
+        const controllerName = getControllerName(wiringData.controller);
+        const controllerPrice = getControllerPrice(wiringData.controller);
+        const stripPrice = Math.ceil(wiringData.strip.totalLength) * 12;
+        const psuPrice = this.getPSUCost(wiringData.power.maxPower);
+        const recommendedPSU = wiringData.power.recommendedPSU;
+
+        const items = [
+            { name: controllerName, price: controllerPrice },
+            { name: `WS2812B LED Strip (${Math.ceil(wiringData.strip.totalLength)}m)`, price: stripPrice },
+            { name: `Power Supply ${recommendedPSU}`, price: psuPrice },
+            { name: '74HCT125 Level Shifter', price: 3 },
+            { name: 'Jumper Wires & Connectors', price: 8 },
+            { name: 'Breadboard/Perfboard', price: 5 }
+        ];
+
+        const total = items.reduce((sum, item) => sum + item.price, 0);
+
+        const listElement = document.getElementById('shopping-list');
+        if (listElement) {
+            listElement.innerHTML = `
+                <ul>
+                    ${items.map(item => `<li><span>${item.name}</span><span>$${item.price}</span></li>`).join('')}
+                    <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${total}</strong></span></li>
+                </ul>
+            `;
+        }
     }
+
 
     updateShoppingList(totalLeds, stripLength, maxPower) {
         const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
