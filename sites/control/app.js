@@ -964,13 +964,24 @@ class MatrixController {
         return 95;
     }
 
+    getRecommendedPSU(maxPower) {
+        // Add 20% safety margin and round up
+        const requiredPower = maxPower * 1.2;
+        
+        if (requiredPower <= 25) return '5V 5A';
+        if (requiredPower <= 50) return '5V 10A';
+        if (requiredPower <= 100) return '5V 20A';
+        if (requiredPower <= 150) return '5V 30A';
+        return '5V 40A';
+    }
+
     updateShoppingList(totalLeds, stripLength, maxPower) {
         const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
         const controllerName = getControllerName(controller);
         const controllerPrice = getControllerPrice(controller);
         const stripPrice = Math.ceil(stripLength) * 12;
         const psuPrice = this.getPSUCost(maxPower);
-        const recommendedPSU = getRecommendedPSU(maxPower);
+        const recommendedPSU = this.getRecommendedPSU(maxPower);
 
         const items = [
             { name: controllerName, price: controllerPrice },
