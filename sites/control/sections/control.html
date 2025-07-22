@@ -133,7 +133,23 @@
                     <button class="btn btn-secondary" id="load-pattern">📁 Load</button>
                     <button class="btn btn-secondary" id="import-image-btn">🖼️ Import</button>
                 </div>
-                <input type="file" id="import-image" accept="image/*" style="display: none;">
+                <input type="file" id="image-importer" accept="image/*" style="display: none;">
+                <div class="upload-zone" id="upload-zone" style="margin-top: 10px; padding: 20px; border: 2px dashed var(--accent); border-radius: 8px; text-align: center; color: var(--text-muted);">
+                    <p>📁 Drag & drop images here or click Import</p>
+                    <small>Supports: JPG, PNG, GIF</small>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="control-section">
+                <h4>Live Matrix Preview</h4>
+                <div class="preview-controls">
+                    <button class="btn btn-secondary" id="start-preview">▶️ Start Preview</button>
+                    <button class="btn btn-secondary" id="stop-preview">⏹️ Stop Preview</button>
+                </div>
+                <div class="matrix-preview-container" id="matrix-preview" style="margin-top: 10px; border: 1px solid var(--accent); border-radius: 8px; padding: 10px; min-height: 100px; background: var(--secondary);">
+                    <p style="text-align: center; color: var(--text-muted);">Click "Start Preview" to see live matrix output</p>
+                </div>
             </div>
         </div>
 

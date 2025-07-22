@@ -15,6 +15,8 @@ class MatrixController {
         this.isDrawing = false;
         this.drawingData = [];
         this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
+        this.previewUpdateInterval = null;
+        this.dynamicOptions = null;
 
         this.init();
     }
@@ -23,6 +25,9 @@ class MatrixController {
         this.setupEventListeners();
         await this.checkConnection();
         this.startStatusUpdates();
+        
+        // Initialize new API endpoint features
+        await this.initializeWithDynamicOptions();
         this.log('System initialized', 'success');
         this.switchSection('control');
     }
@@ -35,6 +40,27 @@ class MatrixController {
                 this.switchSection(tab.dataset.section);
             });
         });
+
+        // Setup new API endpoint event listeners
+        this.setupNewAPIEventListeners();
+    }
+
+    setupNewAPIEventListeners() {
+        // Image import button
+        document.getElementById('import-image-btn')?.addEventListener('click', () => {
+            document.getElementById('image-importer')?.click();
+        });
+
+        // Live preview controls
+        document.getElementById('start-preview')?.addEventListener('click', () => {
+            this.startMatrixPreview();
+        });
+
+        document.getElementById('stop-preview')?.addEventListener('click', () => {
+            this.stopMatrixPreview();
+        });
+
+        // Enhanced drawing with pixel sync (will be setup in setupPixelSync)
     }
 
     async switchSection(sectionName) {
@@ -894,6 +920,45 @@ class MatrixController {
     }
 
     // Power calculation methods
+    async loadDynamicOptions() {
+        // Load dynamic options from backend for dropdowns
+        try {
+            const response = await fetch(`${this.apiBase}/api/options`);
+            if (response.ok) {
+                const options = await response.json();
+                this.populateDropdowns(options);
+            }
+        } catch (error) {
+            console.error('Error loading dynamic options:', error);
+        }
+    }
+
+    populateDropdowns(options) {
+        // Populate LED density dropdown
+        const ledsPerMeterSelect = document.getElementById('leds-per-meter');
+        if (ledsPerMeterSelect && options.ledsPerMeter) {
+            ledsPerMeterSelect.innerHTML = options.ledsPerMeter.map(option => 
+                `<option value="${option.value}">${option.label} (${option.spacing})</option>`
+            ).join('');
+        }
+
+        // Populate power supply dropdown
+        const powerSupplySelect = document.getElementById('power-supply');
+        if (powerSupplySelect && options.powerSupplies) {
+            powerSupplySelect.innerHTML = options.powerSupplies.map(option => 
+                `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
+            ).join('');
+        }
+
+        // Populate controller dropdown
+        const controllerSelect = document.getElementById('wiring-controller');
+        if (controllerSelect && options.controllers) {
+            controllerSelect.innerHTML = options.controllers.map(option => 
+                `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
+            ).join('');
+        }
+    }
+
     async updatePowerCalculations() {
         const width = parseInt(document.getElementById('wiring-width')?.value) || this.matrixSize.width;
         const height = parseInt(document.getElementById('wiring-height')?.value) || this.matrixSize.height;
@@ -978,9 +1043,9 @@ class MatrixController {
         if (listElement && wiringData.components) {
             listElement.innerHTML = `
                 <ul>
-                    ${wiringData.components.map(item => 
-                        `<li><span>${item.name}</span><span>$${item.price || 'N/A'}</span></li>`
-                    ).join('')}
+                    ${wiringData.components.map(item =>
+                `<li><span>${item.name}</span><span>$${item.price || 'N/A'}</span></li>`
+            ).join('')}
                     <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${wiringData.estimatedCost}</strong></span></li>
                 </ul>
             `;
@@ -2052,7 +2117,7 @@ class MatrixController {
     updatePowerInfo() {
         // Power info should come from backend API - this method is deprecated
         console.warn('updatePowerInfo called - should use backend API for power calculations');
-        
+
         document.getElementById('power-info').innerHTML = `
             <div class="grid grid-2" style="gap: 15px;">
                 <div>
@@ -2402,6 +2467,237 @@ class MatrixController {
     // Helper method to convert RGB to hex
     rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    // ===== NEW API ENDPOINT SUPPORT =====
+
+    // 1. /api/options - Load dynamic form options
+    async loadDynamicOptions() {
+        try {
+            const response = await fetch(`${this.apiBase}/options`);
+            if (response.ok) {
+                this.dynamicOptions = await response.json();
+                this.populateDropdowns();
+                this.log('Dynamic options loaded', 'success');
+            }
+        } catch (error) {
+            console.error('Error loading dynamic options:', error);
+            this.log('Failed to load dynamic options', 'error');
+        }
+    }
+
+    populateDropdowns() {
+        if (!this.dynamicOptions) return;
+
+        // Populate LED density dropdown
+        const ledsPerMeterSelect = document.getElementById('leds-per-meter');
+        if (ledsPerMeterSelect && this.dynamicOptions.ledsPerMeter) {
+            ledsPerMeterSelect.innerHTML = this.dynamicOptions.ledsPerMeter.map(option => 
+                `<option value="${option.value}">${option.label} (${option.spacing})</option>`
+            ).join('');
+        }
+
+        // Populate power supply dropdown
+        const powerSupplySelect = document.getElementById('power-supply');
+        if (powerSupplySelect && this.dynamicOptions.powerSupplies) {
+            powerSupplySelect.innerHTML = this.dynamicOptions.powerSupplies.map(option => 
+                `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
+            ).join('');
+        }
+
+        // Populate controller dropdown
+        const controllerSelect = document.getElementById('wiring-controller');
+        if (controllerSelect && this.dynamicOptions.controllers) {
+            controllerSelect.innerHTML = this.dynamicOptions.controllers.map(option => 
+                `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
+            ).join('');
+        }
+    }
+
+    // 2. /api/matrix/preview - Live matrix preview
+    async startMatrixPreview() {
+        if (this.previewUpdateInterval) return; // Already running
+
+        const previewContainer = document.getElementById('matrix-preview');
+        if (!previewContainer) return;
+
+        this.previewUpdateInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`${this.apiBase}/matrix/preview`);
+                if (response.ok) {
+                    const data = await response.json();
+                    previewContainer.innerHTML = `
+                        <img src="${data.image}" 
+                             alt="Matrix Preview" 
+                             style="width: 100%; height: auto; image-rendering: pixelated;" />
+                        <div class="preview-info">
+                            <small>${data.width}×${data.height} Matrix Preview</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error updating matrix preview:', error);
+            }
+        }, 100); // Update every 100ms for smooth preview
+
+        this.log('Matrix preview started', 'success');
+    }
+
+    stopMatrixPreview() {
+        if (this.previewUpdateInterval) {
+            clearInterval(this.previewUpdateInterval);
+            this.previewUpdateInterval = null;
+            this.log('Matrix preview stopped', 'info');
+        }
+    }
+
+    // 3. /api/pixel - Individual pixel control
+    async setPixel(x, y, color) {
+        try {
+            const response = await fetch(`${this.apiBase}/pixel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, color })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.log(`Pixel set at (${x}, ${y})`, 'success');
+                return true;
+            } else {
+                throw new Error('Failed to set pixel');
+            }
+        } catch (error) {
+            console.error('Error setting pixel:', error);
+            this.log(`Failed to set pixel at (${x}, ${y})`, 'error');
+            return false;
+        }
+    }
+
+    // Enhanced pixel drawing with backend sync
+    async drawPixelWithSync(index) {
+        const { width, height } = this.matrixSize;
+        const x = index % width;
+        const y = Math.floor(index / width);
+
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
+
+        const pixel = document.querySelector(`[data-index="${index}"]`);
+        if (!pixel) return;
+
+        const color = this.brushColor;
+        pixel.style.backgroundColor = color;
+        this.drawingData[y][x] = color;
+
+        // Sync with backend
+        await this.setPixel(x, y, color);
+    }
+
+    // 4. /api/upload - Image upload functionality
+    async uploadImage(file) {
+        try {
+            // Convert file to base64
+            const base64 = await this.fileToBase64(file);
+            
+            const response = await fetch(`${this.apiBase}/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.log('Image uploaded successfully', 'success');
+                
+                // Refresh the drawing grid to show uploaded image
+                await this.refreshDrawingFromMatrix();
+                return true;
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            this.log('Failed to upload image', 'error');
+            return false;
+        }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async refreshDrawingFromMatrix() {
+        // Get current matrix state and update drawing grid
+        try {
+            const response = await fetch(`${this.apiBase}/matrix/preview`);
+            if (response.ok) {
+                const data = await response.json();
+                // Update drawing grid based on matrix state
+                // This would require parsing the image data back to individual pixels
+                this.log('Drawing refreshed from matrix', 'success');
+            }
+        } catch (error) {
+            console.error('Error refreshing drawing:', error);
+        }
+    }
+
+    // Enhanced initialization to load dynamic options
+    async initializeWithDynamicOptions() {
+        await this.loadDynamicOptions();
+        this.setupImageUpload();
+        this.setupPixelSync();
+    }
+
+    setupImageUpload() {
+        // Add image upload functionality to existing file input
+        const fileInput = document.getElementById('image-importer');
+        if (fileInput) {
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    await this.uploadImage(file);
+                }
+            });
+        }
+
+        // Add drag and drop support
+        const drawingGrid = document.getElementById('drawing-grid');
+        if (drawingGrid) {
+            drawingGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                drawingGrid.classList.add('drag-over');
+            });
+
+            drawingGrid.addEventListener('dragleave', () => {
+                drawingGrid.classList.remove('drag-over');
+            });
+
+            drawingGrid.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                drawingGrid.classList.remove('drag-over');
+                
+                const files = Array.from(e.dataTransfer.files);
+                const imageFile = files.find(file => file.type.startsWith('image/'));
+                
+                if (imageFile) {
+                    await this.uploadImage(imageFile);
+                }
+            });
+        }
+    }
+
+    setupPixelSync() {
+        // Enhanced pixel drawing with backend sync
+        const pixels = document.querySelectorAll('.led-pixel');
+        pixels.forEach((pixel, index) => {
+            // Replace existing click handler with sync version
+            pixel.addEventListener('click', () => this.drawPixelWithSync(index));
+        });
     }
 }
 

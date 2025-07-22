@@ -920,4 +920,138 @@ body {
         padding: 12px 16px;
         font-size: 18px;
     }
+}/* N
+ew API Features Styles */
+
+/* Upload Zone */
+.upload-zone {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-zone:hover {
+    border-color: var(--highlight);
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--success);
+    background: rgba(74, 222, 128, 0.1);
+    transform: scale(1.02);
+}
+
+/* Matrix Preview Container */
+.matrix-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.matrix-preview-container img {
+    max-width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.preview-info {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.preview-info small {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Preview Controls */
+.preview-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.preview-controls .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Enhanced Drawing Grid */
+.drawing-grid.drag-over {
+    border: 2px dashed var(--success);
+    background: rgba(74, 222, 128, 0.05);
+}
+
+/* Pixel Sync Indicator */
+.led-pixel.syncing {
+    animation: pulse-sync 0.5s ease-in-out;
+}
+
+@keyframes pulse-sync {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 10px var(--highlight); }
+    100% { transform: scale(1); }
+}
+
+/* Dynamic Options Loading */
+.options-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.options-loading::after {
+    content: " (Loading...)";
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Live Preview Status */
+.preview-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--error);
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.preview-status.active {
+    background: var(--success);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Enhanced Button States */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
