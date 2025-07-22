@@ -77,6 +77,9 @@ class MatrixController {
                 await initializeMonitorSection();
                 setupMonitorEventListeners();
                 break;
+            case 'palette':
+                initializePaletteSection();
+                break;
         }
     }
 
@@ -355,6 +358,9 @@ class MatrixController {
             case 'plasma':
                 this.animatePlasma(pixels);
                 break;
+            case 'fire':
+                this.animateFire(pixels);
+                break;
             default:
                 pixels.forEach(pixel => pixel.style.backgroundColor = '#333');
         }
@@ -371,6 +377,43 @@ class MatrixController {
             });
             time += 0.1;
             if (time < 10) requestAnimationFrame(animate);
+        };
+        animate();
+    }
+
+    animateFire(pixels) {
+        const fire = new Array(this.matrixSize.width * this.matrixSize.height).fill(0);
+        const animate = () => {
+            for (let i = 0; i < this.matrixSize.width; i++) {
+                fire[i + this.matrixSize.width * (this.matrixSize.height - 1)] = Math.random() * 255;
+            }
+            for (let y = 0; y < this.matrixSize.height - 1; y++) {
+                for (let x = 0; x < this.matrixSize.width; x++) {
+                    const src = y * this.matrixSize.width + x;
+                    const dest = ((y + 1) % this.matrixSize.height) * this.matrixSize.width + (x % this.matrixSize.width);
+                    const rand = Math.floor(Math.random() * 2);
+                    fire[src] = ((fire[dest] + fire[(dest + 1) % fire.length] + fire[(dest + 2) % fire.length]) / 3.5) * 1.05 - rand;
+                    if (fire[src] > 255) fire[src] = 255;
+                    if (fire[src] < 0) fire[src] = 0;
+                    const c = fire[src];
+                    let r, g, b;
+                    if (c < 85) {
+                        r = c * 3;
+                        g = 0;
+                        b = 0;
+                    } else if (c < 170) {
+                        r = 255;
+                        g = (c - 85) * 3;
+                        b = 0;
+                    } else {
+                        r = 255;
+                        g = 255;
+                        b = (c - 170) * 3;
+                    }
+                    pixels[src].style.backgroundColor = `rgb(${r},${g},${b})`;
+                }
+            }
+            requestAnimationFrame(animate);
         };
         animate();
     }
@@ -741,6 +784,35 @@ class MatrixController {
             this.erasePixels(x, y);
         } else if (this.drawingMode === 'fill') {
             this.fillArea(x, y);
+        } else if (this.drawingMode === 'line') {
+            if (!this.lineStart) {
+                this.lineStart = { x, y };
+            } else {
+                this.drawLine(this.lineStart.x, this.lineStart.y, x, y);
+                this.lineStart = null;
+            }
+        }
+    }
+
+    drawLine(x0, y0, x1, y1) {
+        const dx = Math.abs(x1 - x0);
+        const dy = Math.abs(y1 - y0);
+        const sx = (x0 < x1) ? 1 : -1;
+        const sy = (y0 < y1) ? 1 : -1;
+        let err = dx - dy;
+
+        while (true) {
+            this.paintPixels(x0, y0);
+            if ((x0 === x1) && (y0 === y1)) break;
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
+            }
         }
     }
     
