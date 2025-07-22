@@ -481,6 +481,19 @@ class WebMatrixController:
                     except Exception as e:
                         self.send_json_response({"status": "error", "message": str(e)}, 500)
 
+                elif path == "/api/pixel":
+                    try:
+                        x = data.get("x")
+                        y = data.get("y")
+                        color = data.get("color")
+                        if x is not None and y is not None and color:
+                            controller.set_pixel(x, y, color)
+                            self.send_json_response({"status": "success", "message": "Pixel set"})
+                        else:
+                            self.send_json_response({"status": "error", "message": "Invalid pixel data"}, 400)
+                    except Exception as e:
+                        self.send_json_response({"status": "error", "message": str(e)}, 500)
+
                 elif path == "/api/upload":
                     try:
                         # Handle image upload
@@ -939,6 +952,21 @@ class WebMatrixController:
                     json.dump(palettes, f, indent=4)
         except Exception as e:
             logger.error(f"Error deleting palette: {e}")
+
+    def set_pixel(self, x, y, color):
+        """Set a single pixel color"""
+        try:
+            if color.startswith("#"):
+                color = color[1:]
+            r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            if 0 <= x < self.W and 0 <= y < self.H:
+                self.matrix_data[y, x] = [r, g, b]
+                self.send_frame()
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error setting pixel: {e}")
+            return False
 
     def run(self):
         """Run the controller"""

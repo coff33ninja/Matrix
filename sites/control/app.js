@@ -80,6 +80,10 @@ class MatrixController {
             case 'palette':
                 initializePaletteSection();
                 break;
+
+            case 'custom-matrix':
+                initializeCustomMatrixSection();
+                break;
         }
     }
 
