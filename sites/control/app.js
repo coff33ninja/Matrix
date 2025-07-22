@@ -968,7 +968,7 @@ class MatrixController {
 
         try {
             // Call backend API for power calculations
-            const response = await fetch(`${this.apiBase}/api/wiring`, {
+            const response = await fetch(`${this.apiBase}/wiring`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2114,9 +2114,182 @@ class MatrixController {
         });
     }
 
+    syncArduinoSettings() {
+        // Sync Arduino settings with current matrix configuration
+        const arduinoBrightness = document.getElementById('arduino-brightness');
+        const arduinoBoard = document.getElementById('arduino-board');
+        
+        if (arduinoBrightness) {
+            arduinoBrightness.value = 128; // Default brightness
+            const display = document.getElementById('arduino-brightness-display');
+            if (display) display.textContent = '128';
+        }
+        
+        if (arduinoBoard) {
+            arduinoBoard.value = 'uno'; // Default board
+        }
+        
+        this.log('Arduino settings synchronized', 'info');
+    }
+
+    async generateArduinoPackage() {
+        try {
+            const board = document.getElementById('arduino-board')?.value || 'uno';
+            const brightness = document.getElementById('arduino-brightness')?.value || 128;
+            
+            const response = await fetch(`${this.apiBase}/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    board: board,
+                    width: this.matrixSize.width,
+                    height: this.matrixSize.height,
+                    brightness: brightness
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.arduinoCode = data.code;
+                this.log('Arduino code generated successfully', 'success');
+                
+                // Show preview if available
+                const codePreview = document.getElementById('code-preview');
+                if (codePreview) {
+                    codePreview.textContent = data.code;
+                }
+            } else {
+                throw new Error('Failed to generate Arduino code');
+            }
+        } catch (error) {
+            this.log(`Error generating Arduino code: ${error.message}`, 'error');
+        }
+    }
+
+    previewArduinoCode() {
+        if (this.arduinoCode) {
+            const codePreview = document.getElementById('code-preview');
+            if (codePreview) {
+                codePreview.textContent = this.arduinoCode;
+                codePreview.style.display = 'block';
+            }
+        } else {
+            this.log('No Arduino code generated yet', 'warning');
+        }
+    }
+
+    downloadArduinoPackage() {
+        if (this.arduinoCode) {
+            const blob = new Blob([this.arduinoCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `led_matrix_${this.matrixSize.width}x${this.matrixSize.height}.ino`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            this.log('Arduino package downloaded', 'success');
+        } else {
+            this.log('No Arduino code to download', 'warning');
+        }
+    }
+
+    copyArduinoCode() {
+        if (this.arduinoCode) {
+            navigator.clipboard.writeText(this.arduinoCode).then(() => {
+                this.log('Arduino code copied to clipboard', 'success');
+            }).catch(() => {
+                this.log('Failed to copy code to clipboard', 'error');
+            });
+        } else {
+            this.log('No Arduino code to copy', 'warning');
+        }
+    }
+
+    downloadArduinoFile() {
+        this.downloadArduinoPackage(); // Same as download package
+    }
+
+    async loadSystemStats() {
+        try {
+            const response = await fetch(`${this.apiBase}/system`);
+            if (response.ok) {
+                const data = await response.json();
+                const systemStats = document.getElementById('system-stats');
+                if (systemStats) {
+                    systemStats.innerHTML = `
+                        <div class="stat-item">
+                            <span class="stat-label">CPU Usage:</span>
+                            <span class="stat-value">${data.cpu}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Memory Usage:</span>
+                            <span class="stat-value">${data.memory}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Uptime:</span>
+                            <span class="stat-value">${data.uptime}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Temperature:</span>
+                            <span class="stat-value">${data.temperature}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error('Failed to load system stats');
+            }
+        } catch (error) {
+            const systemStats = document.getElementById('system-stats');
+            if (systemStats) {
+                systemStats.innerHTML = '<p class="error">Failed to load system stats</p>';
+            }
+            this.log(`Error loading system stats: ${error.message}`, 'error');
+        }
+    }
+
+    async loadHardwareInfo() {
+        try {
+            const response = await fetch(`${this.apiBase}/hardware`);
+            if (response.ok) {
+                const data = await response.json();
+                const hardwareInfo = document.getElementById('hardware-info');
+                if (hardwareInfo) {
+                    hardwareInfo.innerHTML = `
+                        <div class="stat-item">
+                            <span class="stat-label">Controller:</span>
+                            <span class="stat-value">${data.controller}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Port:</span>
+                            <span class="stat-value">${data.port}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Baud Rate:</span>
+                            <span class="stat-value">${data.baudRate}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Matrix Size:</span>
+                            <span class="stat-value">${data.matrixSize}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error('Failed to load hardware info');
+            }
+        } catch (error) {
+            const hardwareInfo = document.getElementById('hardware-info');
+            if (hardwareInfo) {
+                hardwareInfo.innerHTML = '<p class="error">Failed to load hardware info</p>';
+            }
+            this.log(`Error loading hardware info: ${error.message}`, 'error');
+        }
+    }
+
     updatePowerInfo() {
         // Power info should come from backend API - this method is deprecated
-        console.warn('updatePowerInfo called - should use backend API for power calculations');
+        console.log('updatePowerInfo called - should use backend API for power calculations');
 
         document.getElementById('power-info').innerHTML = `
             <div class="grid grid-2" style="gap: 15px;">
