@@ -26,47 +26,32 @@ function log(message, type = 'info') {
     }
 }
 
+// ⚠️ DEPRECATED: These functions contained backend logic and have been removed
+// All pricing, PSU recommendations, and controller specifications are now handled by backend APIs
+// Use the /api/wiring endpoint to get accurate pricing and component data
+
 function getControllerPrice(controller) {
-    const prices = {
-        'arduino_uno': 25,
-        'arduino_nano': 15,
-        'esp32': 12,
-        'esp8266': 8
-    };
-    return prices[controller] || 20;
+    console.warn('getControllerPrice() is deprecated - use backend API /api/wiring for pricing data');
+    return 0; // Return 0 to indicate this should not be used
 }
 
 function getStripPrice(ledsPerMeter) {
-    const prices = {
-        30: 15,
-        60: 25,
-        144: 45,
-        256: 80
-    };
-    return prices[ledsPerMeter] || 25;
+    console.warn('getStripPrice() is deprecated - use backend API /api/wiring for pricing data');
+    return 0; // Return 0 to indicate this should not be used
 }
 
 function getPowerSupplyPrice(powerSupply) {
-    const prices = {
-        '5V2A': 15,
-        '5V5A': 25,
-        '5V10A': 35,
-        '5V20A': 55,
-        '5V30A': 75,
-        '5V40A': 95
-    };
-    return prices[powerSupply] || 35;
+    console.warn('getPowerSupplyPrice() is deprecated - use backend API /api/wiring for pricing data');
+    return 0; // Return 0 to indicate this should not be used
 }
 
 function getRecommendedPSU(maxPower) {
-    if (maxPower <= 20) return '5V 5A';
-    if (maxPower <= 40) return '5V 10A';
-    if (maxPower <= 80) return '5V 20A';
-    if (maxPower <= 120) return '5V 30A';
-    return '5V 40A';
+    console.warn('getRecommendedPSU() is deprecated - use backend API /api/wiring for PSU recommendations');
+    return 'Use Backend API'; // Return message to indicate this should not be used
 }
 
 function getControllerName(controller) {
+    // This is just display mapping, can stay in frontend as it's not business logic
     const names = {
         'arduino_uno': 'Arduino Uno R3',
         'arduino_nano': 'Arduino Nano',
