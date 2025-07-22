@@ -77,8 +77,9 @@ class WebMatrixController:
         self.current_mode = "idle"
         self.is_streaming = False
 
-        # Matrix data
+        # Matrix data with proper bounds
         self.matrix_data = np.zeros((self.H or 16, self.W or 16, 3), dtype=np.uint8)
+        logger.info(f"BUFFER: Matrix data buffer initialized: {self.matrix_data.shape}")
         logger.info(f"BUFFER: Matrix data buffer initialized: {self.matrix_data.shape}")
 
         # Animation thread
@@ -1221,11 +1222,20 @@ class WebMatrixController:
                 for x in range(self.W):
                     if intensity[y, x] > 0:
                         intensity[y, x] = max(0, intensity[y, x] - 5)
-                        if sum(self.matrix_data[y, x]) > 0:
+                        if np.any(self.matrix_data[y, x] > 0):
                             self.matrix_data[y, x] = [0, intensity[y, x], 0]
 
             self.send_frame()
             time.sleep(0.1 * (100 - speed) / 100.0)  # Adjust speed
+
+    def set_pixel_safe(self, x, y, r, g, b):
+        """Safely set a pixel value with bounds checking"""
+        if 0 <= x < self.W and 0 <= y < self.H:
+            # Ensure values are within uint8 range (0-255)
+            r = max(0, min(255, int(r)))
+            g = max(0, min(255, int(g)))
+            b = max(0, min(255, int(b)))
+            self.matrix_data[y, x] = [r, g, b]
 
     def get_palettes(self):
         """Get all saved color palettes"""
