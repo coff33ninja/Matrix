@@ -7,7 +7,6 @@ import sys
 import os
 import threading
 import time
-from datetime import datetime
 
 # Add current directory and modules directory to path for imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,8 +46,7 @@ def cmd_start(args):
     Returns:
         bool: True if services are stopped via keyboard interrupt, False if an error occurs during startup.
     """
-    import threading
-    import time
+
 
     print("🚀 Starting Complete LED Matrix System...")
     print("   - Web-based Matrix Controller")
@@ -63,7 +61,7 @@ def cmd_start(args):
         """
         from modules.matrix_controller import WebMatrixController
         from modules.matrix_config import config
-        controller = WebMatrixController(port=config.get("web_port", 8080))
+        controller = WebMatrixController(port=config.get("web_port") or 8080)
         controller.run()
 
     # Start unified web server
@@ -74,7 +72,7 @@ def cmd_start(args):
         time.sleep(1)  # Give controller time to start
         from modules.web_server import UnifiedMatrixWebServer
         from modules.matrix_config import config
-        server = UnifiedMatrixWebServer(port=config.get("web_server_port", 3000))
+        server = UnifiedMatrixWebServer(port=config.get("web_server_port") or 3000)
         server.start()
 
     try:
@@ -112,7 +110,7 @@ def cmd_generate(args):
     Returns:
         bool: True if code generation succeeds or model comparison is shown; False if an error occurs or the model is invalid.
     """
-    print(f"🔧 Generating Arduino code for {args.model}...")
+    print("🔧 Generating Arduino code for {}...".format(args.model))
     try:
         from arduino_generator import ArduinoGenerator
         from arduino_models import validate_model
@@ -242,7 +240,7 @@ def cmd_wiring(args):
 
     Creates a markdown wiring guide, exports a JSON configuration, and generates a shopping list JSON file based on the provided controller, matrix dimensions, data pin, and power supply. Prints a summary of the wiring configuration, including power requirements and estimated cost. Returns True on success, or False if an error occurs.
     """
-    print(f"📋 Generating wiring diagrams for {args.controller}...")
+    print("📋 Generating wiring diagrams for {}...".format(args.controller))
     try:
         from wiring_diagram_generator import WiringDiagramGenerator
 
@@ -288,7 +286,7 @@ def cmd_wiring(args):
         power_req = generator.calculate_power_requirements(args.width, args.height)
         ctrl_info = generator.controllers[args.controller]
 
-        print(f"\n📊 Wiring Configuration Summary:")
+        print("\n📊 Wiring Configuration Summary:")
         print(f"   Controller: {ctrl_info['name']}")
         print(f"   Matrix: {args.width}×{args.height} = {power_req['total_leds']} LEDs")
         print(f"   Max Current: {power_req['total_current_amps']:.2f}A")
@@ -297,7 +295,7 @@ def cmd_wiring(args):
             f"   Level Shifter: {'Required' if ctrl_info['needs_level_shifter'] else 'Not needed'}"
         )
         print(f"   Estimated Cost: ${shopping_list['project_info']['estimated_cost']}")
-        print(f"\n📁 Generated Files:")
+        print("\n📁 Generated Files:")
         print(f"   📄 Wiring Guide: {guide_filename}")
         print(f"   ⚙️  JSON Config: {json_filename}")
         print(f"   🛒 Shopping List: {shopping_filename}")
@@ -403,9 +401,9 @@ def cmd_test(args):
             return result.wasSuccessful()
         else:
             # Run full test suite
-            from tests.run_all_tests import main
+            from tests.run_all_tests import run_all_tests
 
-            return main()
+            return run_all_tests()
 
     except Exception as e:
         print(f"❌ Error running tests: {e}")
@@ -431,7 +429,7 @@ def cmd_info(args):
             f"   Matrix Size: {config.get('matrix_width')}×{config.get('matrix_height')}"
         )
         print(
-            f"   Total LEDs: {config.get('matrix_width') * config.get('matrix_height')}"
+            f"   Total LEDs: {(config.get('matrix_width') or 0) * (config.get('matrix_height') or 0)}"
         )
         print(f"   Connection: {config.get('connection_mode')}")
         print()
@@ -471,8 +469,8 @@ def cmd_info(args):
         # Test status
         print("🧪 Test Status:")
         try:
-            from tests.run_all_tests import TestResult
-
+            # Try to import to check availability
+            __import__('tests.run_all_tests')
             print("   Test Suite: ✅ Available")
             print("   Run 'python matrix.py test' to execute tests")
         except Exception:

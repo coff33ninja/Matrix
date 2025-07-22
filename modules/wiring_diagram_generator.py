@@ -62,7 +62,7 @@ class WiringDiagramGenerator:
         brightness_percent = (brightness / 255) * 100
 
         # Use shared calculation function
-        power_data = calculate_power_requirements(total_leds, brightness_percent)
+        power_data = calculate_power_requirements(total_leds, int(brightness_percent))
 
         # Add wiring-specific data
         power_data.update(
@@ -644,7 +644,7 @@ def main():
         )
         print(diagram)
     else:
-        guide_filename = generator.save_guide(
+        generator.save_guide(
             args.controller,
             args.width,
             args.height,
@@ -657,7 +657,7 @@ def main():
         power_req = generator.calculate_power_requirements(args.width, args.height)
         ctrl_info = generator.controllers[args.controller]
 
-        print(f"\nConfiguration Summary:")
+        print("\nConfiguration Summary:")
         print(f"  Controller: {ctrl_info['name']}")
         print(f"  Matrix: {args.width}×{args.height} = {power_req['total_leds']} LEDs")
         print(f"  Max Current: {power_req['total_current_amps']:.2f}A")
