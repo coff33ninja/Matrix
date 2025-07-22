@@ -292,9 +292,9 @@ class UnifiedMatrixWebServer:
             }
         }
 
-        // Check status on load and periodically
+        // Check status on load and periodically (reduced frequency)
         checkControllerStatus();
-        setInterval(checkControllerStatus, 5000);
+        setInterval(checkControllerStatus, 30000); // Every 30 seconds instead of 5
     </script>
 </body>
 </html>"""
@@ -328,7 +328,9 @@ class UnifiedMatrixWebServer:
                 try:
                     # Handle API requests first, regardless of prefix
                     if path.startswith("/api") or path.startswith("/control/api"):
-                        if not (path.startswith("/api/status") or path == "/api/status"):
+                        if not (
+                            path.startswith("/api/status") or path == "/api/status"
+                        ):
                             logger.info(f"🔌 Proxying API request: {path}")
                         self.proxy_api_request(path, parsed_path.query)
                     elif path == "/" or path == "":
@@ -664,7 +666,9 @@ class UnifiedMatrixWebServer:
                 print("   • Check API Status: http://localhost:3000/api/status")
                 print("=" * 70)
                 print("🔧 Reduced Logging: Status requests are now less verbose")
-                print("📊 Smart Intervals: Connection checks every 15s (connected) to 60s (disconnected)")
+                print(
+                    "📊 Smart Intervals: Connection checks every 15s (connected) to 60s (disconnected)"
+                )
                 print("=" * 70)
                 print("Press Ctrl+C to stop the server")
                 print()

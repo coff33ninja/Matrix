@@ -1,6 +1,12 @@
 // LED Matrix Control Center - Main Application
 class MatrixController {
     constructor() {
+        // Prevent multiple instances
+        if (window.matrixControllerInstance) {
+            console.warn('⚠️ MatrixController already exists, returning existing instance');
+            return window.matrixControllerInstance;
+        }
+
         // Always use absolute path for API regardless of base tag
         this.apiBase = '/api';
         this.connected = false;
@@ -17,6 +23,9 @@ class MatrixController {
         this.savedPatterns = JSON.parse(localStorage.getItem('ledMatrixPatterns') || '[]');
         this.previewUpdateInterval = null;
         this.dynamicOptions = null;
+
+        // Store instance globally to prevent duplicates
+        window.matrixControllerInstance = this;
 
         this.init();
     }
@@ -1171,6 +1180,7 @@ class MatrixController {
                 if (wasDisconnected) {
                     this.log('Connected to matrix controller', 'success');
                     this.resetStatusInterval(); // Reset to normal interval
+                    console.log('🔄 Connection restored - reset to 15s intervals');
                 }
 
                 // Update matrix size from server
@@ -1208,6 +1218,16 @@ class MatrixController {
     }
 
     startStatusUpdates() {
+        // Clear any existing intervals first
+        if (this.statusIntervalId) {
+            clearTimeout(this.statusIntervalId);
+        }
+        
+        // Clear any global intervals that might exist
+        if (window.matrixStatusInterval) {
+            clearInterval(window.matrixStatusInterval);
+        }
+
         this.statusInterval = 15000; // Start with 15 seconds (much less frequent)
         this.maxStatusInterval = 60000; // Max 1 minute
         this.statusIntervalId = null;
@@ -1217,6 +1237,10 @@ class MatrixController {
 
         // Start periodic checks with smart intervals
         this.resetStatusInterval();
+
+        console.log('🔧 Smart status updates initialized: 15s intervals (was 2s)');
+        console.log(`📅 Timestamp: ${new Date().toISOString()}`);
+        console.log('⚠️ If you still see frequent requests, please hard refresh (Ctrl+F5)');
     }
 
     resetStatusInterval() {
