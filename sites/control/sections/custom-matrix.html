@@ -1,0 +1,29 @@
+<div class="custom-matrix-manager">
+    <h2>Custom Matrix Designer</h2>
+    <p>Draw your own matrix or import an image to display on your LEDs.</p>
+
+    <div class="custom-matrix-controls">
+        <div class="input-group">
+            <label>Matrix Width:</label>
+            <input type="number" id="custom-matrix-width" value="16">
+        </div>
+        <div class="input-group">
+            <label>Matrix Height:</label>
+            <input type="number" id="custom-matrix-height" value="16">
+        </div>
+        <button id="create-custom-matrix">Create Matrix</button>
+    </div>
+
+    <div class="custom-matrix-drawing">
+        <div class="matrix-grid" id="custom-matrix-grid"></div>
+    </div>
+
+    <div class="custom-matrix-actions">
+        <div class="input-group">
+            <label>Import Image:</label>
+            <input type="file" id="image-importer" accept="image/*">
+        </div>
+        <button id="import-image">Import Image</button>
+        <button id="send-custom-matrix">Send to Matrix</button>
+    </div>
+</div>

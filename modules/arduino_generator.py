@@ -32,6 +32,7 @@ class ArduinoGenerator:
         data_pin=None,
         brightness=None,
         custom_config=None,
+        num_leds=None,
     ):
         """Generate Arduino code for specified model and configuration"""
 
@@ -52,8 +53,10 @@ class ArduinoGenerator:
             height = custom_config.get("height", height)
             pin = custom_config.get("data_pin", pin)
             bright = custom_config.get("brightness", bright)
+            num_leds = custom_config.get("num_leds", num_leds)
 
-        num_leds = width * height
+        if num_leds is None:
+            num_leds = width * height
 
         # Check if configuration is suitable for this model
         if num_leds > model["max_leds_recommended"]:
@@ -76,6 +79,8 @@ class ArduinoGenerator:
  * 
  * Matrix Configuration:
  * - Size: {width}×{height} = {num_leds} LEDs
+ * - OR
+ * - Strip Length: {num_leds} LEDs
  * - Data Pin: {pin}
  * - Brightness: {brightness}/255
  * - Controller: {model['display_name']} ({model['voltage']})
@@ -93,11 +98,20 @@ class ArduinoGenerator:
         includes = "\n".join(f"#include {inc}" for inc in model["includes"])
 
         # Configuration defines
-        defines = f"""
+        if width and height:
+            defines = f"""
 // Matrix Configuration - Update these values for your setup
 #define MATRIX_WIDTH {width}
 #define MATRIX_HEIGHT {height}
 #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)  // {num_leds} LEDs
+#define DATA_PIN {pin}
+#define BRIGHTNESS {brightness}
+
+CRGB leds[NUM_LEDS];"""
+        else:
+            defines = f"""
+// LED Strip Configuration - Update these values for your setup
+#define NUM_LEDS {num_leds}
 #define DATA_PIN {pin}
 #define BRIGHTNESS {brightness}
 
