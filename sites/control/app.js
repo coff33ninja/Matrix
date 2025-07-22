@@ -970,50 +970,18 @@ class MatrixController {
         }
     }
 
-    calculateEstimatedCost(totalLeds, stripLength, maxPower) {
-        const controller = document.getElementById('wiring-controller')?.value || 'arduino_uno';
-        const controllerCost = getControllerPrice(controller);
-        const stripCost = Math.ceil(stripLength) * 12; // $12 per meter
-        const psuCost = this.getPSUCost(maxPower);
-        const accessoriesCost = 15; // Level shifter, wires, etc.
-
-        const total = controllerCost + stripCost + psuCost + accessoriesCost;
-        return `$${total - 10}-${total + 10}`;
-    }
-
-    getPSUCost(maxPower) {
-        if (maxPower <= 20) return 25;
-        if (maxPower <= 40) return 35;
-        if (maxPower <= 80) return 55;
-        if (maxPower <= 120) return 75;
-        return 95;
-    }
+    // These methods removed - now handled by backend API
 
     updateShoppingListFromAPI(wiringData) {
         // Use backend-provided component data for shopping list
-        const controllerName = getControllerName(wiringData.controller);
-        const controllerPrice = getControllerPrice(wiringData.controller);
-        const stripPrice = Math.ceil(wiringData.strip.totalLength) * 12;
-        const psuPrice = this.getPSUCost(wiringData.power.maxPower);
-        const recommendedPSU = wiringData.power.recommendedPSU;
-
-        const items = [
-            { name: controllerName, price: controllerPrice },
-            { name: `WS2812B LED Strip (${Math.ceil(wiringData.strip.totalLength)}m)`, price: stripPrice },
-            { name: `Power Supply ${recommendedPSU}`, price: psuPrice },
-            { name: '74HCT125 Level Shifter', price: 3 },
-            { name: 'Jumper Wires & Connectors', price: 8 },
-            { name: 'Breadboard/Perfboard', price: 5 }
-        ];
-
-        const total = items.reduce((sum, item) => sum + item.price, 0);
-
         const listElement = document.getElementById('shopping-list');
-        if (listElement) {
+        if (listElement && wiringData.components) {
             listElement.innerHTML = `
                 <ul>
-                    ${items.map(item => `<li><span>${item.name}</span><span>$${item.price}</span></li>`).join('')}
-                    <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${total}</strong></span></li>
+                    ${wiringData.components.map(item => 
+                        `<li><span>${item.name}</span><span>$${item.price || 'N/A'}</span></li>`
+                    ).join('')}
+                    <li><span><strong>Total Estimated Cost</strong></span><span><strong>$${wiringData.estimatedCost}</strong></span></li>
                 </ul>
             `;
         }
