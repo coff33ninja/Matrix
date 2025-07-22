@@ -22,6 +22,7 @@ class MatrixConfig:
         "connection_mode": "USB",
         "esp32_ip": "192.168.4.1",
         "web_port": 8080,
+        "web_server_port": 3000,
         "physical_width": 146,
         "physical_height": 167,
         "data_pin": 6,

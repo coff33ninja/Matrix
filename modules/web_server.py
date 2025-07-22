@@ -617,19 +617,6 @@ class UnifiedMatrixWebServer:
             print(f"❌ Unified server error: {e}")
             return False
 
-# Legacy compatibility - keep old class for backward compatibility
-class MatrixWebServer(UnifiedMatrixWebServer):
-    def __init__(self, port=3000, site_type="control"):
-        super().__init__(port)
-        self.site_type = site_type
-        print(f"⚠️  Legacy MatrixWebServer used. Consider using UnifiedMatrixWebServer for path-based routing.")
-        print(f"   Access your {site_type} interface at: http://localhost:{port}/{site_type}")
-    
-    def start(self):
-        """Start server and redirect to appropriate path"""
-        print(f"🔄 Starting unified server with legacy compatibility for {self.site_type}")
-        return super().start()
-
 def setup_signal_handlers():
     """Setup signal handlers for graceful shutdown using os"""
     import signal
@@ -658,7 +645,7 @@ def main():
             print(f"   {key}: {value}")
         print()
     
-    server = MatrixWebServer()
+    server = UnifiedMatrixWebServer()
     server.start()
 
 if __name__ == "__main__":

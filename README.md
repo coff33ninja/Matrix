@@ -29,13 +29,6 @@ python matrix.py start
 
 ### 🎯 Individual Services
 ```bash
-# Unified web server (recommended - serves both interfaces)
-python matrix.py web
-
-# Legacy single interface mode
-python matrix.py web --type control    # Control only
-python matrix.py web --type docs       # Documentation only
-
 # Python controller only
 python matrix.py controller
 ```
