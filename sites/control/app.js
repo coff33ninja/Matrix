@@ -25,7 +25,7 @@ class MatrixController {
         this.setupEventListeners();
         await this.checkConnection();
         this.startStatusUpdates();
-        
+
         // Initialize new API endpoint features
         await this.initializeWithDynamicOptions();
         this.log('System initialized', 'success');
@@ -937,7 +937,7 @@ class MatrixController {
         // Populate LED density dropdown
         const ledsPerMeterSelect = document.getElementById('leds-per-meter');
         if (ledsPerMeterSelect && options.ledsPerMeter) {
-            ledsPerMeterSelect.innerHTML = options.ledsPerMeter.map(option => 
+            ledsPerMeterSelect.innerHTML = options.ledsPerMeter.map(option =>
                 `<option value="${option.value}">${option.label} (${option.spacing})</option>`
             ).join('');
         }
@@ -945,7 +945,7 @@ class MatrixController {
         // Populate power supply dropdown
         const powerSupplySelect = document.getElementById('power-supply');
         if (powerSupplySelect && options.powerSupplies) {
-            powerSupplySelect.innerHTML = options.powerSupplies.map(option => 
+            powerSupplySelect.innerHTML = options.powerSupplies.map(option =>
                 `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
             ).join('');
         }
@@ -953,7 +953,7 @@ class MatrixController {
         // Populate controller dropdown
         const controllerSelect = document.getElementById('wiring-controller');
         if (controllerSelect && options.controllers) {
-            controllerSelect.innerHTML = options.controllers.map(option => 
+            controllerSelect.innerHTML = options.controllers.map(option =>
                 `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
             ).join('');
         }
@@ -1163,9 +1163,15 @@ class MatrixController {
             const response = await fetch(`${this.apiBase}/status`);
             if (response.ok) {
                 const data = await response.json();
+                const wasDisconnected = !this.connected;
                 this.connected = true;
                 this.updateConnectionStatus(true);
-                this.log('Connected to matrix controller', 'success');
+
+                // Only log reconnection, not continuous connection
+                if (wasDisconnected) {
+                    this.log('Connected to matrix controller', 'success');
+                    this.resetStatusInterval(); // Reset to normal interval
+                }
 
                 // Update matrix size from server
                 if (data.matrix) {
@@ -1176,9 +1182,15 @@ class MatrixController {
                 throw new Error('Server responded with error');
             }
         } catch (error) {
+            const wasConnected = this.connected;
             this.connected = false;
             this.updateConnectionStatus(false);
-            this.log('Failed to connect to matrix controller', 'error');
+
+            // Only log disconnection, not continuous failures
+            if (wasConnected) {
+                this.log('Connection lost to matrix controller', 'error');
+                this.increaseStatusInterval(); // Increase interval when disconnected
+            }
         }
     }
 
@@ -1196,10 +1208,39 @@ class MatrixController {
     }
 
     startStatusUpdates() {
-        setInterval(async () => {
+        this.statusInterval = 15000; // Start with 15 seconds (much less frequent)
+        this.maxStatusInterval = 60000; // Max 1 minute
+        this.statusIntervalId = null;
+
+        // Initial connection check
+        this.checkConnection();
+
+        // Start periodic checks with smart intervals
+        this.resetStatusInterval();
+    }
+
+    resetStatusInterval() {
+        // Reset to normal 15-second interval when connected
+        this.statusInterval = 15000;
+        this.scheduleNextStatusCheck();
+    }
+
+    increaseStatusInterval() {
+        // Exponential backoff when disconnected (max 1 minute)
+        this.statusInterval = Math.min(this.statusInterval * 1.5, this.maxStatusInterval);
+        this.scheduleNextStatusCheck();
+    }
+
+    scheduleNextStatusCheck() {
+        if (this.statusIntervalId) {
+            clearTimeout(this.statusIntervalId);
+        }
+
+        this.statusIntervalId = setTimeout(async () => {
             await this.checkConnection();
             this.updateFPS();
-        }, 2000);
+            this.scheduleNextStatusCheck();
+        }, this.statusInterval);
     }
 
     updateFPS() {
@@ -2118,17 +2159,17 @@ class MatrixController {
         // Sync Arduino settings with current matrix configuration
         const arduinoBrightness = document.getElementById('arduino-brightness');
         const arduinoBoard = document.getElementById('arduino-board');
-        
+
         if (arduinoBrightness) {
             arduinoBrightness.value = 128; // Default brightness
             const display = document.getElementById('arduino-brightness-display');
             if (display) display.textContent = '128';
         }
-        
+
         if (arduinoBoard) {
             arduinoBoard.value = 'uno'; // Default board
         }
-        
+
         this.log('Arduino settings synchronized', 'info');
     }
 
@@ -2136,7 +2177,7 @@ class MatrixController {
         try {
             const board = document.getElementById('arduino-board')?.value || 'uno';
             const brightness = document.getElementById('arduino-brightness')?.value || 128;
-            
+
             const response = await fetch(`${this.apiBase}/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2147,12 +2188,12 @@ class MatrixController {
                     brightness: brightness
                 })
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 this.arduinoCode = data.code;
                 this.log('Arduino code generated successfully', 'success');
-                
+
                 // Show preview if available
                 const codePreview = document.getElementById('code-preview');
                 if (codePreview) {
@@ -2665,7 +2706,7 @@ class MatrixController {
         // Populate LED density dropdown
         const ledsPerMeterSelect = document.getElementById('leds-per-meter');
         if (ledsPerMeterSelect && this.dynamicOptions.ledsPerMeter) {
-            ledsPerMeterSelect.innerHTML = this.dynamicOptions.ledsPerMeter.map(option => 
+            ledsPerMeterSelect.innerHTML = this.dynamicOptions.ledsPerMeter.map(option =>
                 `<option value="${option.value}">${option.label} (${option.spacing})</option>`
             ).join('');
         }
@@ -2673,7 +2714,7 @@ class MatrixController {
         // Populate power supply dropdown
         const powerSupplySelect = document.getElementById('power-supply');
         if (powerSupplySelect && this.dynamicOptions.powerSupplies) {
-            powerSupplySelect.innerHTML = this.dynamicOptions.powerSupplies.map(option => 
+            powerSupplySelect.innerHTML = this.dynamicOptions.powerSupplies.map(option =>
                 `<option value="${option.value}">${option.label} - Max ${option.maxLeds} LEDs ($${option.price})</option>`
             ).join('');
         }
@@ -2681,7 +2722,7 @@ class MatrixController {
         // Populate controller dropdown
         const controllerSelect = document.getElementById('wiring-controller');
         if (controllerSelect && this.dynamicOptions.controllers) {
-            controllerSelect.innerHTML = this.dynamicOptions.controllers.map(option => 
+            controllerSelect.innerHTML = this.dynamicOptions.controllers.map(option =>
                 `<option value="${option.value}">${option.label} (${option.voltage}) - $${option.price}</option>`
             ).join('');
         }
@@ -2771,7 +2812,7 @@ class MatrixController {
         try {
             // Convert file to base64
             const base64 = await this.fileToBase64(file);
-            
+
             const response = await fetch(`${this.apiBase}/upload`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2781,7 +2822,7 @@ class MatrixController {
             if (response.ok) {
                 const data = await response.json();
                 this.log('Image uploaded successfully', 'success');
-                
+
                 // Refresh the drawing grid to show uploaded image
                 await this.refreshDrawingFromMatrix();
                 return true;
@@ -2853,10 +2894,10 @@ class MatrixController {
             drawingGrid.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 drawingGrid.classList.remove('drag-over');
-                
+
                 const files = Array.from(e.dataTransfer.files);
                 const imageFile = files.find(file => file.type.startsWith('image/'));
-                
+
                 if (imageFile) {
                     await this.uploadImage(imageFile);
                 }

@@ -321,18 +321,23 @@ class UnifiedMatrixWebServer:
                 path = parsed_path.path
                 client_ip = self.client_address[0]
 
-                logger.info(f"📥 {self.command} {path} from {client_ip}")
+                # Only log non-status API requests to reduce noise
+                if not (path.startswith("/api/status") or path == "/api/status"):
+                    logger.info(f"📥 {self.command} {path} from {client_ip}")
 
                 try:
                     # Handle API requests first, regardless of prefix
                     if path.startswith("/api") or path.startswith("/control/api"):
-                        logger.info(f"🔌 Proxying API request: {path}")
+                        if not (path.startswith("/api/status") or path == "/api/status"):
+                            logger.info(f"🔌 Proxying API request: {path}")
                         self.proxy_api_request(path, parsed_path.query)
                     elif path == "/" or path == "":
                         logger.info("🏠 Serving landing page")
                         self.serve_landing_page()
                     elif path.startswith("/control"):
-                        logger.info(f"🎮 Serving control interface: {path}")
+                        # Only log initial control interface access, not static assets
+                        if path == "/control" or path == "/control/":
+                            logger.info(f"🎮 Serving control interface: {path}")
                         self.serve_control_interface(path)
                     elif path.startswith("/docs"):
                         logger.info(f"📚 Serving docs interface: {path}")
@@ -653,10 +658,13 @@ class UnifiedMatrixWebServer:
                 print("💡 For full functionality, ensure Python controller is running:")
                 print("   Command: python matrix.py controller")
                 print("=" * 70)
-                print("🌍 Environment Variables:")
-                print(f"   WEB_SERVER_PORT: {os.getenv('WEB_SERVER_PORT', 'not set')}")
-                print(f"   API_PROXY_PORT: {os.getenv('API_PROXY_PORT', 'not set')}")
-                print(f"   ENABLE_CORS: {os.getenv('ENABLE_CORS', 'not set')}")
+                print("🎯 Quick Commands:")
+                print("   • Open Control Interface: http://localhost:3000/control")
+                print("   • View Documentation: http://localhost:3000/docs")
+                print("   • Check API Status: http://localhost:3000/api/status")
+                print("=" * 70)
+                print("🔧 Reduced Logging: Status requests are now less verbose")
+                print("📊 Smart Intervals: Connection checks every 15s (connected) to 60s (disconnected)")
                 print("=" * 70)
                 print("Press Ctrl+C to stop the server")
                 print()

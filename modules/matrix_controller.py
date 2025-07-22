@@ -137,19 +137,22 @@ class WebMatrixController:
                 path = parsed_url.path
                 client_ip = self.client_address[0]
 
-                logger.info(f"GET: {path} from {client_ip}")
+                # Only log non-status requests to reduce noise
+                if not (path.endswith("/status") or "/status" in path):
+                    logger.info(f"GET: {path} from {client_ip}")
 
                 # Normalize API paths to handle all variations
                 normalized_path = path
                 if path.startswith("/control/api/"):
                     normalized_path = "/api/" + path[12:]
-                    logger.info(f"NORMALIZE: {path} -> {normalized_path}")
+                    if not (path.endswith("/status") or "/status" in path):
+                        logger.info(f"NORMALIZE: {path} -> {normalized_path}")
                 elif path.startswith("/api/"):
                     normalized_path = path
 
                 # API endpoints with normalized paths
                 if normalized_path == "/api/status" or path == "/status":
-                    logger.info("STATUS: Serving status endpoint")
+                    # Don't log every status request - too verbose
                     status = {
                         "connected": True,
                         "matrix": {"width": controller.W, "height": controller.H},
