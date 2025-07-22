@@ -178,6 +178,10 @@ class WebMatrixController:
                         pass
                     self.send_json_response(backups)
 
+                elif path == "/api/palettes":
+                    palettes = controller.get_palettes()
+                    self.send_json_response(palettes)
+
                 elif path == "/api/options":
                     # Get available options for LED density, power supplies, etc.
                     options = {
@@ -284,6 +288,23 @@ class WebMatrixController:
                         self.send_cors_headers()
                         self.end_headers()
                         self.wfile.write(f"<html><body><h1>500 Server Error</h1><p>{str(e)}</p></body></html>".encode())
+
+            def do_DELETE(self):
+                parsed_url = urllib.parse.urlparse(self.path)
+                path = parsed_url.path
+                client_ip = self.client_address[0]
+
+                logger.info(f"DELETE: {path} from {client_ip}")
+
+                if path.startswith("/api/palettes/"):
+                    try:
+                        palette_name = urllib.parse.unquote(path.split("/")[-1])
+                        controller.delete_palette(palette_name)
+                        self.send_json_response({"status": "success", "message": "Palette deleted"})
+                    except Exception as e:
+                        self.send_json_response({"status": "error", "message": str(e)}, 500)
+                else:
+                    self.send_json_response({"status": "error", "message": "Endpoint not found"}, 404)
 
             def do_POST(self):
                 parsed_url = urllib.parse.urlparse(self.path)
@@ -445,6 +466,31 @@ class WebMatrixController:
                         # Create backup
                         backup_filename = controller.config.create_backup()
                         self.send_json_response({"status": "success", "filename": backup_filename})
+                    except Exception as e:
+                        self.send_json_response({"status": "error", "message": str(e)}, 500)
+
+                elif path == "/api/palettes":
+                    try:
+                        palette_name = data.get("name")
+                        colors = data.get("colors")
+                        if palette_name and colors:
+                            controller.save_palette(palette_name, colors)
+                            self.send_json_response({"status": "success", "message": "Palette saved"})
+                        else:
+                            self.send_json_response({"status": "error", "message": "Invalid palette data"}, 400)
+                    except Exception as e:
+                        self.send_json_response({"status": "error", "message": str(e)}, 500)
+
+                elif path == "/api/pixel":
+                    try:
+                        x = data.get("x")
+                        y = data.get("y")
+                        color = data.get("color")
+                        if x is not None and y is not None and color:
+                            controller.set_pixel(x, y, color)
+                            self.send_json_response({"status": "success", "message": "Pixel set"})
+                        else:
+                            self.send_json_response({"status": "error", "message": "Invalid pixel data"}, 400)
                     except Exception as e:
                         self.send_json_response({"status": "error", "message": str(e)}, 500)
 
@@ -869,6 +915,58 @@ class WebMatrixController:
 
             self.send_frame()
             time.sleep(0.1 * (100 - speed) / 100.0)  # Adjust speed
+
+    def get_palettes(self):
+        """Get all saved color palettes"""
+        try:
+            palettes_file = os.path.join(os.path.dirname(__file__), "..", "palettes.json")
+            if not os.path.exists(palettes_file):
+                with open(palettes_file, "w") as f:
+                    json.dump({}, f)
+                return {}
+            with open(palettes_file, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Error getting palettes: {e}")
+            return {}
+
+    def save_palette(self, name, colors):
+        """Save a color palette"""
+        try:
+            palettes = self.get_palettes()
+            palettes[name] = colors
+            palettes_file = os.path.join(os.path.dirname(__file__), "..", "palettes.json")
+            with open(palettes_file, "w") as f:
+                json.dump(palettes, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error saving palette: {e}")
+
+    def delete_palette(self, name):
+        """Delete a color palette"""
+        try:
+            palettes = self.get_palettes()
+            if name in palettes:
+                del palettes[name]
+                palettes_file = os.path.join(os.path.dirname(__file__), "..", "palettes.json")
+                with open(palettes_file, "w") as f:
+                    json.dump(palettes, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error deleting palette: {e}")
+
+    def set_pixel(self, x, y, color):
+        """Set a single pixel color"""
+        try:
+            if color.startswith("#"):
+                color = color[1:]
+            r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            if 0 <= x < self.W and 0 <= y < self.H:
+                self.matrix_data[y, x] = [r, g, b]
+                self.send_frame()
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error setting pixel: {e}")
+            return False
 
     def run(self):
         """Run the controller"""

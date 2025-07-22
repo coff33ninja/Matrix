@@ -1,0 +1,105 @@
+<!-- Control Section -->
+<div id="control-section" class="section active">
+    <div class="grid grid-2">
+        <div class="card">
+            <h3>🎨 Pattern Control</h3>
+            <div class="input-group">
+                <label>Pattern Type</label>
+                <select id="pattern-select">
+                    <option value="solid">Solid Color</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="plasma">Plasma</option>
+                    <option value="fire">Fire Effect</option>
+                    <option value="matrix">Matrix Rain</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Color</label>
+                <input type="color" id="color-picker" value="#e94560">
+            </div>
+            <div class="input-group">
+                <label>Brightness: <span id="brightness-value">128</span></label>
+                <input type="range" id="brightness-slider" min="0" max="255" value="128">
+            </div>
+            <div class="input-group">
+                <label>Speed: <span id="speed-value">50</span></label>
+                <input type="range" id="speed-slider" min="1" max="100" value="50">
+            </div>
+            <button class="btn" id="apply-pattern">Apply Pattern</button>
+        </div>
+
+        <div class="card">
+            <h3>📱 Matrix Preview & Drawing</h3>
+            <div class="matrix-preview">
+                <div class="matrix-grid" id="matrix-grid"></div>
+            </div>
+
+            <!-- Drawing Controls -->
+            <div class="drawing-controls">
+                <div class="control-row">
+                    <div class="control-group">
+                        <label>Mode:</label>
+                        <select id="drawing-mode">
+                            <option value="paint">🖌️ Paint</option>
+                            <option value="erase">🧽 Erase</option>
+                            <option value="fill">🪣 Fill</option>
+                            <option value="line">📏 Line</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Color:</label>
+                        <input type="color" id="brush-color" value="#e94560">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Size:</label>
+                        <input type="range" id="brush-size" min="1" max="3" value="1">
+                        <span id="brush-size-display">1x1</span>
+                    </div>
+                </div>
+
+                <div class="color-presets">
+                    <div class="color-preset" style="background: #ff0000" data-color="#ff0000" title="Red"></div>
+                    <div class="color-preset" style="background: #00ff00" data-color="#00ff00" title="Green"></div>
+                    <div class="color-preset" style="background: #0000ff" data-color="#0000ff" title="Blue"></div>
+                    <div class="color-preset" style="background: #ffff00" data-color="#ffff00" title="Yellow"></div>
+                    <div class="color-preset" style="background: #ff00ff" data-color="#ff00ff" title="Magenta"></div>
+                    <div class="color-preset" style="background: #00ffff" data-color="#00ffff" title="Cyan"></div>
+                    <div class="color-preset" style="background: #ffffff" data-color="#ffffff" title="White"></div>
+                    <div class="color-preset" style="background: #000000" data-color="#000000" title="Black"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="btn btn-secondary" id="clear-matrix">Clear</button>
+                <button class="btn" id="test-pattern">Test Pattern</button>
+                <button class="btn" id="clear-drawing">🗑️ Clear Drawing</button>
+                <button class="btn btn-primary" id="send-to-matrix">📡 Send to Matrix</button>
+            </div>
+
+            <!-- Quick Patterns -->
+            <div class="quick-patterns">
+                <div class="pattern-buttons">
+                    <button class="pattern-btn" data-pattern="smiley" title="Smiley">😊</button>
+                    <button class="pattern-btn" data-pattern="heart" title="Heart">❤️</button>
+                    <button class="pattern-btn" data-pattern="arrow" title="Arrow">➡️</button>
+                    <button class="pattern-btn" data-pattern="star" title="Star">⭐</button>
+                    <button class="pattern-btn" data-pattern="checkerboard" title="Checkerboard">🏁</button>
+                    <button class="pattern-btn" data-pattern="border" title="Border">⬜</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-secondary" id="save-pattern">💾 Save</button>
+                    <button class="btn btn-secondary" id="load-pattern">📁 Load</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>📝 Activity Log</h3>
+        <div class="log-container" id="activity-log">
+            <div class="log-entry">System initialized</div>
+        </div>
+    </div>
+</div>
